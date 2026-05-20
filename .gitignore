@@ -1,3 +1,11 @@
 docs/build/
 docs/theory/
 .vscode/
+
+# Android
+.idea/
+.gradle/
+build/
+.kotlin/
+*.iml
+local.properties
