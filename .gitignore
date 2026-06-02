@@ -9,3 +9,6 @@ build/
 .kotlin/
 *.iml
 local.properties
+
+# Python
+__pycache__/
