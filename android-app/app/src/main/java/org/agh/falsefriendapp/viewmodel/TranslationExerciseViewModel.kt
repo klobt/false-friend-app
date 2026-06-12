@@ -3,23 +3,11 @@ package org.agh.falsefriendapp.viewmodel
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.agh.falsefriendapp.data.model.TranslationExercise
+import org.agh.falsefriendapp.data.repository.ExerciseRepository
 
 class TranslationExerciseViewModel : ViewModel() {
-    val exercises = listOf(
-        TranslationExercise(
-            id = "0",
-            sentence = "Stolica Polski to:",
-            options = listOf("Kraków", "Warszawa", "Gdańsk", "Poznań"),
-            correctAnswerIndex = 1
-        ),
-        TranslationExercise(
-            id = "1",
-            sentence = "Stolica Małopolski to:",
-            options = listOf("Tarnów", "Gdańsk", "Kraków", "Warszawa"),
-            correctAnswerIndex = 2
-        )
-    )
+    private val repository = ExerciseRepository()
+    val exercises = repository.getExercises(DECK_SIZE)
 
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex = _currentIndex.asStateFlow()
@@ -27,11 +15,22 @@ class TranslationExerciseViewModel : ViewModel() {
     fun onAnswerSelected(selectedIndex: Int) {
         val currentExercise = exercises[_currentIndex.value]
         if (selectedIndex == currentExercise.correctAnswerIndex) {
+            // poprawna odpowiedz
+        }
+
+        if (_currentIndex.value < exercises.size) {
             nextQuestion()
+        }
+        else {
+            // podsumowanie
         }
     }
 
     private fun nextQuestion() {
         _currentIndex.value++
+    }
+
+    companion object {
+        private const val DECK_SIZE = 2
     }
 }
