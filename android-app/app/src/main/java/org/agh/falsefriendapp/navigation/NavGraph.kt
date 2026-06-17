@@ -1,11 +1,10 @@
 package org.agh.falsefriendapp.navigation
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
 
@@ -15,19 +14,30 @@ fun NavGraph() {
 
     NavHost(navController = navController, startDestination = "userHome") {
         composable("userHome") {
-            UserMainScreen(onStartLearning = {navController.navigate("lesson")})
+            UserMainScreen(
+                onStartLearning = { navController.navigate("lesson") }
+            )
         }
 
         composable("lesson") {
-            TranslationExerciseScreen()
+            TranslationExerciseScreen(
+                onFinished = { score ->
+                    navController.navigate("summary/$score") {
+                        popUpTo("lesson") { inclusive = true }
+                    }
+                }
+            )
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    MaterialTheme {
-        NavGraph()
+        composable("summary/{score}") { backStackEntry ->
+            val scoreString = backStackEntry.arguments?.getString("score")
+            val score = scoreString?.toIntOrNull() ?: 0
+            SummaryScreen(
+                score = score,
+                onNavigateHome = {
+                    navController.popBackStack(route = "userHome", inclusive = false)
+                }
+            )
+        }
     }
 }

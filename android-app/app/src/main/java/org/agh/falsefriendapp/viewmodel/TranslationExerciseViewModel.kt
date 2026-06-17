@@ -12,22 +12,28 @@ class TranslationExerciseViewModel : ViewModel() {
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex = _currentIndex.asStateFlow()
 
+    private val _isFinished = MutableStateFlow(false)
+    val isFinished = _isFinished.asStateFlow()
+
+    var correctAnswers = 0
+        private set
+
     fun onAnswerSelected(selectedIndex: Int) {
         val currentExercise = exercises[_currentIndex.value]
         if (selectedIndex == currentExercise.correctAnswerIndex) {
-            // poprawna odpowiedz
+            correctAnswers++
         }
 
-        if (_currentIndex.value < exercises.size) {
-            nextQuestion()
-        }
-        else {
-            // podsumowanie
-        }
+        nextQuestion()
     }
 
     private fun nextQuestion() {
-        _currentIndex.value++
+        if (_currentIndex.value < exercises.size - 1) {
+            _currentIndex.value++
+        }
+        else {
+            _isFinished.value = true
+        }
     }
 
     companion object {
