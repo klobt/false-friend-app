@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
@@ -15,11 +16,12 @@ fun NavGraph() {
     NavHost(navController = navController, startDestination = "userHome") {
         composable("userHome") {
             UserMainScreen(
-                onStartLearning = { navController.navigate("lesson") }
+                onStartTranslation = { navController.navigate("lesson") },
+                onStartDefinition = {navController.navigate("definition")}
             )
         }
 
-        composable("lesson") {
+        composable("translation") {
             TranslationExerciseScreen(
                 onFinished = { score ->
                     navController.navigate("summary/$score") {
@@ -27,6 +29,10 @@ fun NavGraph() {
                     }
                 }
             )
+        }
+
+        composable("definition") {
+            DefinitionExerciseScreen()
         }
 
         composable("summary/{score}") { backStackEntry ->

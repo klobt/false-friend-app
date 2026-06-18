@@ -24,7 +24,7 @@ fun AppButton(
             .width(300.dp)
             .height(70.dp)
             .shadow(
-                elevation = 10.dp,
+                elevation = 4.dp,
                 shape = RoundedCornerShape(10.dp)
             ),
         shape = RoundedCornerShape(10.dp),
@@ -35,7 +35,7 @@ fun AppButton(
         Text(
             text = text,
             color = Color.Black,
-            fontSize = 16.sp
+            fontSize = 18.sp
         )
     }
 }
