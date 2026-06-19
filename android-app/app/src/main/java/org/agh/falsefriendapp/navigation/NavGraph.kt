@@ -16,7 +16,7 @@ fun NavGraph() {
     NavHost(navController = navController, startDestination = "userHome") {
         composable("userHome") {
             UserMainScreen(
-                onStartTranslation = { navController.navigate("lesson") },
+                onStartTranslation = { navController.navigate("translation") },
                 onStartDefinition = {navController.navigate("definition")}
             )
         }
@@ -25,7 +25,7 @@ fun NavGraph() {
             TranslationExerciseScreen(
                 onFinished = { score ->
                     navController.navigate("summary/$score") {
-                        popUpTo("lesson") { inclusive = true }
+                        popUpTo("translation") { inclusive = true }
                     }
                 }
             )
@@ -35,7 +35,7 @@ fun NavGraph() {
             DefinitionExerciseScreen(
                 onFinished = { score ->
                     navController.navigate("summary/$score") {
-                        popUpTo("lesson") { inclusive = true }
+                        popUpTo("definition") { inclusive = true }
                     }
                 }
             )

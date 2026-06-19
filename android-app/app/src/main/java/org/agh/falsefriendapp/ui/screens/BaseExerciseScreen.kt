@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,15 +25,15 @@ fun BaseExerciseScreen(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(100.dp)
                 .background(Color.LightGray)
-                .padding(10.dp)
+                .padding(15.dp)
         ) {
             Text("Pytanie $currentStep z $totalSteps")
         }

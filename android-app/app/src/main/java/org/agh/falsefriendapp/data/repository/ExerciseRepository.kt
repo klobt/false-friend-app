@@ -9,13 +9,13 @@ class ExerciseRepository {
                 id = "0",
                 sentence = "woda",
                 options = listOf("house", "flower", "water", "school"),
-                correctAnswerIndex = 1
+                correctAnswerIndex = 2
             ),
             TranslationExercise(
                 id = "1",
-                sentence = "Stolica Małopolski to:",
-                options = listOf("Tarnów", "Gdańsk", "Kraków", "Warszawa"),
-                correctAnswerIndex = 2
+                sentence = "przyjaciel",
+                options = listOf("friend", "work", "night", "car"),
+                correctAnswerIndex = 0
             )
         )
     }
