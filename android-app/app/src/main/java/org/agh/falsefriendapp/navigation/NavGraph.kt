@@ -32,7 +32,13 @@ fun NavGraph() {
         }
 
         composable("definition") {
-            DefinitionExerciseScreen()
+            DefinitionExerciseScreen(
+                onFinished = { score ->
+                    navController.navigate("summary/$score") {
+                        popUpTo("lesson") { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable("summary/{score}") { backStackEntry ->

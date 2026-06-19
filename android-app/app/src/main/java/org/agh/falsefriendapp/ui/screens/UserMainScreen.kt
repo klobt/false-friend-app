@@ -60,7 +60,7 @@ fun UserMainScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 AppButton(text = "Wybierz tłumaczenie", onClick = onStartTranslation)
                 Spacer(modifier = Modifier.height(15.dp))
                 AppButton(text = "Wybierz definicję", onClick = onStartDefinition)

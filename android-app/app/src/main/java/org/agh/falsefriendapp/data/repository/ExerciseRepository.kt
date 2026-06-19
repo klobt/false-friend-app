@@ -3,12 +3,12 @@ package org.agh.falsefriendapp.data.repository
 import org.agh.falsefriendapp.data.model.TranslationExercise
 
 class ExerciseRepository {
-    fun getExercises(size: Int): List<TranslationExercise> {
+    fun getTranslationExercises(size: Int): List<TranslationExercise> {
         return listOf(
             TranslationExercise(
                 id = "0",
-                sentence = "Stolica Polski to:",
-                options = listOf("Kraków", "Warszawa", "Gdańsk", "Poznań"),
+                sentence = "woda",
+                options = listOf("house", "flower", "water", "school"),
                 correctAnswerIndex = 1
             ),
             TranslationExercise(
@@ -18,5 +18,9 @@ class ExerciseRepository {
                 correctAnswerIndex = 2
             )
         )
+    }
+
+    fun getDefinitionExercises(size: Int): List<TranslationExercise> {
+        return getTranslationExercises(size)
     }
 }

@@ -2,7 +2,7 @@ package org.agh.falsefriendapp.viewmodel
 
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
 
-class TranslationExerciseViewModel : BaseExerciseViewModel() {
+class DefinitionExerciseViewModel : BaseExerciseViewModel() {
     private val repository = ExerciseRepository()
-    override val exercises = repository.getTranslationExercises(DECK_SIZE)
+    override val exercises = repository.getDefinitionExercises(DECK_SIZE)
 }
