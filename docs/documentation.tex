@@ -21,10 +21,10 @@
 \usepackage[ruled,linesnumbered,lined]{algorithm2e}
 \usepackage[bookmarks=false]{hyperref}
 
-\hypersetup{colorlinks,
-  linkcolor=blue,
-  citecolor=blue,
-  urlcolor=blue}
+\hypersetup{
+    colorlinks=true,
+    allcolors=black
+}
 
 \usepackage[svgnames]{xcolor}
 \usepackage{inconsolata}
@@ -53,7 +53,7 @@ giveninits=true,
 abbreviate=true,
 defernumbers=false,
 backend=biber]{biblatex}
-\addbibresource{bibliografia.bib}
+\addbibresource{references.bib}
 
 \lstset{
     %language=Python, %% PHP, C, Java, etc.
@@ -123,40 +123,103 @@ backend=biber]{biblatex}
 \begin{document}
 
 \maketitle
-
 \tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{\ChapterTitleProjectVision}
-\label{sec:cel-wizja}
+\section{Charakterystyka problemu}
 
-% poniższą zawartość rodziału należy usunąć z finalnej wersji pracy.
-\emph{Charakterystyka problemu, motywacja projektu (w tym przegląd istniejących rozwiązań prowadząca do uzasadnienia celu prac), wizja produktu i analiza zagrożeń.}
+Podczas nauki języka obcego łatwo natrafić na liczne pułapki lingwistyczne, do
+szczególnie uciążliwych należy dobrze znane zjawisko jakim jest rozpoznawanie
+fałszywych przyjaciół i interferencji językowych. Mózg człowieka podczas
+przyswajania nowej wiedzy (w tym języka obcego) naturalnie dąży do optymalizacji
+i szuka wzorców. Uczący się podświadomie opierają się na strukturach swojego
+języka ojczystego, co ułatwia start, ale jednocześnie otwiera drogę do błędów.
+To zjawisko nazywamy \textbf{transferem językowym} \cite{transfer_jezyowy}. Transfer
+może być pozytywny, wtedy pomaga (gdy reguły w obu językach są zbieżne), ale problemem,
+na którym skupia się aplikacja, jest \textbf{transfer negatywny}, prowadzący do
+powielania błędnych schematów.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Cytowania literatury}
-\label{sec:cytowania}
+\section{Fałszywi przyjaciele i inferencje językowe}
 
-Przykład cytowania literatury~\cite{wilson2009prediction-interday}. Kolejny przykład
-cytowania kilku pozycji bibliograficznych~\cite{allen1999using-genetic, zitzler1999evolutionary-algorithms, pictet1995genetic-algorithms, wilhelmstotter2021jenetics, chmaj2015DistributedProcessingApplications}.
+Fałszywi przyjaciele tłumacza (w językoznawstwie nazywane często tautonimami) to
+pary wyrazów w dwóch językach, które wykazują znaczne podobieństwo graficzne lub
+fonetyczne, w rzeczywistości mają zupełnie inne znaczenia występujące w co
+najmniej dwóch różnych językach.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Listy}
-\label{sec:listy}
+Interferencje językowe to nie tylko słownictwo, ale też przenoszenie
+struktur gramatycznych, składniowych czy nawet interpunkcyjnych. Przenikanie cech
+jednego języka do drugiego, co zazwyczaj prowadzi do błędów w nauce języków obcych
+lub w tłumaczeniach. Nazywa się je kalkami językowymi. Tłumacz próbuje "przetłumaczyć"
+swoje myśli z języka ojczystego na język obcy słowo po słowie, co skutkuje zdaniami
+niezrozumiałymi dla native speakera. Rozpoznawanie fałszywych przyjaciół jest w istocie
+walką z jedną z najbardziej zdradliwych form interferencji.
 
-Lista z elementami:
+Geneza zjawiska może pochodzić ze wspólnego pochodzenia etymologicznego. Wiele słów
+w językach europejskich ma wspólne korzenie (np. łacińskie lub greckie), ale na
+przestrzeni wieków ich znaczenie w poszczególnych krajach ewoluowało w zupełnie
+innych kierunkach. W niektórych przypadkach może to być przypadkowa zbieżność brzmień.
+Jest to rzadsza sytuacja, w której słowa brzmią identycznie, ale nie mają ze sobą nic
+wspólnego historycznie.
+
+Przykłady fałszywych przyjaciół dla pary języków polski-angielski, które pozwalają
+lepiej zobrazować przedstawione zjawisko:
 \begin{itemize}
-\item pierwszym,
-\item drugim,
-\item trzecim.
+    \item \textbf{lecture (ang.) / lektura (pol.)} - w języku angielskim oznacza
+    wykład, na przykład na uczelni, a w języku polskim, podobne słowo, lektura
+    oznacza książkę, którą studenci powinni przeczytać w ramach kursu lub sam proces
+    czytania książki. Użycie tego słowa przez studenta szukającego "lektury"
+    w zagranicznej bibliotece doprowadzi do nieporozumienia, gdyż zostanie on
+    skierowany na wykład.
+    \item \textbf{fatigue (ang.) / fatyga (pol.)} - choć oba słowa mają związek
+    z wysiłkiem, ich zakres semantyczny jest inny. Fatigue to stan fizjologicznego
+    wyczerpania, podczas gdy polska fatyga to raczej kłopot, trud podjęty dla kogoś.
+    \item \textbf{actually (ang.) / aktualnie (pol.)} - bardzo częsty błąd, gdzie
+    \textit{actually} oznacza "właściwie/w rzeczywistości", a polskie "aktualnie"
+    to po angielsku \textit{currently}. Użycie tego słowa zmienia cały sens wypowiedzi
+    o czasie.
 \end{itemize}
 
-Lista numerowana z dłuższymi opisami:
-\begin{enumerate}
-\item Pierwszy element listy.
-\item Drugi element listy.
-\item Trzeci element listy.
-\end{enumerate}
+\section{Motywacja projektu}
+Zależy nam na wsparciu użytkowników w nauce języków obcych ze szczególnym
+uwzględnieniem nauki fałszywych
+przyjaciół w szybki, zabawny i przyjemny sposób. Chcielibyśmy zwrócić uwagę na
+istotność problemu fałszywych przyjaciół tłumacza, które często występują między
+językami pokrewnymi.
+
+\section{Istniejące rozwiązania}
+
+\subsection{Spaced Repetition (Powtórki w interwałach)}
+Metoda \emph{Spaced Repetition} służy zapamiętywaniu informacji w wydajniejszy
+sposób niż zwyczajne powtórki. Polega na odwlekaniu powtarzania dobrze wyuczonych
+informacji na późniejszy termin i skupianiu się na świeżych informacjach.
+
+Została po raz pierwszy opisana przez Arthura W. Meltona w jego pracy "The
+Situation with Respect to the Spacing of Repetitions and Memory" z 1970
+roku [citation needed]. Tam odwoływał się do powszechnie znanego prawa
+Jolt'a postulującego, że "jeżeli dwa ślady pamięci są odświeżone i przetestowane
+w tej samej chwili, to w następującym okresie czasu nowszy ślad zaniknie prędzej
+od starszego." [citation needed] Melton wskazał, że tzw. "Total Time Law" (prawo
+postulujące, że sumaryczny czas poświęcany na powtórki jest najważniejszy) się nie
+sprawdza w praktyce i możliwe jest wydajniej zarządzać czasem nauki.
+
+Istnieją różne algorytmy opierające się na zasadzie powtórek w interwałach. Jednym
+z najpopularniejszych jest SM-2 stworzony na potrzeby oprogramowania SuperMemo.
+TODO więcej o SM-2.
+
+Nowszym popularnym rozwiązaniem jest FSRS ... TODO więcej o FSRS
+
+\subsection{Ubiegłoroczna praca}
+\subsection{Duolingo}
+
+\section{Wizja produktu}
+\label{sec:wizja}
+
+\section{Studium wykonalności}
+\label{sec:studium-wykonalnosci}
+
+\section{Analiza zagrożeń}
+\label{sec:analiza-zagrozen}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{\ChapterTitleScope}
@@ -215,10 +278,6 @@ Przykładowa tabela~\ref{tab:ex1}.
 \section{Wzory matematyczne}
 \label{sec:wzory}
 
-% poniższy tekst należy usunąć z finalnej wersji pracy.
-
-Przykład wzoru z odnośnikiem do literatury~\cite{author2021title}:
-
 \begin{equation}
 \Omega = \sum_{i=1}^n \gamma_i
 \label{eq:sum}
@@ -231,8 +290,6 @@ Przykładowy wzór w tekście $\lambda = \sum_{i=1}^n \delta_i$, bez numeracji.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Algorytmy}
 \label{sec:algorytmy}
-
-Algorytm~\ref{alg:pseudo-code} przedstawia przykładowy algorytm zaprezentowany w~\cite{fiorio2017algorithm2e}. 
 
 \begin{algorithm}[!htbp]
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
@@ -260,7 +317,7 @@ Algorytm~\ref{alg:pseudo-code} przedstawia przykładowy algorytm zaprezentowany 
 }
 \lForEach{element $e$ of the line $i$}{\FindCompress{p}}
 }
-  \caption[Przykładowy algorytm]{Przykładowy algorytm (źródło: \cite{fiorio2017algorithm2e}).}
+  \caption[Przykładowy algorytm]{Przykładowy algorytm.}
   \label{alg:pseudo-code}
 \end{algorithm}
 
@@ -269,8 +326,8 @@ Algorytm~\ref{alg:pseudo-code} przedstawia przykładowy algorytm zaprezentowany 
 \label{sec:listingi}
 Listing~\ref{lst:maximum} przedstawia przykładowy fragment kodu źródłowego.
 
-\begin{lstlisting}[language=Python,float=!htbp,caption={[Przykładowy fragment kodu]Przykładowy fragment kodu (źródło:
-  \cite{author2021title})},label=lst:maximum]
+\begin{lstlisting}[language=Python,float=!htbp,
+    caption={[Przykładowy fragment kodu]Przykładowy fragment kodu },label=lst:maximum]
 # The maximum of two numbers
 
 def maximum(x, y):
@@ -308,5 +365,6 @@ print(maximum(x, y),"is the largest of the numbers ", x, " and ", y)
 \listoftables
 \listofalgorithmes
 \lstlistoflistings
+\printbibliography
 
 \end{document}
