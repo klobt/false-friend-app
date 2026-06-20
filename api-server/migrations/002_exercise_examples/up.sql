@@ -104,19 +104,19 @@ VALUES
         '{
             "left": [
                 "casque",
-                "cistern",
+                "flask",
                 "compote",
                 "erate",
-                "flask",
-                "locator"
+                "locator",
+                "cistern"
             ],
             "right": [
-                "for indicating things",
-                "for closing a bottle",
-                "for removing underwater mines",
-                "for transporting bottles",
                 "for protecting knights'' heads",
-                "for serving food"
+                "for transporting bottles",
+                "for serving food",
+                "for indicating things",
+                "for removing underwater mines",
+                "for closing a bottle"
             ]
         }'
     ),
@@ -128,7 +128,6 @@ VALUES
                 "ambo",
                 "ambulatory",
                 "billet",
-                "bursa",
                 "chalet",
                 "lyceum",
                 "perron",
@@ -137,17 +136,17 @@ VALUES
                 "souterrain"
             ],
             "right": [
-                "basement accommodation",
-                "soldiers'' lodging place",
-                "Alpine house",
-                "underground passage",
-                "outdoor stairway",
-                "wildlife reserve",
                 "pulpit in Greek or Balkan churches",
                 "walking area in a cloister",
+                "soldiers'' lodging place",
+                "Alpine house",
                 "place for holding lectures",
-                "medieval hall of residence",
-                "popular haunt"
+                "outdoor stairway",
+                "popular haunt",
+                "wildlife reserve",
+                "underground passage",
+                "basement accommodation",
+                "medieval hall of residence"
             ]
         }'
     );
