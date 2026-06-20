@@ -34,8 +34,4 @@ abstract class BaseExerciseViewModel : ViewModel() {
             _isFinished.value = true
         }
     }
-
-    companion object {
-        protected const val DECK_SIZE = 2
-    }
 }
