@@ -140,7 +140,7 @@ może być pozytywny, wtedy pomaga (gdy reguły w obu językach są zbieżne), a
 na którym skupia się aplikacja, jest \textbf{transfer negatywny}, prowadzący do
 powielania błędnych schematów.
 
-\section{Fałszywi przyjaciele i inferencje językowe}
+\section{Fałszywi przyjaciele i interferencje językowe}
 
 Fałszywi przyjaciele tłumacza (w językoznawstwie nazywane często tautonimami) to
 pary wyrazów w dwóch językach, które wykazują znaczne podobieństwo graficzne lub
@@ -181,45 +181,208 @@ lepiej zobrazować przedstawione zjawisko:
 \end{itemize}
 
 \section{Motywacja projektu}
+
+Podręczniki zazwyczaj wymieniają fałszywych przyjaciół w formie suchych tabel,
+które są trudne do zapamiętania i nużące. Brakuje w nich interaktywności
+i kontekstu. Aplikacja mobilna celuje w rozwiązanie tego problemu poprzez zmianę
+paradygmatu nauki. Wykorzystanie koncepcji \textit{microlearningu} (nauki
+w małych dawkach) oraz mechanizmów grywalizacji pozwala na budowanie skojarzeń
+w sposób bezstresowy.
+
 Zależy nam na wsparciu użytkowników w nauce języków obcych ze szczególnym
-uwzględnieniem nauki fałszywych
-przyjaciół w szybki, zabawny i przyjemny sposób. Chcielibyśmy zwrócić uwagę na
-istotność problemu fałszywych przyjaciół tłumacza, które często występują między
-językami pokrewnymi.
+uwzględnieniem nauki fałszywych przyjaciół w szybki, zabawny i przyjemny sposób.
+Chcielibyśmy zwrócić uwagę na istotność problemu fałszywych przyjaciół tłumacza,
+które często występują między językami pokrewnymi.
 
 \section{Istniejące rozwiązania}
+Przed rozpoczęciem prac warto zrobić przegląd alternatywnych rozwiązań, już
+dostępnych na rynku dla użytkownika.
+
+TODO zdjęcia
+
+\subsection{Duolingo}
+Duolingo \cite{duolingo} to obecnie najpopularniejsza na świecie bezpłatna aplikacja i platforma
+internetowa do nauki języków obcych, opierająca się na koncepcji mikronauki oraz
+silnej grywalizacji (punkty doświadczenia, ligi, wirtualne waluty) w celu motywacji
+i systematyczności użytkowników. Nauka przypomina zabawę i obejmuje krótkie,
+interaktywne lekcje, ćwiczenia wymowy, czytania oraz tłumaczenia.
+
+Mimo ogromnej popularności, Duolingo jest platformą ogólnego przeznaczenia.
+Platforma nie posiada dedykowanego modułu skupiającego się na pułapkach
+lingwistycznych, takich jak fałszywi przyjaciele czy interferencje językowe.
+Użytkownik nie ma możliwości wyizolowania problematycznych par wyrazów (np.
+lecture vs lektura) i przećwiczenia ich w skoncentrowany sposób. Ponadto aplikacja
+rzadko tłumaczy kontekst błędu - po prostu wskazuje złą odpowiedź.
+
+\subsection{Anki}
+Anki \cite{anki} to darmowy program opierający się na cyfrowych fiszkach i systemie powtórek
+w odstępach czasu (SRS). Algorytm optymalizuje czas nauki, wyświetlając słówka
+tuż przed momentem, w którym mózg by je zapomniał. Umożliwia wykorzystywanie
+gotowych talii, albo wgrywanie własnych fiszek.
+
+Głównym problemem Anki jest surowość interfejsu oraz wymóg dużej ingerencji ze
+strony użytkownika. Aby skutecznie uczyć się fałszywych przyjaciół, użytkownik
+musi najpierw samodzielnie wyszukać słówka, stworzyć talię kart i zdefiniować
+reguły. Ponadto w Anki brakuje elementów grywalizacji i różnorodności trybów nauki,
+co może szybko znudzić użytkownika.
+
+% \subsection{Ubiegłoroczna praca inżynierska}
+% TODO
+
+% \subsection{Podsumowanie}
+% TODO
+
+\section{Wizja produktu}
+Zasadniczą wizją projektu jest stworzenie platformy edukacyjnej ukierunkowanej
+na eliminację błędów wynikających z interferencji językowych oraz zjawiska
+fałszywych przyjaciół tłumacza. Docelowym środowiskiem jest platforma mobilna,
+co ma zapewnić użytkownikom możliwość nauki w dowolnym miejscu i czasie oraz
+dostępność natychmiastowych powiadomień. Z uwagi na dostępność materiałów, system
+w pierwszej fazie rozwoju zostanie zaimplementowany dla pary języków
+polski-angielski z możliwością skalowalności.
+
+\subsection{Aplikacja}
+Aplikacja zaoferuje predefiniowane, wbudowane zestawy zadań podzielone na
+kategorie tematyczne lub poziomy zaawansowania. Dodatkowo w przyszłości wdrożony
+zostanie moduł importu, pozwalający użytkownikom na wgrywanie i tworzenie
+własnych, spersonalizowanych list słówek. System umożliwi założenie konta, co
+pozwoli na personalizację doświadczeń, gromadzenie statystyk oraz śledzenie
+postępów w nauce.
 
 \subsection{Spaced Repetition (Powtórki w interwałach)}
+% TODO cytowania
+
 Metoda \emph{Spaced Repetition} służy zapamiętywaniu informacji w wydajniejszy
 sposób niż zwyczajne powtórki. Polega na odwlekaniu powtarzania dobrze wyuczonych
 informacji na późniejszy termin i skupianiu się na świeżych informacjach.
 
 Została po raz pierwszy opisana przez Arthura W. Meltona w jego pracy "The
 Situation with Respect to the Spacing of Repetitions and Memory" z 1970
-roku [citation needed]. Tam odwoływał się do powszechnie znanego prawa
+roku [cytowanie]. Tam odwoływał się do powszechnie znanego prawa
 Jolt'a postulującego, że "jeżeli dwa ślady pamięci są odświeżone i przetestowane
 w tej samej chwili, to w następującym okresie czasu nowszy ślad zaniknie prędzej
-od starszego." [citation needed] Melton wskazał, że tzw. "Total Time Law" (prawo
+od starszego." [cytowanie] Melton wskazał, że tzw. "Total Time Law" (prawo
 postulujące, że sumaryczny czas poświęcany na powtórki jest najważniejszy) się nie
 sprawdza w praktyce i możliwe jest wydajniej zarządzać czasem nauki.
 
 Istnieją różne algorytmy opierające się na zasadzie powtórek w interwałach. Jednym
-z najpopularniejszych jest SM-2 stworzony na potrzeby oprogramowania SuperMemo.
-TODO więcej o SM-2.
+z najpopularniejszych jest SM-2 stworzony na potrzeby oprogramowania SuperMemo
+[cytowanie].
 
-Nowszym popularnym rozwiązaniem jest FSRS ... TODO więcej o FSRS
+% TODO więcej o SM-2.
 
-\subsection{Ubiegłoroczna praca}
-\subsection{Duolingo}
+% TODO więcej o FSRS
 
-\section{Wizja produktu}
-\label{sec:wizja}
+\subsection{Mechanika ćwiczeń}
+Główną częścią edukacyjną aplikacji będą interaktywne tryby ćwiczeń zaprojektowane
+tak, aby zwiększać zainteresowanie użytkownika nauką. Wśród dostępnych rodzajów
+ćwiczeń znajdą się:
+\begin{itemize}
+    \item \textbf{Testy jednokrotnego wyboru} - użytkownik będzie musiał wskazać
+    poprawne znaczenie słowa spośród czterech dostępnych opcji. Kluczowym elementem
+    tego zadania jest to, że jedną z błędnych odpowiedzi będzie zawsze znaczenie
+    fałszywego przyjaciela.
+    \item \textbf{Łączenie słów w pary} - zadanie polegające na połączeniu słowa
+    w języku obcym z jego właściwym odpowiednikiem. Trudność będzie polegać na
+    wymieszaniu par, w których fałszywi przyjaciele będą stanowić utrudnienie.
+    \item \textbf{Analiza definicji} - bardziej zaawansowany tryb, w którym
+    użytkownik dopasowuje słowo do jednej z czterech obcojęzycznych definicji.
+    Podobnie jak w teście jednokrotnego wyboru, jedna z definicji będzie celowo
+    opisywać fałszywego przyjaciela.
+\end{itemize}
+
+% \subsection{System grywalizacji}
+% TODO
 
 \section{Studium wykonalności}
-\label{sec:studium-wykonalnosci}
+\subsection{Architektura systemu}
+System zostanie oparty na scentralizowanej architekturze klient-serwer. Wynika
+to bezpośrednio z założeń wizji produktu: konieczności utrzymywania globalnych
+tabel rankingowych, synchronizacji profili użytkowników oraz przechowywania
+jednolitego zbioru danych z ćwiczeniami. Rozdzielenie warstwy klienckiej od logiki
+biznesowej i składowania danych pozwoli w przyszłości na łatwe dodanie kolejnych
+klientów, np. aplikacji webowej bez konieczności przepisywania całego systemu.
+
+\subsection{Warstwa serwerowa}
+Warstwa serwerowa zostanie zaimplementowana w języku Python. Język ten
+charakteryzuje się wysoką czytelnością i zwięzłą składnią. Pozwoli to na
+przejrzyste prezentowanie kluczowych algorytmów, np. logiki przydzielania punktów
+czy wybierania zestawów zadań, a także łatwość implementacji i wyszukiwania
+błędów. Warto wspomnieć, że Python posiada wiele użytecznych frameworków, np.
+\texttt{FastAPI}, które pozwalają na wystawienie interfejsu API niezbędnego do
+komunikacji z aplikacją mobilną.
+
+\subsection{Warstwa kliencka}
+Ze względu na powszechność użycia, obsługę natychmiastowych powiadomień, oraz budowę
+nawyku codziennej nauki, jako docelową platformę kliencką wybrano system
+\textbf{Android}. Aplikacja zostanie napisana w nowoczesnym, oficjalnie zalecanym
+przez Google, języku \textbf{Kotlin}. Wykorzystanie nowoczesnych, deklaratywnych
+narzędziami do budowy interfejsu takich jak \textbf{Jetpack Compose}, zagwarantuje
+płynność działania i łatwość utrzymania kodu.
+
+Ustalono minimalną wspieraną wersję na \textbf{Android 8.0} (API 26), co zapewnia
+pokrycie większości urządzeń na rynku. Aplikacja będzie kompilowana pod docelową
+wersję \textbf{Android 16}, co pozwoli na wykorzystanie najnowszych funkcjonalnosci.
+
+% \subsection{Baza danych}
+% TODO
+
+\subsection{API}
+Komunikacja pomiędzy warstwą kliencką a serwerową będzie realizowana za pomocą
+bezstanowego interfejsu \textbf{REST API} z wykorzystaniem protokołu
+\textbf{HTTP}, co zapewni łatwość w zarządzaniu, skalowalność i możliwość łatwego
+rozwinięcia projektu o kolejne systemy. Wymiana danych będzie odbywać się przy
+użyciu formatu \textbf{JSON}. Wybór struktury JSON jest uzasadniony jej lekkością,
+wysoką czytelnością oraz niskim narzutem sieciowym.
 
 \section{Analiza zagrożeń}
-\label{sec:analiza-zagrozen}
+W trakcie realizacji projektu mogą wystąpić różnego rodzaju zagrożenia zarówno
+związane z kwestiami technicznymi, jak i koncepcyjnymi. Poniżej przedstawiono
+omówienie głównych czynników ryzyka.
+\begin{enumerate}
+    \item \textbf{Zbiór danych} - problemem może być pozyskanie odpowiedniej ilości
+    danych pozwalających na utworzenie przykładów do nauki wybranego języka, które
+    pozwolą na efektywną naukę.
+
+    \textbf{Proponowane rozwiązanie:} \\
+    Na początkowym etapie projektu uwaga zostanie skupiona na stworzeniu
+    ograniczonego, ale jakościowego zbioru danych dla pary języków
+    polski-angielski. W przyszłości baza może zostać rozbudowana poprzez
+    integrację z zewnętrznymi API słownikowymi, wykorzystanie metod ekstrakcji
+    danych z otwartych źródeł lub wdrożenie mechanizmu pozwalającego społeczności
+    na dodawanie własnych zestawów.
+    \item \textbf{Zainteresowanie użytkownika} - wystarczająca rożnorodność gier
+    i poziom zainteresowania użytkownika, ponieważ bardzo łatwo jest, w tego typu
+    aplikacjach, wywołać efekt znudzenia u użytkownika.
+    
+    \textbf{Proponowane rozwiązanie:} \\
+    Istotne jest żeby utrzymać użytkownika w aplikacji przez odpowiednią długość
+    czasu co pozwoli poprawić efekty nauki. Zastosowanie mechanizmów
+    grywalizacji, takich jak ograniczenia czasowe, system punktacji oraz tabele
+    rankingowe. Ponadto, architektura aplikacji zakłada modułowość, co pozwoli na
+    zmiany trybów nauki w ramach jednej sesji, zapobiegając w ten sposób zjawisku
+    monotonii.
+    \item \textbf{Trudność zadań} - dobranie odpowiedniego poziomu trudności zadań
+    językowych tak, żeby uzyskać wystarczający poziom nauki, ale nie zniechęcić za
+    szybko użytkownika trudnością zadań.
+
+    \textbf{Proponowane rozwiązanie:} \\
+    Podział bazy słów na poziomy zaawansowania. Dodatkowo zaimplementowany
+    zostanie algorytm adaptacyjny, który będzie analizował historię odpowiedzi
+    użytkownika i na jej podstawie dostosowywał odpowiedni zbiór danych.
+    \item \textbf{Przyjazny interfejs} - ryzyko stworzenia nieintuicyjnego lub
+    mało estetycznego interfejsu graficznego, co negatywnie wpłynie na odbiór
+    aplikacji.
+
+    \textbf{Proponowane rozwiązanie:} \\
+    Zastosowanie popularnych schematów projektowania przejrzystych interfejsów
+    oraz wykorzystanie w projekcie deklaratywnej biblioteki interfejsu Jetpack
+    Compose znacznie ułatwi zachowanie spójności wizualnej, płynnych animacji
+    i responsywności aplikacji.
+\end{enumerate}
+
+% \section{Słownik pojęć}
+% TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{\ChapterTitleScope}
@@ -229,63 +392,11 @@ Nowszym popularnym rozwiązaniem jest FSRS ... TODO więcej o FSRS
 \emph{Kontekst użytkowania produktu (aktorzy, współpracujące systemy) oraz specyfikacja wymagań funkcjonalnych i niefunkcjonalnych.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Rysunki, tabele}
-\label{sec:rysunki-tabele}
-
-W tekście powinny się znaleźć odnośniki do wszystkich rysunków i tabel
-występujących w pracy.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Rysunki}
-\label{sec:rysunki}
-
-Przykładowy odnośnik do rysunku~\ref{fig:ex1}.
- 
-W przypadku rysunków można odwoływać się zarówno do poszczególnych części
-składowych --- rysunek~\ref{fig:sub1} i rysunek~\ref{fig:sub2}) --- jak i do
-całego rysunku~\ref{fig:ex2}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-\subsection{Tabele}
-\label{sec:tabele}
-
-Przykładowa tabela~\ref{tab:ex1}.
-
-\begin{table}[!htbp]
-\centering
-\caption[Przykładowa tabela]{Przykładowa tabela}
-\begin{tabularx}{\columnwidth}{@{}YYYYYYY@{}} \toprule
-  & \multicolumn{2}{c}{\small\textbf{Best}} & \multicolumn{2}{c}{\small\textbf{Average}} & \multicolumn{2}{c}{\small\textbf{Worst}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
-  \textbf{No.} & \textbf{AB} & \textbf{CD} & \textbf{FE} & \textbf{GH} & \textbf{IJ} & \textbf{KL} \\ \midrule
-  \textit{1.} & 10 & 89 & 58 & 244 & 6 & 70 \\  
-  \textit{2.} & 15 & 87 & 57 & 147 & 4 & 82 \\
-  \textit{3.} & 23 & 45 & 55 & 151 & 2 & 38 \\
-  \textit{4.} & 34 & 90 & 55 & 246 & 1 & 82 \\
-  \textit{5.} & 56 & 75 & 54 & 255 & 0 & 73 \\ \bottomrule
-\end{tabularx}
-\label{tab:ex1}
-\end{table}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{\ChapterTitleRealizationAspects}
 \label{sec:wybrane-aspekty-realizacji}
 
 % poniższą zawartość rodziału należy usunąć z finalnej wersji pracy.
 \emph{Przyjęte założenia, struktura i zasada działania systemu, wykorzystane rozwiązania technologiczne wraz z uzasadnieniem ich wyboru, istotne mechanizmy i zastosowane algorytmy.}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Wzory matematyczne}
-\label{sec:wzory}
-
-\begin{equation}
-\Omega = \sum_{i=1}^n \gamma_i
-\label{eq:sum}
-\end{equation}
-
-Przykładowy odnośnik do wzoru~\eqref{eq:sum}.
-
-Przykładowy wzór w tekście $\lambda = \sum_{i=1}^n \delta_i$, bez numeracji.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Algorytmy}
@@ -359,12 +470,9 @@ print(maximum(x, y),"is the largest of the numbers ", x, " and ", y)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \printbibliography
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \listoffigures
 \listoftables
 \listofalgorithmes
 \lstlistoflistings
-\printbibliography
 
 \end{document}
