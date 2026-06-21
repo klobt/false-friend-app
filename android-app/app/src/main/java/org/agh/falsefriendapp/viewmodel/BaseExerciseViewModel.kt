@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.agh.falsefriendapp.data.model.TranslationExercise
 
 abstract class BaseExerciseViewModel : ViewModel() {
-    abstract val exercises: List<TranslationExercise>
+    @Suppress("PropertyName")
+    protected val _exercises = MutableStateFlow<List<TranslationExercise>>(emptyList())
+    val exercises = _exercises.asStateFlow()
 
     private val _currentIndex = MutableStateFlow(0)
     val currentIndex = _currentIndex.asStateFlow()
@@ -18,7 +20,12 @@ abstract class BaseExerciseViewModel : ViewModel() {
         private set
 
     fun onAnswerSelected(selectedIndex: Int) {
-        val currentExercise = exercises[_currentIndex.value]
+        val currentList = _exercises.value
+        if (currentList.isEmpty()) {
+            return
+        }
+
+        val currentExercise = currentList[_currentIndex.value]
         if (selectedIndex == currentExercise.correctAnswerIndex) {
             correctAnswers++
         }
@@ -27,7 +34,7 @@ abstract class BaseExerciseViewModel : ViewModel() {
     }
 
     private fun nextQuestion() {
-        if (_currentIndex.value < exercises.size - 1) {
+        if (_currentIndex.value < _exercises.value.size - 1) {
             _currentIndex.value++
         }
         else {

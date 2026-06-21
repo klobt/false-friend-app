@@ -29,45 +29,44 @@ fun DefinitionExerciseScreen(
     viewModel: DefinitionExerciseViewModel = viewModel(),
     onFinished: (Int) -> Unit
 ) {
-    val exercises = viewModel.exercises
+    val exercises by viewModel.exercises.collectAsState()
     val exerciseIndex by viewModel.currentIndex.collectAsState()
-    val currentExercise = exercises[exerciseIndex]
     val isFinished by viewModel.isFinished.collectAsState()
 
     LaunchedEffect(isFinished) {
-        if (isFinished) {
+        if (isFinished && exercises.isNotEmpty()) {
             onFinished(viewModel.correctAnswers)
         }
     }
 
-    if (isFinished) {
-        return
-    }
+    if (exercises.isNotEmpty() && !isFinished) {
+        val currentExercise = exercises[exerciseIndex]
 
-    BaseExerciseScreen(
-        exerciseIndex + 1,
-        exercises.size,
-        "Wybierz definicję słowa:"
-    ) {
-        Box(
-            modifier = Modifier
-                .width(250.dp)
-                .height(100.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
+        BaseExerciseScreen(
+            exerciseIndex + 1,
+            exercises.size,
+            "Wybierz definicję słowa:"
         ) {
-            Text(
-                text = currentExercise.sentence,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            Box(
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = currentExercise.sentence,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-        Spacer(modifier = Modifier.height(40.dp))
-        currentExercise.options.forEachIndexed { index, option ->
-            AppButton(text = option, onClick = {viewModel.onAnswerSelected(index)})
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(40.dp))
+            currentExercise.options.forEachIndexed { index, option ->
+                AppButton(text = option, onClick = {viewModel.onAnswerSelected(index)})
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }

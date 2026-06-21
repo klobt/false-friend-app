@@ -45,6 +45,6 @@ fun SummaryScreen(score: Int, onNavigateHome: () -> Unit) {
 @Composable
 fun SummaryScreenPreview() {
     MaterialTheme {
-        SummaryScreen(10, {})
+        SummaryScreen(10, onNavigateHome = {})
     }
 }
