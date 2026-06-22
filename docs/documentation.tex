@@ -20,6 +20,7 @@
 \usepackage{listings}
 \usepackage[ruled,linesnumbered,lined]{algorithm2e}
 \usepackage[bookmarks=false]{hyperref}
+\usepackage{placeins}
 
 \hypersetup{
     colorlinks=true,
@@ -388,9 +389,443 @@ omówienie głównych czynników ryzyka.
 \chapter{\ChapterTitleScope}
 \label{sec:zakres-funkcjonalnosci}
 
-% poniższą zawartość rodziału należy usunąć z finalnej wersji pracy.
-\emph{Kontekst użytkowania produktu (aktorzy, współpracujące systemy) oraz specyfikacja wymagań funkcjonalnych i niefunkcjonalnych.}
+\section{Aktorzy}
+Z perspektywy systemu wyróżniono trzech aktorów, którzy wchodzą w interakcję
+z aplikacją w różnym zakresie i z różnym poziomem uprawnień.
 
+<<<<<<< Updated upstream
+=======
+\textbf{Użytkownik} — osoba ucząca się języka obcego, podstawowy aktor systemu.
+Może:
+\begin{itemize}
+    \item wykonywać wszystkie rodzaje ćwiczeń, w tym ćwiczenia z pomiarem czasu,
+    \item zalogować się i wylogować z aplikacji,
+    \item po zalogowaniu zapisywać i przeglądać swoje postępy, wykorzystywane
+    przez mechanizm spaced repetition,
+    \item porównywać swoje wyniki z wynikami innych użytkowników,
+    \item personalizować swój profil (awatar, motyw kolorystyczny).
+\end{itemize}
+
+\textbf{Administrator} — aktor odpowiedzialny za nadzór nad treścią
+i działaniem systemu. Może:
+\begin{itemize}
+    \item zarządzać kontami użytkowników i ich postępami, w tym usuwać lub
+    zawieszać konta,
+    \item konfigurować ćwiczenia, w tym dostrajać poziom trudności i balans
+    poszczególnych typów gier,
+    \item zarządzać zbiorami danych wykorzystywanymi w ćwiczeniach,
+    \item dodawać nowe zestawy do nauki oraz nowe pary języków.
+\end{itemize}
+
+\textbf{Znajomy} — rola, jaką względem siebie przyjmują dwaj zarejestrowani
+użytkownicy po nawiązaniu relacji znajomości. W tym kontekście użytkownik
+może:
+\begin{itemize}
+    \item udostępniać swoje wyniki znajomym,
+    \item przeglądać postępy swoich znajomych,
+    \item dodać lub usunąć znajomego.
+\end{itemize}
+
+% Miejsce na diagram aktorów / przegląd przypadków użycia — makieta
+% dostarczona przez autorów w formie obrazka.
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{aktorzy.png}
+%     \caption{Diagram przypadków użycia.}
+%     \label{fig:aktorzy-diagram}
+% \end{figure}
+
+\section{Zestawienie wymagań funkcjonalnych}
+Tabela~\ref{tab:moscow} przedstawia zestawienie wymagań funkcjonalnych
+w formie historyjek użytkownika, sklasyfikowanych metodą \textbf{MoSCoW}
+oraz przypisanych do odpowiedzialnego za nie aktora.
+
+\begin{table}[h!]
+\centering
+\caption{Zestawienie wymagań funkcjonalnych (MoSCoW).}
+\label{tab:moscow}
+\begin{tabularx}{\textwidth}{l X l l}
+\toprule
+ID & Tytuł & Aktor & Priorytet \\
+\midrule
+US-01 & Wykonywanie ćwiczeń & Użytkownik & MUST \\
+US-02 & Podsumowanie i statystyki & Użytkownik & MUST \\
+US-03 & Menu główne & Użytkownik & MUST \\
+US-04 & Konto użytkownika & Użytkownik & MUST \\
+US-05 & Tabele rankingowe & Użytkownik & SHOULD \\
+US-06 & Zmiana danych konta & Użytkownik & SHOULD \\
+US-07 & Znajomi & Użytkownik, Znajomy & SHOULD \\
+US-08 & Powiadomienia & Użytkownik & COULD \\
+US-09 & Dodanie własnego zestawu ćwiczeń & Użytkownik & COULD \\
+US-10 & Panel administratora & Administrator & COULD \\
+US-11 & Podział tematyczny zadań & Użytkownik & COULD \\
+US-12 & Wspólna gra w czasie rzeczywistym & Użytkownik & WON'T \\
+US-13 & Integracje z zewnętrznymi serwisami & Użytkownik & WON'T \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Historyjki oznaczone priorytetem \textbf{WON'T} (US-12, US-13) zostały
+świadomie wyłączone z zakresu pracy — ich realizacja wymagałaby komunikacji
+w czasie rzeczywistym (np. WebSocket) lub integracji z zewnętrznymi API
+podmiotów trzecich, co wykracza poza ramy czasowe i cele niniejszego
+projektu inżynierskiego. Pozostałe historyjki, wraz z aktorami, przebiegiem
+procesu biznesowego oraz kryteriami akceptacyjnymi, opisano szczegółowo
+w dalszej części rozdziału.
+
+\section{Szczegółowy opis funkcji}
+
+\subsection{US-01: Wykonywanie ćwiczeń}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Główna funkcja aplikacji — pozwala użytkownikowi na
+rozwiązywanie zadań językowych w jednym z trzech trybów: testu jednokrotnego
+wyboru, łączenia słów w pary oraz analizy definicji. Zestaw zadań w danej
+sesji jest dobierany przez mechanizm spaced repetition opisany w rozdziale~1.
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Użytkownik wybiera z menu głównego zestaw zadań oraz typ ćwiczenia.
+    \item Aplikacja pobiera z serwera, za pomocą API, listę kart wyznaczonych
+    do przećwiczenia w danej sesji.
+    \item Użytkownikowi prezentowane jest kolejne zadanie, opcjonalnie wraz
+    z licznikiem czasu.
+    \item Użytkownik udziela odpowiedzi (zaznaczenie opcji, połączenie par
+    lub wybór definicji).
+    \item Aplikacja oznacza udzieloną odpowiedź jako poprawną lub
+    niepoprawną i prezentuje prawidłowe rozwiązanie.
+    \item Po zakończeniu sesji aplikacja wysyła wynik (poprawność, czas
+    odpowiedzi, datę) do serwera za pomocą API.
+    \item Serwer aktualizuje historię odpowiedzi użytkownika, na podstawie
+    której algorytm SRS wyznacza termin kolejnego powtórzenia danej karty.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item System prezentuje wyłącznie karty wyznaczone przez algorytm SRS
+    na dany dzień.
+    \item W trybie testu jednokrotnego wyboru jedna z czterech opcji
+    odpowiedzi jest zawsze znaczeniem fałszywego przyjaciela.
+    \item Po udzieleniu odpowiedzi użytkownik otrzymuje natychmiastową
+    informację zwrotną (poprawna/niepoprawna), wizualnie odróżnioną kolorem.
+    \item Wynik każdego zadania jest zapisywany na serwerze niezwłocznie po
+    zakończeniu sesji.
+    \item W przypadku utraty połączenia sieciowego w trakcie sesji aplikacja
+    informuje o tym użytkownika i nie traci dotychczas wprowadzonych
+    odpowiedzi.
+\end{itemize}
+
+% Miejsce na makietę interfejsu use case'u US-01 (wykonywanie ćwiczenia).
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{us01-cwiczenie.png}
+%     \caption{Makieta ekranu wykonywania ćwiczenia.}
+%     \label{fig:us01}
+% \end{figure}
+
+\subsection{US-02: Podsumowanie i statystyki}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Funkcja prezentująca wynik bieżącej sesji ćwiczeń oraz
+zagregowane statystyki nauki w skali całego konta (liczba przećwiczonych
+kart, odsetek poprawnych odpowiedzi, najdłuższy streak).
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Po zakończeniu sesji ćwiczeń aplikacja wyświetla ekran
+    podsumowania z liczbą poprawnych i niepoprawnych odpowiedzi oraz
+    średnim czasem reakcji.
+    \item Użytkownik może przejść do widoku ogólnych statystyk, dostępnego
+    z menu głównego.
+    \item Aplikacja odpytuje API o zagregowane dane historyczne i prezentuje
+    je w formie wykresów lub liczbowych podsumowań.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Podsumowanie sesji wyświetla się automatycznie po rozwiązaniu
+    ostatniego zadania w danej sesji.
+    \item Statystyki globalne uwzględniają wszystkie zarejestrowane dotychczas
+    wyniki użytkownika, niezależnie od typu ćwiczenia.
+    \item Dane prezentowane w podsumowaniu są zgodne z danymi zapisanymi na
+    serwerze (brak niezgodności wynikających z buforowania lokalnego).
+\end{itemize}
+
+\subsection{US-03: Menu główne}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Ekran startowy aplikacji, stanowiący punkt wejścia do
+pozostałych funkcjonalności — wyboru zestawu zadań, profilu, rankingu oraz
+ustawień.
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Po zalogowaniu aplikacja przekierowuje użytkownika do menu
+    głównego.
+    \item Menu wyświetla podstawowe informacje o aplikacji, dane
+    zalogowanego użytkownika (nazwa, awatar) oraz listę dostępnych
+    zestawów zadań.
+    \item Z menu głównego użytkownik może przejść do każdej z pozostałych
+    funkcjonalności systemu.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Menu główne jest pierwszym ekranem widocznym po zalogowaniu.
+    \item Widoczne są co najmniej: nazwa i awatar użytkownika oraz lista
+    zestawów zadań dostępnych do rozwiązania.
+    \item Każdy element menu prowadzi do właściwego, działającego widoku.
+\end{itemize}
+
+\subsection{US-04: Konto użytkownika}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Funkcja umożliwiająca rejestrację, logowanie oraz podstawową
+personalizację konta (awatar, motyw kolorystyczny).
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Nowy użytkownik otwiera aplikację i wybiera opcję rejestracji.
+    \item Użytkownik podaje adres e-mail i hasło lub wybiera logowanie za
+    pomocą konta Google.
+    \item Aplikacja przesyła dane przez API do serwera w celu utworzenia
+    konta i weryfikacji poprawności danych.
+    \item Po pozytywnej weryfikacji serwer zwraca token sesyjny, a aplikacja
+    przekierowuje użytkownika do menu głównego.
+    \item W razie błędu (np. zajęty adres e-mail) aplikacja wyświetla
+    odpowiedni komunikat i pozostaje na ekranie rejestracji.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Hasła użytkowników nie są nigdy przechowywane ani przesyłane
+    w postaci czystego tekstu.
+    \item Próba rejestracji z adresem e-mail już istniejącym w systemie
+    zwraca jasny komunikat błędu i nie tworzy duplikatu konta.
+    \item Po poprawnym zalogowaniu użytkownik ma dostęp do swojego profilu
+    i może zmienić awatar oraz motyw kolorystyczny.
+    \item Sesja użytkownika pozostaje aktywna po zamknięciu i ponownym
+    otwarciu aplikacji, do czasu wylogowania.
+\end{itemize}
+
+% Miejsce na makietę interfejsu use case'u US-04 (logowanie/rejestracja).
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{us04-logowanie.png}
+%     \caption{Makieta ekranu logowania.}
+%     \label{fig:us04}
+% \end{figure}
+
+\subsection{US-05: Tabele rankingowe}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Funkcja porównująca wyniki użytkownika z wynikami innych
+użytkowników systemu, w podziale na ranking ogólny oraz ranking dla danego
+zestawu zadań.
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Użytkownik wybiera z menu zakładkę tabel rankingowych.
+    \item Aplikacja odpytuje API o aktualne pozycje w rankingu ogólnym
+    i, opcjonalnie, w rankingu dla wybranego zestawu zadań.
+    \item Wyniki są prezentowane w formie listy, z wyróżnioną pozycją
+    aktualnie zalogowanego użytkownika.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Pozycja w rankingu jest wyznaczana na podstawie liczby poprawnych
+    odpowiedzi z uwzględnieniem liczby odpowiedzi niepoprawnych.
+    \item Ranking aktualizuje się automatycznie po zakończeniu każdej sesji
+    ćwiczeń.
+    \item Użytkownik widzi swoją pozycję w rankingu nawet jeśli znajduje się
+    poza widocznym fragmentem listy (np. w formie przypiętego wiersza).
+\end{itemize}
+
+\subsection{US-06: Zmiana danych konta}
+\textbf{Aktor:} Użytkownik.
+
+\textbf{Opis:} Funkcja pozwalająca na zmianę nazwy użytkownika oraz hasła.
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Użytkownik otwiera panel ustawień konta z profilu.
+    \item Wprowadza nową nazwę użytkownika lub nowe hasło.
+    \item Aplikacja przesyła dane do serwera w celu walidacji i zapisu.
+    \item Serwer zwraca potwierdzenie lub komunikat błędu (np. nazwa zajęta,
+    hasło niespełniające wymagań bezpieczeństwa).
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Zmiana hasła wymaga podania obecnego hasła.
+    \item Nowa nazwa użytkownika musi być unikalna w skali systemu.
+    \item Po pomyślnej zmianie danych użytkownik otrzymuje potwierdzenie,
+    a w przypadku zmiany hasła zostaje automatycznie wylogowany z innych
+    aktywnych sesji.
+\end{itemize}
+
+\subsection{US-07: Znajomi}
+\textbf{Aktorzy:} Użytkownik, Znajomy.
+
+\textbf{Opis:} Funkcja pozwalająca na nawiązywanie relacji znajomości między
+użytkownikami oraz przeglądanie ich postępów w nauce.
+
+\textbf{Proces biznesowy:}
+\begin{enumerate}
+    \item Użytkownik wyszukuje innego użytkownika po nazwie i wysyła
+    zaproszenie do grona znajomych.
+    \item Zaproszony użytkownik otrzymuje powiadomienie i akceptuje lub
+    odrzuca zaproszenie.
+    \item Po akceptacji obaj użytkownicy widzą się wzajemnie na liście
+    znajomych oraz mogą przeglądać swoje podsumowania i pozycje w rankingu.
+    \item Każda ze stron relacji może w dowolnym momencie usunąć znajomego
+    z listy.
+\end{enumerate}
+
+\textbf{Kryteria akceptacyjne:}
+\begin{itemize}
+    \item Relacja znajomości jest dwustronna — powstaje wyłącznie po
+    akceptacji zaproszenia przez obie strony.
+    \item Usunięcie znajomego przez jedną ze stron usuwa relację dla obu
+    użytkowników.
+    \item Lista znajomych prezentuje aktualny, zsynchronizowany z serwerem,
+    status postępów każdego znajomego.
+\end{itemize}
+
+\subsection{Pozostałe funkcje (COULD)}
+Funkcje oznaczone priorytetem COULD — powiadomienia (US-08), dodanie
+własnego zestawu ćwiczeń (US-09), panel administratora (US-10) oraz podział
+tematyczny zadań (US-11) — zostaną zrealizowane w miarę dostępności czasu
+po ukończeniu funkcji o wyższym priorytecie. Ich ogólny zakres opisano
+poniżej.
+
+\textbf{US-08: Powiadomienia} — skrzynka powiadomień wewnątrz aplikacji
+oraz powiadomienia PUSH, informujące m.in. o dodaniu do grona znajomych lub
+o zbliżającym się terminie powtórki wyznaczonej przez SRS.
+
+\textbf{US-09: Dodanie własnego zestawu ćwiczeń} — możliwość wgrania przez
+użytkownika własnej listy słówek, która zasili jego prywatne sesje ćwiczeń.
+
+\textbf{US-10: Panel administratora} — aktor Administrator zyskuje dostęp
+do panelu pozwalającego na usunięcie lub zawieszenie konta użytkownika oraz
+dostrajanie trudności ćwiczeń w skali całego systemu.
+
+\textbf{US-11: Podział tematyczny zadań} — możliwość wyboru przez
+użytkownika tematyki zadań (np. słownictwo biznesowe, podróże), co pozwala
+na bardziej ukierunkowaną naukę.
+
+\section{Wymagania niefunkcjonalne}
+\begin{itemize}
+    \item \textbf{Responsywność} — czas odpowiedzi API dla typowych
+    zapytań (pobranie zestawu zadań, zapis wyniku) nie powinien przekraczać
+    300~ms dla 95\% zapytań w warunkach typowego obciążenia serwera.
+    \item \textbf{Intuicyjność interfejsu} — interfejs aplikacji powinien
+    być zrozumiały dla nowego użytkownika bez konieczności korzystania
+    z dodatkowej instrukcji, zgodnie z powszechnie przyjętymi wzorcami
+    projektowania aplikacji mobilnych na system Android.
+    \item \textbf{Rozszerzalność} — architektura systemu powinna umożliwiać
+    dodanie nowej pary języków oraz nowego typu ćwiczenia bez konieczności
+    przebudowy istniejących modułów.
+    \item \textbf{Wydajność} — aplikacja kliencka nie powinna powodować
+    nadmiernego zużycia pamięci i procesora, tak aby zachować płynność
+    działania na urządzeniach z minimalną wspieraną wersją systemu Android.
+    \item \textbf{Brak wycieków pamięci} — w trakcie długotrwałego
+    korzystania z aplikacji (np. wielogodzinnej sesji nauki) nie powinno
+    dochodzić do narastającego zużycia pamięci prowadzącego do
+    niestabilności działania.
+    \item \textbf{Bezpieczeństwo} — komunikacja klient-serwer odbywa się
+    wyłącznie po protokole HTTPS, a hasła użytkowników są przechowywane
+    w postaci zahaszowanej.
+    \item \textbf{Dostępność} — serwer powinien zapewniać wysoką
+    dostępność usługi, ograniczając do minimum przerwy w działaniu
+    związane z wdrażaniem nowych wersji.
+\end{itemize}
+
+\section{Makiety UI}
+Następujące makiety przedstawiają widoki, które będą w finalnej aplikacji
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp home.png}
+    \caption{Widok główny z zestawieniem postępów i statystyk, oraz łącz do ćwiczeń}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp ex1.png}
+    \caption{Ćwiczenie, tłumaczenie słowwa}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp ex2.png}
+    \caption{Ćwiczenie, podanie definicji słowa}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp ex3.png}
+    \caption{Ćwiczenie, połączenie słów w pary}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp results.png}
+    \caption{Wyniki sesji ćwiczeń}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{docs/ffapp settings.png}
+    \caption{Ustawienia użytkownika, gdzie można ustawić swój awatar}
+    \label{fig:placeholder}
+\end{figure}
+
+\FloatBarrier
+
+\section{Specyfikacja interfejsu API}
+Komunikacja klient-serwer odbywa się za pomocą bezstanowego interfejsu
+REST, z wykorzystaniem formatu JSON, zgodnie z założeniami przedstawionymi
+w rozdziale~1. Tabela~\ref{tab:api} przedstawia zestawienie głównych
+endpointów API.
+
+\begin{table}[h!]
+\centering
+\caption{Zestawienie endpointów API.}
+\label{tab:api}
+\begin{tabularx}{\textwidth}{l X l}
+\toprule
+Metoda i ścieżka & Opis & Autoryzacja \\
+\midrule
+\texttt{POST /auth/register} & Rejestracja nowego użytkownika & Nie \\
+\texttt{POST /auth/login} & Logowanie i wydanie tokenu sesyjnego & Nie \\
+\texttt{GET /users/\{id\}} & Pobranie danych użytkownika na podstawie ID & Tak \\
+\texttt{PATCH /users/\{id\}} & Modyfikacja danych użytkownika & Tak \\
+\texttt{DELETE /users/\{id\}} & Usunięcie użytkownika & Tak \\
+\texttt{GET /users/\{id\}/results} & Pobranie n ostatnich wyników użytkownika & Tak \\
+\texttt{GET /users/\{id\}/results/\{taskId\}} & Pobranie czasu użytkownika per zadanie & Tak \\
+\texttt{POST /results} & Dodanie wyniku użytkownika & Tak \\
+\texttt{GET /exercises} & Pobranie zestawu kart na podstawie podanych ID (zawartość jest zawsze stała dla ID, więc dane można zapisać w pamięci cache na urzdzeniu) & Tak \\
+\texttt{GET /sessions/next} & Pobranie zestawu kart do przećwiczenia na bieżącą sesję (SRS) & Tak \\
+\texttt{GET /leaderboards} & Pobranie tabeli rankingowej (ogólnej lub dla zestawu) & Tak \\
+\texttt{POST /friends/\{userId\}} & Wysłanie zaproszenia do grona znajomych & Tak \\
+\texttt{DELETE /friends/\{userId\}} & Usunięcie znajomego & Tak \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Dane użytkownika, zwracane i przetwarzane przez API, obejmują co najmniej:
+identyfikator (ID), nazwę (nick), awatar oraz historię wyników.
+
+\FloatBarrier
+
+>>>>>>> Stashed changes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{\ChapterTitleRealizationAspects}
 \label{sec:wybrane-aspekty-realizacji}
