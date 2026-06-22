@@ -16,7 +16,7 @@ git clone 'ssh://git@github.com:klobt/false-friend-app.git'
 cd false-friend-app
 ```
 
-2. Run the API server (you may venv inside the `api-server` directory if you prefer)
+2. Enter the `api-server` directory
 
 ```shell
 cd api-server
@@ -25,8 +25,23 @@ python migrate.py up
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-3. Open the `false-friend-app` project inside Android Studio
+3. You may enter `venv` if you prefer (for instance if your system restricts installing python packages)
 
-4. Run the project on a connected device or an emulated one
+```shell
+python -m venv venv
+source venv/bin/activate
+```
 
-5. The application should be ready use and connect with the server running on `localhost`
+4. Run the API server
+
+```shell
+pip install -r requirements.txt
+python migrate.py up
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+5. Open the `false-friend-app` project inside Android Studio
+
+6. Run the project on a connected device or an emulated one
+
+7. The application should be ready use and connect with the server running on `localhost`
