@@ -1,6 +1,7 @@
+from datetime import date, datetime
 from enum import IntEnum
 import json
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Optional, Union, NamedTuple
 
 from pydantic import BaseModel, Field, TypeAdapter
 
@@ -48,3 +49,22 @@ def parse_exercise(row: dict) -> Exercise:
     row['data'] = json.loads(row['data'])
     row_json = json.dumps(row)
     return ExerciseAdapter.validate_json(row_json)
+
+class SessionResult(BaseModel):
+    exercise_id: int
+    correct: bool
+    time_ms: float
+
+class Session(BaseModel):
+    user_id: Optional[int] = Field(default=1)
+    results: list[SessionResult]
+    correct_answers: int
+    total_answers: int
+    total_time_ms: float
+
+SessionAdapter = TypeAdapter(Session)
+
+def parse_session(row: dict) -> Session:
+    row['results'] = json.loads(row['results'])
+    row_json = json.dumps(row)
+    return SessionAdapter.validate_json(row_json)
