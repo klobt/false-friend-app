@@ -68,3 +68,15 @@ def parse_session(row: dict) -> Session:
     row['results'] = json.loads(row['results'])
     row_json = json.dumps(row)
     return SessionAdapter.validate_json(row_json)
+
+class Card(BaseModel):
+    user_id: Optional[int] = Field(default=1)
+    exercise_id: int
+    box_id: int
+    review_at: datetime
+
+CardAdapter = TypeAdapter(Card)
+
+def parse_card(row: dict) -> Card:
+    row_json = json.dumps(row)
+    return CardAdapter.validate_json(row_json)
