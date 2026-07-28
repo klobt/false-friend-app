@@ -16,6 +16,9 @@ abstract class BaseExerciseViewModel : ViewModel() {
     private val _isFinished = MutableStateFlow(false)
     val isFinished = _isFinished.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
     var correctAnswers = 0
         private set
 
@@ -40,5 +43,9 @@ abstract class BaseExerciseViewModel : ViewModel() {
         else {
             _isFinished.value = true
         }
+    }
+
+    protected fun setLoading(loading: Boolean) {
+        _isLoading.value = loading
     }
 }

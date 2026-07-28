@@ -32,14 +32,18 @@ fun TranslationExerciseScreen(
     val exercises by viewModel.exercises.collectAsState()
     val exerciseIndex by viewModel.currentIndex.collectAsState()
     val isFinished by viewModel.isFinished.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(isFinished) {
-        if (isFinished && exercises.isNotEmpty()) {
+        if (isFinished) {
             onFinished(viewModel.correctAnswers)
         }
     }
-
-    if (exercises.isNotEmpty() && !isFinished) {
+    
+    if (isLoading) {
+        LoadingScreen()
+    }
+    else if (exercises.isNotEmpty() && !isFinished) {
         val currentExercise = exercises[exerciseIndex]
 
         BaseExerciseScreen(
