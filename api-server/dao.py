@@ -285,3 +285,43 @@ class CardDao(Dao):
 
         if commit:
             self.conn.commit()
+
+class UserDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("users", conn)
+
+    def get(self, limit: int = 10, offset: int = 0) -> list[dict[str, Any]]:
+        rows = self._get().with_limit(limit, offset).fetch_rows()
+        return list(map(lambda row: {
+            'id': row['id'],
+            'public_data': json.loads(row['public_data'])
+        }, rows))
+
+    def get_public_data(self, user_id: int = 1) -> dict[str, Any]:
+        rows = (
+            self._get()
+            .select(['public_data'])
+            .where('id', '=', user_id)
+            .fetch_rows()
+        )
+
+        if len(rows) == 0:
+            return {}
+
+        return json.loads(rows[0]['public_data'])
+
+    def set_public_data(
+        self,
+        data: Mapping[str, Any],
+        user_id: int = 1
+    ) -> None:
+        self.conn.execute(
+            '''
+                INSERT INTO "users" ("id", "public_data")
+                VALUES (?, ?)
+                ON CONFLICT ("id") DO UPDATE SET
+                    "public_data" = excluded."public_data"
+            ''',
+            [user_id, json.dumps(dict(data))]
+        )
+        self.conn.commit()

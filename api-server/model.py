@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import IntEnum
 import json
-from typing import Annotated, Literal, Optional, Union, NamedTuple
+from typing import Any, Annotated, Literal, Optional, Union, NamedTuple
 
 from pydantic import BaseModel, Field, TypeAdapter
 
@@ -80,3 +80,6 @@ CardAdapter = TypeAdapter(Card)
 def parse_card(row: dict) -> Card:
     row_json = json.dumps(row)
     return CardAdapter.validate_json(row_json)
+
+class PublicUserData(BaseModel):
+    data: dict[str, Any]
