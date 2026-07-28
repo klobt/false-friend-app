@@ -1,29 +1,25 @@
 package org.agh.falsefriendapp.data.repository
 
-import android.util.Log
+import kotlinx.coroutines.delay
 import org.agh.falsefriendapp.data.api.RetrofitClient
 import org.agh.falsefriendapp.data.model.TranslationExercise
-
-private const val TAG = "ExerciseRepository"
+import kotlin.time.Duration.Companion.seconds
 
 class ExerciseRepository {
     suspend fun getTranslationExercises(): List<TranslationExercise> {
-        val ids = listOf(1, 2, 3, 4, 5)
+        // TODO do usuniecia po prezentacji
 
-        try {
-            val response = RetrofitClient.api.getExercises(ids)
-            return response.data.map { dto ->
-                TranslationExercise(
-                    id = dto.id,
-                    sentence = dto.content.word,
-                    options = dto.content.answers,
-                    correctAnswerIndex = dto.content.correctIdx
-                )
-            }
-        } catch (e: Exception) {
-            val msg = "Network error"
-            Log.e(TAG, msg, e)
-            return emptyList()
+        delay(2.seconds)
+        val ids = listOf(1, 2, 3, 4, 5)
+        val response = RetrofitClient.api.getExercises(ids)
+
+        return response.data.map { dto ->
+            TranslationExercise(
+                id = dto.id,
+                sentence = dto.content.word,
+                options = dto.content.answers,
+                correctAnswerIndex = dto.content.correctIdx
+            )
         }
     }
 
