@@ -27,6 +27,9 @@ fun NavGraph() {
                     navController.navigate("summary/$score") {
                         popUpTo("translation") { inclusive = true }
                     }
+                },
+                onNavigateHome = {
+                    navController.popBackStack(route = "userHome", inclusive = false)
                 }
             )
         }
@@ -37,6 +40,9 @@ fun NavGraph() {
                     navController.navigate("summary/$score") {
                         popUpTo("definition") { inclusive = true }
                     }
+                },
+                onNavigateHome = {
+                    navController.popBackStack(route = "userHome", inclusive = false)
                 }
             )
         }

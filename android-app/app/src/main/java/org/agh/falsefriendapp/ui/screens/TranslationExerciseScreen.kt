@@ -1,7 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,7 +13,8 @@ import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 @Composable
 fun TranslationExerciseScreen(
     viewModel: TranslationExerciseViewModel = viewModel(),
-    onFinished: (Int) -> Unit
+    onFinished: (Int) -> Unit,
+    onNavigateHome: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -23,7 +23,7 @@ fun TranslationExerciseScreen(
             LoadingScreen()
         }
         is ExerciseUiState.Error -> {
-            Text(currentState.message)
+            ErrorScreen(currentState.message, onNavigateHome)
         }
         is ExerciseUiState.Success -> {
             val currentExercise = currentState.exercises[currentState.currentIndex]
@@ -48,6 +48,6 @@ fun TranslationExerciseScreen(
 @Composable
 fun TranslationScreenPreview() {
     MaterialTheme {
-        TranslationExerciseScreen() { }
+        TranslationExerciseScreen(onFinished = {}, onNavigateHome = {})
     }
 }

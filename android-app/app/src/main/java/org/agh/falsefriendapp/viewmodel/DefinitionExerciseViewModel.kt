@@ -26,6 +26,7 @@ class DefinitionExerciseViewModel : BaseExerciseViewModel() {
                     setSuccess(exercises)
                 }
             } catch (e: Exception) {
+                // TODO dokladniejszy opis
                 val msg = "Network error"
                 Log.e(TAG, msg, e)
                 setError(msg)

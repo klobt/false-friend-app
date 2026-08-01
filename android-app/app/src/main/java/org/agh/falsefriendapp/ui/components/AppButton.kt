@@ -8,7 +8,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,14 +21,19 @@ fun AppButton(
         onClick = onClick,
         modifier = Modifier
             .width(300.dp)
-            .height(70.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(10.dp)
-            ),
+            .height(70.dp),
+//            .shadow(
+//                elevation = 4.dp,
+//                shape = RoundedCornerShape(10.dp)
+//            ),
+
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 8.dp
         )
     ) {
         Text(
