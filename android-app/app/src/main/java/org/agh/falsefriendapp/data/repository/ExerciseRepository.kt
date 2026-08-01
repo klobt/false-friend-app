@@ -1,9 +1,7 @@
 package org.agh.falsefriendapp.data.repository
 
-import kotlinx.coroutines.delay
 import org.agh.falsefriendapp.data.api.RetrofitClient
 import org.agh.falsefriendapp.data.model.TranslationExercise
-import kotlin.time.Duration.Companion.seconds
 
 class ExerciseRepository {
     suspend fun getTranslationExercises(): List<TranslationExercise> {
