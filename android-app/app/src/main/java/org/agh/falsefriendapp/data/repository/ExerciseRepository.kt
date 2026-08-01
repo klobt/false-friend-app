@@ -7,13 +7,13 @@ import kotlin.time.Duration.Companion.seconds
 
 class ExerciseRepository {
     suspend fun getTranslationExercises(): List<TranslationExercise> {
-        // TODO do usuniecia po prezentacji
-
         delay(2.seconds)
-        val ids = listOf(1, 2, 3, 4, 5)
-        val response = RetrofitClient.api.getExercises(ids)
 
-        return response.data.map { dto ->
+        val todayReview = RetrofitClient.api.getExercisesIds(10, 0).exercisesIds
+        val response = RetrofitClient.api.getExercises(listOf(1, 2, 3, 10))
+
+        return response.data.filter { dto -> dto.type == 101 }
+            .map { dto ->
             TranslationExercise(
                 id = dto.id,
                 sentence = dto.content.word,

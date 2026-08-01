@@ -1,8 +1,11 @@
 package org.agh.falsefriendapp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
+
+private const val TAG = "DefinitionExerciseViewModel"
 
 class DefinitionExerciseViewModel : BaseExerciseViewModel() {
     private val repository = ExerciseRepository()
@@ -13,10 +16,19 @@ class DefinitionExerciseViewModel : BaseExerciseViewModel() {
 
     private fun fetchExercises() {
         viewModelScope.launch {
-            val result = repository.getDefinitionExercises()
+            try {
+                val exercises = repository.getDefinitionExercises()
 
-            if (result.isNotEmpty()) {
-                _exercises.value = result
+                if (exercises.isEmpty()) {
+                    setError("Empty list")
+                }
+                else {
+                    setSuccess(exercises)
+                }
+            } catch (e: Exception) {
+                val msg = "Network error"
+                Log.e(TAG, msg, e)
+                setError(msg)
             }
         }
     }

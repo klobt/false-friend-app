@@ -4,48 +4,52 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.agh.falsefriendapp.data.model.TranslationExercise
+import org.agh.falsefriendapp.ui.state.ExerciseUiState
 
 abstract class BaseExerciseViewModel : ViewModel() {
-    @Suppress("PropertyName")
-    protected val _exercises = MutableStateFlow<List<TranslationExercise>>(emptyList())
-    val exercises = _exercises.asStateFlow()
+    private val _state = MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
+    val state = _state.asStateFlow()
 
-    private val _currentIndex = MutableStateFlow(0)
-    val currentIndex = _currentIndex.asStateFlow()
+    protected fun setSuccess(exercises: List<TranslationExercise>) {
+        _state.value = ExerciseUiState.Success(
+            exercises = exercises,
+            currentIndex = 0,
+            correctAnswers = 0
+        )
+    }
 
-    private val _isFinished = MutableStateFlow(false)
-    val isFinished = _isFinished.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
-
-    var correctAnswers = 0
-        private set
+    protected fun setError(message: String) {
+        _state.value = ExerciseUiState.Error(message)
+    }
 
     fun onAnswerSelected(selectedIndex: Int) {
-        val currentList = _exercises.value
-        if (currentList.isEmpty()) {
+        val currentState = _state.value
+
+        if (currentState !is ExerciseUiState.Success) {
             return
         }
 
-        val currentExercise = currentList[_currentIndex.value]
-        if (selectedIndex == currentExercise.correctAnswerIndex) {
-            correctAnswers++
+        val currentExercise = currentState.exercises[currentState.currentIndex]
+        val newCorrectAnswers = if (selectedIndex == currentExercise.correctAnswerIndex) {
+            currentState.correctAnswers + 1
+        } else {
+            currentState.correctAnswers
         }
 
-        nextQuestion()
+        nextQuestion(currentState, newCorrectAnswers)
     }
 
-    private fun nextQuestion() {
-        if (_currentIndex.value < _exercises.value.size - 1) {
-            _currentIndex.value++
+    private fun nextQuestion(currentState: ExerciseUiState.Success, newCorrectAnswers: Int) {
+        val nextIndex = currentState.currentIndex + 1
+
+        if (nextIndex < currentState.exercises.size) {
+            _state.value = currentState.copy(
+                currentIndex = nextIndex,
+                correctAnswers = newCorrectAnswers
+            )
         }
         else {
-            _isFinished.value = true
+            _state.value = ExerciseUiState.Finished(newCorrectAnswers)
         }
-    }
-
-    protected fun setLoading(loading: Boolean) {
-        _isLoading.value = loading
     }
 }

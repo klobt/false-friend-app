@@ -23,3 +23,9 @@ data class ExerciseContentDto(
     @SerialName("correct_idx")
     val correctIdx: Int
 )
+
+@Serializable
+data class ExercisesIds(
+    @SerialName("exercise_ids")
+    val exercisesIds: List<Int>
+)
