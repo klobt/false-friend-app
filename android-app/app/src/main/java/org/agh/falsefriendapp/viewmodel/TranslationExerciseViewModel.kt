@@ -16,14 +16,20 @@ class TranslationExerciseViewModel : BaseExerciseViewModel() {
 
     private fun fetchExercises() {
         viewModelScope.launch {
-            setLoading(true)
             try {
-                _exercises.value = repository.getTranslationExercises()
+                val exercises = repository.getTranslationExercises()
+
+                if (exercises.isEmpty()) {
+                    setError("Empty list")
+                }
+                else {
+                    setSuccess(exercises)
+                }
             } catch (e: Exception) {
+                // TODO dokladniejszy opis
                 val msg = "Network error"
                 Log.e(TAG, msg, e)
-            } finally {
-                setLoading(false)
+                setError(msg)
             }
         }
     }
