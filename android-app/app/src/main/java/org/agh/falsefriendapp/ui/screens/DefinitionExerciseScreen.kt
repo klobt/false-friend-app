@@ -1,6 +1,5 @@
 package org.agh.falsefriendapp.ui.screens
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -8,12 +7,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.agh.falsefriendapp.ui.state.ExerciseUiState
+import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.DefinitionExerciseViewModel
 
 @Composable
 fun DefinitionExerciseScreen(
     viewModel: DefinitionExerciseViewModel = viewModel(),
-    onFinished: (Int) -> Unit,
+    onFinished: (
+        score: Int,
+        totalQuestions: Int
+    ) -> Unit,
     onNavigateHome: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -47,7 +50,7 @@ fun DefinitionExerciseScreen(
 @Preview(showBackground = true)
 @Composable
 fun DefinitionExerciseScreenPreview() {
-    MaterialTheme {
+    FalseFriendAppTheme {
         DefinitionExerciseScreen(onFinished = {}, onNavigateHome = {})
     }
 }

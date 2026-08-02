@@ -23,8 +23,8 @@ fun NavGraph() {
 
         composable("translation") {
             TranslationExerciseScreen(
-                onFinished = { score ->
-                    navController.navigate("summary/$score") {
+                onFinished = { score, totalQuestions ->
+                    navController.navigate("summary/$score/$totalQuestions/translation") {
                         popUpTo("translation") { inclusive = true }
                     }
                 },
@@ -36,8 +36,8 @@ fun NavGraph() {
 
         composable("definition") {
             DefinitionExerciseScreen(
-                onFinished = { score ->
-                    navController.navigate("summary/$score") {
+                onFinished = { score, totalQuestions ->
+                    navController.navigate("summary/$score/$totalQuestions/definition") {
                         popUpTo("definition") { inclusive = true }
                     }
                 },
@@ -47,11 +47,19 @@ fun NavGraph() {
             )
         }
 
-        composable("summary/{score}") { backStackEntry ->
-            val scoreString = backStackEntry.arguments?.getString("score")
-            val score = scoreString?.toIntOrNull() ?: 0
+        composable("summary/{score}/{totalQuestions}/exerciseName") { backStackEntry ->
+            val score = backStackEntry.arguments
+                ?.getString("score")
+                ?.toIntOrNull() ?: 0
+            val totalQuestions = backStackEntry.arguments
+                ?.getString("totalQuestions")
+                ?.toIntOrNull() ?: 0
+            val exerciseName = backStackEntry.arguments
+                ?.getString("exerciseName") ?: ""
             SummaryScreen(
                 score = score,
+                totalQuestions = totalQuestions,
+                exerciseName = exerciseName,
                 onNavigateHome = {
                     navController.popBackStack(route = "userHome", inclusive = false)
                 }

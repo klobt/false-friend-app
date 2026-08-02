@@ -1,6 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,17 +8,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.agh.falsefriendapp.ui.components.AppButton
+import org.agh.falsefriendapp.ui.components.MenuButton
+import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 
 @Composable
 fun UserMainScreen(
@@ -26,46 +30,86 @@ fun UserMainScreen(
     onStartDefinition: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+        MenuHeader()
+        ExerciseMenu(
+            onStartTranslation = onStartTranslation,
+            onStartDefinition = onStartDefinition
+        )
+    }
+}
+
+@Composable
+private fun MenuHeader() {
+    Surface(color =  MaterialTheme.colorScheme.primaryContainer) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color.LightGray)
-                .padding(20.dp)
+                .padding(24.dp)
         ) {
             Text(
                 text = "Witaj z powrotem!",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Text(
                 text = "Mateusz",
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                fontSize = 28.sp
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
+    }
+}
+
+@Composable
+fun ExerciseMenu(
+    onStartTranslation: () -> Unit,
+    onStartDefinition: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Ćwiczenia",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "Wybierz rodzaj ćwiczenia i zacznij naukę",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(40.dp))
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Ćwiczenia",
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
+            MenuButton(
+                title = "Wybierz tłumaczenie",
+                description = "Wybierz poprawne tłumaczenie słowa",
+                icon = Icons.Default.Translate,
+                onClick = onStartTranslation
             )
-            Text(text = "Wybierz rodzaj ćwiczenia i zacznij naukę")
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(40.dp))
-                AppButton(text = "Wybierz tłumaczenie", onClick = onStartTranslation)
-                Spacer(modifier = Modifier.height(15.dp))
-                AppButton(text = "Wybierz definicję", onClick = onStartDefinition)
-            }
+            MenuButton(
+                title = "Wybierz definicję",
+                description = "Dopasuj słowo do definicji",
+                icon = Icons.AutoMirrored.Filled.MenuBook,
+                onClick = onStartDefinition
+            )
+            MenuButton(
+                title = "Połącz pary",
+                description = "Połącz słowa w pary",
+                icon = Icons.AutoMirrored.Filled.CompareArrows,
+                // TODO polacz w pary
+                onClick = {}
+            )
         }
     }
 }
@@ -73,7 +117,7 @@ fun UserMainScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    MaterialTheme {
+    FalseFriendAppTheme {
         UserMainScreen(onStartTranslation = {}, onStartDefinition = {})
     }
 }

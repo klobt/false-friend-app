@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 
 @Composable
 fun LoadingScreen() {
@@ -23,7 +24,7 @@ fun LoadingScreen() {
 @Preview(showBackground = true)
 @Composable
 fun LoadingScreenPreview() {
-    MaterialTheme {
+    FalseFriendAppTheme {
         LoadingScreen()
     }
 }
