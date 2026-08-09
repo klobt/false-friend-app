@@ -1,7 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.agh.falsefriendapp.ui.components.AppButton
+import org.agh.falsefriendapp.ui.components.NavigationButton
+import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 
 @Composable
 fun ErrorScreen(message: String, onBack: () -> Unit) {
@@ -39,23 +38,24 @@ fun ErrorScreen(message: String, onBack: () -> Unit) {
         Text(
             text = "Wystąpił błąd",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        AppButton("Powrót do menu", onBack)
+        Spacer(modifier = Modifier.height(48.dp))
+        NavigationButton("Powrót do menu", onBack)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ErrorScreenPreview() {
-    MaterialTheme {
+    FalseFriendAppTheme {
         ErrorScreen("Network error") {}
     }
 }
