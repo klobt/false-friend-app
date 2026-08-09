@@ -1,6 +1,5 @@
 package org.agh.falsefriendapp.ui.screens
 
-import android.R
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,13 @@ fun SummaryScreen(
     exerciseName: String,
     onNavigateHome: () -> Unit
 ) {
+    val exerciseNameText = when (exerciseName) {
+        "translation" -> "Wybierz tłumaczenie"
+        "definition" -> "Wybierz definicję"
+        "match" -> "Połącz pary"
+        else -> "Unknown"
+    }
+
     val progress = score.toFloat() / totalQuestions
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
@@ -70,7 +76,7 @@ fun SummaryScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = exerciseName,
+            text = exerciseNameText,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -126,7 +132,7 @@ fun SummaryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(140.dp))
+        Spacer(modifier = Modifier.height(100.dp))
         NavigationButton(text = "Menu główne", onClick = onNavigateHome)
     }
 }
@@ -135,6 +141,6 @@ fun SummaryScreen(
 @Composable
 fun SummaryScreenPreview() {
     FalseFriendAppTheme {
-        SummaryScreen(3, 10, "Wybierz tłumaczenie", onNavigateHome = {})
+        SummaryScreen(3, 10, "Wybierz", onNavigateHome = {})
     }
 }

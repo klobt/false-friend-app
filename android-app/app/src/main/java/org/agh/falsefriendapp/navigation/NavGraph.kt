@@ -47,7 +47,7 @@ fun NavGraph() {
             )
         }
 
-        composable("summary/{score}/{totalQuestions}/exerciseName") { backStackEntry ->
+        composable("summary/{score}/{totalQuestions}/{exerciseName}") { backStackEntry ->
             val score = backStackEntry.arguments
                 ?.getString("score")
                 ?.toIntOrNull() ?: 0

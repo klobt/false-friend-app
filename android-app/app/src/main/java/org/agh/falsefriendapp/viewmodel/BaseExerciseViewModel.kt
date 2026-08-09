@@ -49,7 +49,10 @@ abstract class BaseExerciseViewModel : ViewModel() {
             )
         }
         else {
-            _state.value = ExerciseUiState.Finished(newCorrectAnswers)
+            _state.value = ExerciseUiState.Finished(
+                correctAnswers = newCorrectAnswers,
+                totalQuestions = currentState.exercises.size
+            )
         }
     }
 }
