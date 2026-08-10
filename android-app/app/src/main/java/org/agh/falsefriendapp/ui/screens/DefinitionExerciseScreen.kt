@@ -6,44 +6,41 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.agh.falsefriendapp.data.model.TranslationExercise
-import org.agh.falsefriendapp.ui.state.ExerciseUiState
+import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.DefinitionExerciseViewModel
 
 @Composable
 fun DefinitionExerciseScreen(
     viewModel: DefinitionExerciseViewModel = viewModel(),
-    onFinished: (
-        score: Int,
-        totalQuestions: Int
-    ) -> Unit,
-    onNavigateHome: () -> Unit
+    onNavigateHome: () -> Unit,
+    onFinished: (score: Int, totalQuestions: Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     DefinitionExerciseContent(
         state,
+        onNavigateHome,
         viewModel::onAnswerSelected,
-        onFinished,
-        onNavigateHome
+        onFinished
     )
 }
 
 @Composable
 fun DefinitionExerciseContent(
-    state: ExerciseUiState,
+    state: BaseExerciseUiState,
+    onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit,
-    onNavigateHome: () -> Unit
+    onFinished: (score: Int, totalQuestions: Int) -> Unit
 ) {
     when (state) {
-        ExerciseUiState.Loading -> {
+        BaseExerciseUiState.Loading -> {
             LoadingScreen()
         }
-        is ExerciseUiState.Error -> {
+        is BaseExerciseUiState.Error -> {
             ErrorScreen(state.message, onNavigateHome)
         }
-        is ExerciseUiState.Success -> {
+        is BaseExerciseUiState.Success -> {
             val currentExercise = state.exercises[state.currentIndex]
 
             BaseExerciseScreen(
@@ -54,7 +51,7 @@ fun DefinitionExerciseContent(
                 onAnswerSelected = onAnswerSelected
             )
         }
-        is ExerciseUiState.Finished -> {
+        is BaseExerciseUiState.Finished -> {
             LaunchedEffect(state) {
                 onFinished(
                     state.correctAnswers,
@@ -70,16 +67,16 @@ fun DefinitionExerciseContent(
 fun DefinitionExerciseContentPreview() {
     FalseFriendAppTheme {
         DefinitionExerciseContent(
-            state = ExerciseUiState.Success(
-                listOf(TranslationExercise(0, "lektura", 0, listOf(
+            state = BaseExerciseUiState.Success(
+                listOf(BaseExercise(0, "lektura", 0, listOf(
                     "wykład", "lecture", "książka", "czytanie"
                 ))),
                 0,
                 1
             ),
+            onNavigateHome = {},
             onAnswerSelected = {},
-            onFinished = {_, _ -> },
-            onNavigateHome = {}
+            onFinished = {_, _ -> }
         )
     }
 }

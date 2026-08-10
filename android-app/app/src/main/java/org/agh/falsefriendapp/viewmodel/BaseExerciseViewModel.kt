@@ -3,15 +3,15 @@ package org.agh.falsefriendapp.viewmodel
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.agh.falsefriendapp.data.model.TranslationExercise
-import org.agh.falsefriendapp.ui.state.ExerciseUiState
+import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 
 abstract class BaseExerciseViewModel : ViewModel() {
-    private val _state = MutableStateFlow<ExerciseUiState>(ExerciseUiState.Loading)
+    private val _state = MutableStateFlow<BaseExerciseUiState>(BaseExerciseUiState.Loading)
     val state = _state.asStateFlow()
 
-    protected fun setSuccess(exercises: List<TranslationExercise>) {
-        _state.value = ExerciseUiState.Success(
+    protected fun setSuccess(exercises: List<BaseExercise>) {
+        _state.value = BaseExerciseUiState.Success(
             exercises = exercises,
             currentIndex = 0,
             correctAnswers = 0
@@ -19,13 +19,13 @@ abstract class BaseExerciseViewModel : ViewModel() {
     }
 
     protected fun setError(message: String) {
-        _state.value = ExerciseUiState.Error(message)
+        _state.value = BaseExerciseUiState.Error(message)
     }
 
     fun onAnswerSelected(selectedIndex: Int) {
         val currentState = _state.value
 
-        if (currentState !is ExerciseUiState.Success) {
+        if (currentState !is BaseExerciseUiState.Success) {
             return
         }
 
@@ -39,7 +39,7 @@ abstract class BaseExerciseViewModel : ViewModel() {
         nextQuestion(currentState, newCorrectAnswers)
     }
 
-    private fun nextQuestion(currentState: ExerciseUiState.Success, newCorrectAnswers: Int) {
+    private fun nextQuestion(currentState: BaseExerciseUiState.Success, newCorrectAnswers: Int) {
         val nextIndex = currentState.currentIndex + 1
 
         if (nextIndex < currentState.exercises.size) {
@@ -49,7 +49,7 @@ abstract class BaseExerciseViewModel : ViewModel() {
             )
         }
         else {
-            _state.value = ExerciseUiState.Finished(
+            _state.value = BaseExerciseUiState.Finished(
                 correctAnswers = newCorrectAnswers,
                 totalQuestions = currentState.exercises.size
             )

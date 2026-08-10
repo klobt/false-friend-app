@@ -20,11 +20,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.agh.falsefriendapp.data.model.TranslationExercise
+import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 
@@ -33,7 +32,7 @@ fun BaseExerciseScreen(
     currentStep: Int,
     totalSteps: Int,
     instruction: String,
-    exercise: TranslationExercise,
+    exercise: BaseExercise,
     onAnswerSelected: (Int) -> Unit
 ) {
     Column(
@@ -113,7 +112,7 @@ fun BaseExerciseScreenPreview() {
             currentStep = 3,
             totalSteps = 10,
             instruction = "Jak po angielsku powiemy:",
-            exercise = TranslationExercise(
+            exercise = BaseExercise(
                 0, "lektura", 1, listOf("lecture", "wykład", "czytanie", "lektor")
             ),
             onAnswerSelected = {}

@@ -6,59 +6,56 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.agh.falsefriendapp.data.model.TranslationExercise
-import org.agh.falsefriendapp.ui.state.ExerciseUiState
+import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 
 @Composable
 fun TranslationExerciseScreen(
     viewModel: TranslationExerciseViewModel = viewModel(),
-    onFinished: (
-        score: Int,
-        totalQuestions: Int
-    ) -> Unit,
-    onNavigateHome: () -> Unit
+    onNavigateHome: () -> Unit,
+    onFinished: (score: Int, totalQuestions: Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     TranslationExerciseContent(
         state,
+        onNavigateHome,
         viewModel::onAnswerSelected,
-        onFinished,
-        onNavigateHome
+        onFinished
     )
 }
 
 @Composable
 fun TranslationExerciseContent(
-    state: ExerciseUiState,
+    state: BaseExerciseUiState,
+    onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit,
-    onNavigateHome: () -> Unit
+    onFinished: (score: Int, totalQuestions: Int) -> Unit
 ) {
-    when (val currentState = state) {
-        ExerciseUiState.Loading -> {
+    when (state) {
+        BaseExerciseUiState.Loading -> {
             LoadingScreen()
         }
-        is ExerciseUiState.Error -> {
-            ErrorScreen(currentState.message, onNavigateHome)
+        is BaseExerciseUiState.Error -> {
+            ErrorScreen(state.message, onNavigateHome)
         }
-        is ExerciseUiState.Success -> {
-            val currentExercise = currentState.exercises[currentState.currentIndex]
+        is BaseExerciseUiState.Success -> {
+            val currentExercise = state.exercises[state.currentIndex]
 
             BaseExerciseScreen(
-                currentStep = currentState.currentIndex + 1,
-                totalSteps = currentState.exercises.size,
+                currentStep = state.currentIndex + 1,
+                totalSteps = state.exercises.size,
                 instruction = "Jak po angielsku powiemy:",
                 exercise = currentExercise,
                 onAnswerSelected = onAnswerSelected
             )
         }
-        is ExerciseUiState.Finished -> {
-            LaunchedEffect(currentState) {
+        is BaseExerciseUiState.Finished -> {
+            LaunchedEffect(state) {
                 onFinished(
-                    currentState.correctAnswers,
-                    currentState.totalQuestions
+                    state.correctAnswers,
+                    state.totalQuestions
                 )
             }
         }
@@ -70,16 +67,16 @@ fun TranslationExerciseContent(
 fun TranslationExerciseContentPreview() {
     FalseFriendAppTheme {
         TranslationExerciseContent(
-            state = ExerciseUiState.Success(
-                listOf(TranslationExercise(0, "lektura", 0, listOf(
+            state = BaseExerciseUiState.Success(
+                listOf(BaseExercise(0, "lektura", 0, listOf(
                     "wykład", "lecture", "książka", "czytanie"
                 ))),
                 0,
                 1
             ),
+            onNavigateHome = {},
             onAnswerSelected = {},
-            onFinished = {_, _ -> },
-            onNavigateHome = {}
+            onFinished = {_, _ -> }
         )
     }
 }
