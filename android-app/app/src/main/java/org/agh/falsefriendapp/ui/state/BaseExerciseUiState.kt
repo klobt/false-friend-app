@@ -1,22 +1,22 @@
 package org.agh.falsefriendapp.ui.state
 
-import org.agh.falsefriendapp.data.model.TranslationExercise
+import org.agh.falsefriendapp.data.model.BaseExercise
 
-sealed class ExerciseUiState {
-    data object Loading: ExerciseUiState()
+sealed class BaseExerciseUiState {
+    data object Loading: BaseExerciseUiState()
 
     data class Success(
-        val exercises: List<TranslationExercise>,
+        val exercises: List<BaseExercise>,
         val currentIndex: Int,
         val correctAnswers: Int
-    ): ExerciseUiState()
+    ): BaseExerciseUiState()
 
     data class Error(
         val message: String
-    ): ExerciseUiState()
+    ): BaseExerciseUiState()
 
     data class Finished(
         val correctAnswers: Int,
         val totalQuestions: Int
-    ): ExerciseUiState()
+    ): BaseExerciseUiState()
 }

@@ -9,20 +9,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BaseButton(
-    text: String,
-    height: Dp,
-    onClick: () -> Unit
-) {
+fun MatchExerciseButton(text: String) {
     Button(
-        onClick = onClick,
-        modifier = Modifier
-            .width(300.dp)
-            .height(height),
+        onClick = {},
+        modifier = Modifier.width(100.dp).height(50.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -33,9 +26,6 @@ fun BaseButton(
             pressedElevation = 8.dp
         )
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Text(text)
     }
 }

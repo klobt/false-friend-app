@@ -1,16 +1,16 @@
 package org.agh.falsefriendapp.data.repository
 
 import org.agh.falsefriendapp.data.api.RetrofitClient
-import org.agh.falsefriendapp.data.model.TranslationExercise
+import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.data.model.MatchExercise
 
 class ExerciseRepository {
-    suspend fun getTranslationExercises(): List<TranslationExercise> {
+    suspend fun getTranslationExercises(): List<BaseExercise> {
         val todayReview = RetrofitClient.api.getExercisesIds(10, 0).exercisesIds
-        val response = RetrofitClient.api.getExercises(listOf(1, 2, 3, 10))
+        val response = RetrofitClient.api.getExercises(listOf(1, 2, 3))
 
-        return response.data.filter { dto -> dto.type == 101 }
-            .map { dto ->
-            TranslationExercise(
+        return response.data.map { dto ->
+            BaseExercise(
                 id = dto.id,
                 sentence = dto.content.word,
                 options = dto.content.answers,
@@ -19,7 +19,16 @@ class ExerciseRepository {
         }
     }
 
-    suspend fun getDefinitionExercises(): List<TranslationExercise> {
+    suspend fun getDefinitionExercises(): List<BaseExercise> {
         return getTranslationExercises()
+    }
+
+    suspend fun getMatchExercises(): List<MatchExercise> {
+        val mockExercise = listOf(
+            MatchExercise(0, "morze", "sea"),
+            MatchExercise(0, "dom", "house"),
+        )
+
+        return mockExercise
     }
 }
