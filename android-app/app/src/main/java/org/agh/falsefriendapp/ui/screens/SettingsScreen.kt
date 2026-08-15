@@ -1,6 +1,5 @@
 package org.agh.falsefriendapp.ui.screens
 
-import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
