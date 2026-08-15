@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
+import org.agh.falsefriendapp.ui.screens.SettingsScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
@@ -17,7 +18,8 @@ fun NavGraph() {
         composable("userHome") {
             UserMainScreen(
                 onStartTranslation = { navController.navigate("translation") },
-                onStartDefinition = {navController.navigate("definition")}
+                onStartDefinition = { navController.navigate("definition") },
+                onStartSettings = { navController.navigate("settings") }
             )
         }
 
@@ -63,6 +65,12 @@ fun NavGraph() {
                 onNavigateHome = {
                     navController.popBackStack(route = "userHome", inclusive = false)
                 }
+            )
+        }
+
+        composable("settings") {
+            SettingsScreen(
+                onNavigateHome = { navController.popBackStack() }
             )
         }
     }

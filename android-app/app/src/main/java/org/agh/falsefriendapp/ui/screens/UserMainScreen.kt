@@ -1,17 +1,23 @@
 package org.agh.falsefriendapp.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,10 +33,11 @@ import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 @Composable
 fun UserMainScreen(
     onStartTranslation: () -> Unit,
-    onStartDefinition: () -> Unit
+    onStartDefinition: () -> Unit,
+    onStartSettings: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-        MenuHeader()
+        MenuHeader(onStartSettings)
         ExerciseMenu(
             onStartTranslation = onStartTranslation,
             onStartDefinition = onStartDefinition
@@ -39,25 +46,48 @@ fun UserMainScreen(
 }
 
 @Composable
-private fun MenuHeader() {
+private fun MenuHeader(onStartSettings: () -> Unit) {
     Surface(color =  MaterialTheme.colorScheme.primaryContainer) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .padding(24.dp)
         ) {
-            Text(
-                text = "Witaj z powrotem!",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Text(
-                text = "Mateusz",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            Column {
+                Text(
+                    text = "Witaj z powrotem!",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = "Mateusz",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Surface(
+                modifier = Modifier
+                    .size(56.dp)
+                    .align(Alignment.TopEnd),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp
+            ) {
+                IconButton(
+                    onClick = onStartSettings,
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profil użytkownika",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -118,6 +148,10 @@ fun ExerciseMenu(
 @Composable
 fun HomeScreenPreview() {
     FalseFriendAppTheme {
-        UserMainScreen(onStartTranslation = {}, onStartDefinition = {})
+        UserMainScreen(
+            onStartTranslation = {},
+            onStartDefinition = {},
+            onStartSettings = {}
+        )
     }
 }
