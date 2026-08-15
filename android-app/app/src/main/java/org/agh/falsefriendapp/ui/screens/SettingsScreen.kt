@@ -1,5 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,30 +27,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.agh.falsefriendapp.BuildConfig
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onNavigateHome: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-        SettingsHeader()
+        SettingsHeader(onNavigateHome)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp) // , vertical = 20.dp
+                .padding(horizontal = 20.dp, vertical = 20.dp)
         ) {
+            SettingsSection(title = "UŻYTKOWNIK") {
+                SettingsItem(title = "Nazwa", "Mateusz")
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             SettingsSection(title = "APLIKACJA") {
-                SettingsItem(title = "Wersja", value = "1.0.0")
+                val versionText = BuildConfig.VERSION_NAME + " (${BuildConfig.VERSION_CODE})"
+                SettingsItem(title = "Wersja", value = versionText)
+                SettingsItem(title = "Język", value = "Polski")
             }
         }
     }
 }
 
 @Composable
-fun SettingsHeader() {
+fun SettingsHeader(onNavigateHome: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,7 +72,7 @@ fun SettingsHeader() {
             tonalElevation = 2.dp
         ) {
             IconButton(
-                onClick = {},
+                onClick = onNavigateHome,
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -144,6 +151,6 @@ fun SettingsItem(
 @Composable
 fun SettingsScreenPreview() {
     FalseFriendAppTheme {
-        SettingsScreen()
+        SettingsScreen(onNavigateHome = {})
     }
 }

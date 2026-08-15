@@ -19,7 +19,7 @@ fun NavGraph() {
             UserMainScreen(
                 onStartTranslation = { navController.navigate("translation") },
                 onStartDefinition = { navController.navigate("definition") },
-                onStartSettings = { navController }
+                onStartSettings = { navController.navigate("settings") }
             )
         }
 
@@ -69,7 +69,9 @@ fun NavGraph() {
         }
 
         composable("settings") {
-            SettingsScreen()
+            SettingsScreen(
+                onNavigateHome = { navController.popBackStack() }
+            )
         }
     }
 }
