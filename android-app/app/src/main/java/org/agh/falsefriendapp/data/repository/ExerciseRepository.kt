@@ -24,6 +24,8 @@ class ExerciseRepository {
     }
 
     suspend fun getMatchExercises(): List<MatchExercise> {
+        val response = RetrofitClient.api.getExercises(listOf(7, 8))
+
         val mockExercise = listOf(
             MatchExercise(0, "morze", "sea"),
             MatchExercise(0, "dom", "house"),
