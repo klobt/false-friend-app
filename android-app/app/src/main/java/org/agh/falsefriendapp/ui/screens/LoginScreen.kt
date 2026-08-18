@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -44,7 +45,13 @@ fun LoginScreen() {
             onSelectionChanged = { isLoginSelected = it }
         )
         Spacer(modifier = Modifier.height(32.dp))
-        LoginForm()
+
+        if (isLoginSelected) {
+            LoginForm()
+        }
+        else {
+            RegisterForm()
+        }
     }
 }
 
@@ -84,9 +91,18 @@ fun AuthModeSelector(
         SegmentedButton(
             selected = isLoginSelected,
             onClick = { onSelectionChanged(true) },
-            shape = SegmentedButtonDefaults.itemShape(
-                index = 0,
-                count = 2
+            shape = RoundedCornerShape(
+                topStart = 12.dp,
+                bottomStart = 12.dp,
+                topEnd = 0.dp,
+                bottomEnd = 0.dp
+            ),
+            icon = {},
+            colors = SegmentedButtonDefaults.colors(
+                activeContainerColor = MaterialTheme.colorScheme.primary,
+                activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                inactiveContentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Text("Logowanie")
@@ -94,9 +110,18 @@ fun AuthModeSelector(
         SegmentedButton(
             selected = !isLoginSelected,
             onClick = { onSelectionChanged(false) },
-            shape = SegmentedButtonDefaults.itemShape(
-                index = 1,
-                count = 2
+            shape = RoundedCornerShape(
+                topStart = 0.dp,
+                bottomStart = 0.dp,
+                topEnd = 12.dp,
+                bottomEnd = 12.dp
+            ),
+            icon = {},
+            colors = SegmentedButtonDefaults.colors(
+                activeContainerColor = MaterialTheme.colorScheme.primary,
+                activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                inactiveContentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Text("Rejestracja")
@@ -106,18 +131,20 @@ fun AuthModeSelector(
 
 @Composable
 fun LoginForm() {
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = username,
+            onValueChange = { username = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Adres e-mail") },
-            singleLine = true
+            label = { Text("Nazwa użytkownika") },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
@@ -126,13 +153,61 @@ fun LoginForm() {
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Hasło") },
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(48.dp))
         BaseButton(
             text = "Zaloguj",
             height = 56.dp,
             onClick = {} // TODO logowanie
+        )
+    }
+}
+
+@Composable
+fun RegisterForm() {
+    var username by remember { mutableStateOf("") }
+    var password1 by remember { mutableStateOf("") }
+    var password2 by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Nazwa użytkownika") },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = password1,
+            onValueChange = { password1 = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Hasło") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = password2,
+            onValueChange = { password2 = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Powtórz hasło") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(12.dp)
+        )
+        Spacer(modifier = Modifier.height(48.dp))
+        BaseButton(
+            text = "Zarejestruj",
+            height = 56.dp,
+            onClick = {} // TODO rejestracja
         )
     }
 }
