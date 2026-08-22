@@ -1,8 +1,9 @@
 from datetime import datetime
 import json
-from typing import Any, Generator, Mapping, Self
+from os.path import join
+from typing import Any, Generator, Mapping, Optional, Self
 
-from model import Card, Exercise, parse_card, parse_exercise, Session, parse_session
+from model import Card, Exercise, ExerciseType, parse_card, parse_exercise, Session, parse_session
 import sqlite3 as sql
 import dotenv
 
@@ -12,6 +13,7 @@ class GetBuilder:
         self.table = dao.table
         self.select_sql = ['*']
         self.where_sql = ['1']
+        self.join_sql = []
         self.order_by = None
         self.limit = None
         self.offset = None
@@ -21,8 +23,12 @@ class GetBuilder:
         self.select_sql = cols
         return self
 
+    def inner_join(self, table: str, col: str, op: str, rhs: str) -> Self:
+        self.join_sql.append(f'INNER JOIN {table} ON {col} {op} {rhs}')
+        return self
+
     def where_raw(self, col: str, op: str, raw: str) -> Self:
-        self.where_sql.append(f'"{col}" {op} {raw}')
+        self.where_sql.append(f'{col} {op} {raw}')
         return self
 
     def where(self, col: str, op: str, value) -> Self:
@@ -32,7 +38,7 @@ class GetBuilder:
             placeholders = ['?'] * len(value_list) if len(value_list) > 0 else ['NULL']
             self.where_raw(col, op, '(' + ', '.join(placeholders) + ')')
             self.where_params += value_list
-        except TypeError:
+        except TypeError :
             self.where_raw(col, op, '?')
             self.where_params += [value]
         return self
@@ -47,6 +53,8 @@ class GetBuilder:
 
         select_sql = ', '.join(self.select_sql)
 
+        join_sql = ' '.join(self.join_sql)
+
         where_sql = ' AND '.join(map(lambda c: f'({c})', self.where_sql))
         params += self.where_params
 
@@ -60,7 +68,7 @@ class GetBuilder:
             limit_sql += ' OFFSET ? '
             params.append(self.offset)
 
-        query = f'SELECT {select_sql} FROM "{self.table}" WHERE {where_sql} {limit_sql}'
+        query = f'SELECT {select_sql} FROM "{self.table}" {join_sql} WHERE {where_sql} {limit_sql}'
 
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
@@ -189,16 +197,20 @@ class CardDao(Dao):
 
     def get_review_exercise_ids(
         self,
+        type_filter: Optional[ExerciseType] = None,
         limit: int = 10,
         offset: int = 0,
         user_id: int = 1
     ) -> list[int]:
         self.sync_with_exercises(user_id)
 
+        row_builder = self._get().select(['exercise_id']).where('user_id', '=', user_id)
+
+        if type_filter is not None:
+            row_builder = row_builder.inner_join('exercises', 'exercises.id', '=', 'exercise_id').where('exercises.type', '=', type_filter.value)
+
         rows = (
-            self._get()
-            .select(['exercise_id'])
-            .where('user_id', '=', user_id)
+            row_builder
             .where_raw('review_at', '<=', 'CURRENT_TIMESTAMP')
             .with_limit(limit, offset)
             .fetch_rows()
