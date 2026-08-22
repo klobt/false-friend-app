@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
 from dao import CardDao, ExerciseDao, SessionDao, UserDao
-from model import PublicUserData, Session
+from model import ExerciseType, PublicUserData, Session
 
 app = FastAPI()
 
@@ -15,9 +15,9 @@ async def get_exercises(ids: list[int] = Query(default=[])):
     }
 
 @app.get("/reviews/today")
-async def get_card_exercise_ids(limit: int = Query(default=10), offset: int = Query(default=0)):
+async def get_card_exercise_ids(type_filter = Query(default=None), limit: int = Query(default=10), offset: int = Query(default=0)):
     return {
-        "exercise_ids": CardDao().get_review_exercise_ids(limit, offset),
+        "exercise_ids": CardDao().get_review_exercise_ids(ExerciseType[type_filter] if type_filter else None, limit, offset)
     }
 
 @app.get("/sessions/")
