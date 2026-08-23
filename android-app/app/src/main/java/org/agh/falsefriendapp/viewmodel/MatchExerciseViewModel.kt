@@ -50,7 +50,9 @@ class MatchExerciseViewModel : ViewModel() {
         if (currentState !is MatchExerciseUiState.Success) {
             return
         }
-        if (currentState.selectedLeft == null) {
+
+        val selectedLeft = currentState.selectedLeft
+        if (selectedLeft == null) {
             return
         }
 
@@ -62,13 +64,17 @@ class MatchExerciseViewModel : ViewModel() {
         }
 
         val newConnection = MatchConnection(
-            leftIndex = currentState.selectedLeft,
+            leftIndex = selectedLeft,
             rightIndex = originalIndex
         )
         val newConnections = currentState.connections + newConnection
-
         val currentExercise = currentState.exercises[currentState.currentIndex]
-        if (newConnections.size == currentExercise.left.size) {
+        val totalPairs = minOf(
+            currentExercise.left.size,
+            currentExercise.right.size
+        )
+
+        if (newConnections.size == totalPairs) {
             finishExercise(
                 currentState = currentState,
                 connections = newConnections
@@ -102,7 +108,7 @@ class MatchExerciseViewModel : ViewModel() {
         }
         else {
             val totalQuestions = currentState.exercises.sumOf {
-                it.left.size
+                minOf(it.left.size, it.right.size)
             }
 
             _state.value = MatchExerciseUiState.Finished(

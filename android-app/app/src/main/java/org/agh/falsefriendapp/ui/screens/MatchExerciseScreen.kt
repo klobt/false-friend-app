@@ -128,7 +128,9 @@ fun MatchExerciseTask(
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
+
         Spacer(modifier = Modifier.height(16.dp))
+        val lineColor = MaterialTheme.colorScheme.primary
 
         Box(
             modifier = Modifier.fillMaxWidth()
@@ -136,8 +138,6 @@ fun MatchExerciseTask(
                     boardCoordinates = it
                 }
         ) {
-            val lineColor = MaterialTheme.colorScheme.primary
-
             Canvas(modifier = Modifier.matchParentSize()) {
                 connections.forEach { connection ->
                     val left = leftPositions[connection.leftIndex]
@@ -155,21 +155,15 @@ fun MatchExerciseTask(
                 }
             }
 
-            Column(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalArrangement = Arrangement.spacedBy(
+                    100.dp,
+                    Alignment.CenterHorizontally
+                )
             ) {
-                exercise.left.indices.forEach { index ->
-                    val left = exercise.left[index]
-                    val right = exercise.right[index]
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            100.dp,
-                            Alignment.CenterHorizontally
-                        )
-                    ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    exercise.left.forEachIndexed { index, left ->
                         MatchExerciseButton(
                             text = left,
                             selected = selectedLeft == index,
@@ -187,6 +181,12 @@ fun MatchExerciseTask(
                                 }
                             }
                         )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+
+                Column(horizontalAlignment = Alignment.Start) {
+                    exercise.right.forEach { right ->
                         MatchExerciseButton(
                             text = right.text,
                             selected = false,
@@ -204,8 +204,9 @@ fun MatchExerciseTask(
                                 }
                             }
                         )
+
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
         }
