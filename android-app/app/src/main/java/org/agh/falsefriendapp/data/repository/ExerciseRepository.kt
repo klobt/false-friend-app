@@ -27,8 +27,11 @@ class ExerciseRepository {
         val response = RetrofitClient.api.getExercises(listOf(7, 8))
 
         val mockExercise = listOf(
-            MatchExercise(0, "morze", "sea"),
-            MatchExercise(0, "dom", "house"),
+            MatchExercise(
+                0,
+                listOf("morze", "dom", "samochód", "pies"),
+                listOf("sea", "house", "car", "dog")
+            )
         )
 
         return mockExercise

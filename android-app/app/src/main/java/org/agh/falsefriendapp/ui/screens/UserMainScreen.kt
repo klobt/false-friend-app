@@ -34,13 +34,15 @@ import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 fun UserMainScreen(
     onStartTranslation: () -> Unit,
     onStartDefinition: () -> Unit,
+    onStartMatch: () -> Unit,
     onStartSettings: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
         MenuHeader(onStartSettings)
         ExerciseMenu(
             onStartTranslation = onStartTranslation,
-            onStartDefinition = onStartDefinition
+            onStartDefinition = onStartDefinition,
+            onStartMatch = onStartMatch
         )
     }
 }
@@ -95,7 +97,8 @@ private fun MenuHeader(onStartSettings: () -> Unit) {
 @Composable
 fun ExerciseMenu(
     onStartTranslation: () -> Unit,
-    onStartDefinition: () -> Unit
+    onStartDefinition: () -> Unit,
+    onStartMatch: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -137,8 +140,7 @@ fun ExerciseMenu(
                 title = "Połącz pary",
                 description = "Połącz słowa w pary",
                 icon = Icons.AutoMirrored.Filled.CompareArrows,
-                // TODO polacz w pary
-                onClick = {}
+                onClick = onStartMatch
             )
         }
     }
@@ -151,6 +153,7 @@ fun HomeScreenPreview() {
         UserMainScreen(
             onStartTranslation = {},
             onStartDefinition = {},
+            onStartMatch = {},
             onStartSettings = {}
         )
     }
