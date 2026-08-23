@@ -166,7 +166,7 @@ fun MatchExerciseTask(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(
-                            96.dp,
+                            100.dp,
                             Alignment.CenterHorizontally
                         )
                     ) {
@@ -181,7 +181,7 @@ fun MatchExerciseTask(
                                 boardCoordinates?.let { board ->
                                     val position = board.localPositionOf(coordinates)
                                     leftPositions[index] = Offset(
-                                        x = position.x + coordinates.size.width / 2f,
+                                        x = position.x + coordinates.size.width,
                                         y = position.y + coordinates.size.height / 2f
                                     )
                                 }
@@ -198,7 +198,7 @@ fun MatchExerciseTask(
                                 boardCoordinates?.let { board ->
                                     val position = board.localPositionOf(coordinates)
                                     rightPositions[right.originalIndex] = Offset(
-                                        x = position.x + coordinates.size.width / 2f,
+                                        x = position.x,
                                         y = position.y + coordinates.size.height / 2f
                                     )
                                 }

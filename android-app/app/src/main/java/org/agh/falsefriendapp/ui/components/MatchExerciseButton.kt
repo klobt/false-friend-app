@@ -1,5 +1,6 @@
 package org.agh.falsefriendapp.ui.components
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,8 +34,9 @@ fun MatchExerciseButton(
     Button(
         onClick = onClick,
         enabled = !matched,
-        modifier = modifier.width(100.dp).height(50.dp),
+        modifier = modifier.width(120.dp).height(60.dp),
         shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor,

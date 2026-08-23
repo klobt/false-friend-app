@@ -1,18 +1,25 @@
 package org.agh.falsefriendapp.data.api
 
-import org.agh.falsefriendapp.data.model.network.ExerciseResponse
+import org.agh.falsefriendapp.data.model.network.BaseExerciseResponse
 import org.agh.falsefriendapp.data.model.network.ExercisesIds
+import org.agh.falsefriendapp.data.model.network.MatchExerciseResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ExerciseApi {
     @GET("exercises")
-    suspend fun getExercises(
+    suspend fun getBaseExercises(
         @Query("ids") ids: List<Int>
-    ): ExerciseResponse
+    ): BaseExerciseResponse
+
+    @GET("exercises")
+    suspend fun getMatchExercises(
+        @Query("ids") ids: List<Int>
+    ): MatchExerciseResponse
 
     @GET("reviews/today")
-    suspend fun getExercisesIds(
+    suspend fun getReviews(
+        @Query("type_filter") type: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int
     ): ExercisesIds

@@ -86,7 +86,8 @@ fun SettingsHeader(onNavigateHome: () -> Unit) {
         Spacer(modifier = Modifier.width(24.dp))
         Text(
             text = "Ustawienia",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
         )
     }
 }

@@ -4,24 +4,41 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ExerciseResponse(
-    val data: List<ExerciseDto>
+data class BaseExerciseResponse(
+    val data: List<BaseExerciseDto>
 )
 
 @Serializable
-data class ExerciseDto(
+data class BaseExerciseDto(
     val id: Int,
     val type: Int,
-    @SerialName("data")
-    val content: ExerciseContentDto
+    val data: BaseExerciseContentDto
 )
 
 @Serializable
-data class ExerciseContentDto(
+data class BaseExerciseContentDto(
     val word: String,
     val answers: List<String>,
     @SerialName("correct_idx")
     val correctIdx: Int
+)
+
+@Serializable
+data class MatchExerciseResponse(
+    val data: List<MatchExerciseDto>
+)
+
+@Serializable
+data class MatchExerciseDto(
+    val id: Int,
+    val type: Int,
+    val data: MatchExerciseContentDto
+)
+
+@Serializable
+data class MatchExerciseContentDto(
+    val left: List<String>,
+    val right: List<String>
 )
 
 @Serializable
