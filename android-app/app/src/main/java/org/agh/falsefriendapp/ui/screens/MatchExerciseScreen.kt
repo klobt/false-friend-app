@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
+import org.agh.falsefriendapp.ui.components.NavigationButton
 import org.agh.falsefriendapp.ui.state.MatchConnection
 import org.agh.falsefriendapp.ui.state.MatchExerciseSession
 import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
@@ -51,7 +52,8 @@ fun MatchExerciseScreen(
         onFinished = onFinished,
         onNavigateHome = onNavigateHome,
         onLeftSelected = viewModel::selectLeft,
-        onRightSelected = viewModel::selectRight
+        onRightSelected = viewModel::selectRight,
+        onClearConnections = viewModel::clearConnections
     )
 }
 
@@ -61,7 +63,8 @@ fun MatchExerciseContent(
     onFinished: (score: Int, totalQuestions: Int) -> Unit,
     onNavigateHome: () -> Unit,
     onLeftSelected: (Int) -> Unit,
-    onRightSelected: (Int) -> Unit
+    onRightSelected: (Int) -> Unit,
+    onClearConnections: () -> Unit
 ) {
     when (state) {
         MatchExerciseUiState.Loading -> {
@@ -80,7 +83,8 @@ fun MatchExerciseContent(
                 selectedLeft = state.selectedLeft,
                 connections = state.connections,
                 onLeftSelected = onLeftSelected,
-                onRightSelected = onRightSelected
+                onRightSelected = onRightSelected,
+                onClearConnections = onClearConnections
             )
         }
         is MatchExerciseUiState.Finished -> {
@@ -102,7 +106,8 @@ fun MatchExerciseTask(
     selectedLeft: Int?,
     connections: List<MatchConnection>,
     onLeftSelected: (Int) -> Unit,
-    onRightSelected: (Int) -> Unit
+    onRightSelected: (Int) -> Unit,
+    onClearConnections: () -> Unit
 ) {
     val leftPositions = remember(exercise) {
         mutableStateMapOf<Int, Offset>()
@@ -134,6 +139,7 @@ fun MatchExerciseTask(
 
         Box(
             modifier = Modifier.fillMaxWidth()
+                .weight(1f)
                 .onGloballyPositioned {
                     boardCoordinates = it
                 }
@@ -210,6 +216,13 @@ fun MatchExerciseTask(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        NavigationButton(
+            text = "Wyczyść zaznaczenie",
+            onClick = onClearConnections
+        )
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -235,7 +248,8 @@ fun MatchExerciseContentPreview() {
             onNavigateHome = {},
             onFinished = {_, _ -> },
             onLeftSelected = {},
-            onRightSelected = {}
+            onRightSelected = {},
+            onClearConnections = {}
         )
     }
 }

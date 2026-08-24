@@ -88,6 +88,18 @@ class MatchExerciseViewModel : ViewModel() {
         }
     }
 
+    fun clearConnections() {
+        val currentState = _state.value
+        if (currentState !is MatchExerciseUiState.Success) {
+            return
+        }
+
+        _state.value = currentState.copy(
+            selectedLeft = null,
+            connections = emptyList()
+        )
+    }
+
     private fun finishExercise(
         currentState: MatchExerciseUiState.Success,
         connections: List<MatchConnection>
