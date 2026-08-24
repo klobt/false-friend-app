@@ -14,20 +14,6 @@ class ExerciseRepository {
     }
 
     suspend fun getMatchExercises(): List<MatchExercise> {
-        val mockExercise = listOf(
-            MatchExercise(
-                0,
-                listOf("morze", "dom", "samochód", "pies", "kaczka"),
-                listOf("sea", "house", "car", "dog")
-            ),
-            MatchExercise(
-                0,
-                listOf("morze2", "dom2", "samochód2", "pies2", "kaczka2"),
-                listOf("sea2", "house2", "car2", "dog2")
-            )
-        )
-//        return mockExercise
-
         val todayReview = RetrofitClient.api.getReviews("connect", 4, 0).exercisesIds
         val response = RetrofitClient.api.getMatchExercises(todayReview)
 

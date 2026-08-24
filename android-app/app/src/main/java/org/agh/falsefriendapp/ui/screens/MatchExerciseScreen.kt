@@ -219,7 +219,7 @@ fun MatchExerciseTask(
 
         Spacer(modifier = Modifier.height(20.dp))
         NavigationButton(
-            text = "Wyczyść zaznaczenie",
+            text = "Cofnij",
             onClick = onClearConnections
         )
         Spacer(modifier = Modifier.height(20.dp))

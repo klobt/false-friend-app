@@ -51,10 +51,7 @@ class MatchExerciseViewModel : ViewModel() {
             return
         }
 
-        val selectedLeft = currentState.selectedLeft
-        if (selectedLeft == null) {
-            return
-        }
+        val selectedLeft = currentState.selectedLeft ?: return
 
         val alreadyConnected = currentState.connections.any {
             it.rightIndex == originalIndex
@@ -93,10 +90,13 @@ class MatchExerciseViewModel : ViewModel() {
         if (currentState !is MatchExerciseUiState.Success) {
             return
         }
+        if (currentState.connections.isEmpty()) {
+            return
+        }
 
         _state.value = currentState.copy(
             selectedLeft = null,
-            connections = emptyList()
+            connections = currentState.connections.dropLast(1)
         )
     }
 
