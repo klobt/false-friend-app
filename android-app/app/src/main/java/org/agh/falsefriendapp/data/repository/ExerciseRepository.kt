@@ -6,31 +6,37 @@ import org.agh.falsefriendapp.data.model.MatchExercise
 
 class ExerciseRepository {
     suspend fun getTranslationExercises(): List<BaseExercise> {
-        val todayReview = RetrofitClient.api.getExercisesIds(10, 0).exercisesIds
-        val response = RetrofitClient.api.getExercises(listOf(1, 2, 3))
+        return getBaseExercises("translation")
+    }
+
+    suspend fun getDefinitionExercises(): List<BaseExercise> {
+        return getBaseExercises("definition")
+    }
+
+    suspend fun getMatchExercises(): List<MatchExercise> {
+        val todayReview = RetrofitClient.api.getReviews("connect", 4, 0).exercisesIds
+        val response = RetrofitClient.api.getMatchExercises(todayReview)
 
         return response.data.map { dto ->
-            BaseExercise(
+            MatchExercise(
                 id = dto.id,
-                sentence = dto.content.word,
-                options = dto.content.answers,
-                correctAnswerIndex = dto.content.correctIdx
+                left = dto.data.left,
+                right = dto.data.right
             )
         }
     }
 
-    suspend fun getDefinitionExercises(): List<BaseExercise> {
-        return getTranslationExercises()
-    }
+    private suspend fun getBaseExercises(type: String): List<BaseExercise> {
+        val todayReview = RetrofitClient.api.getReviews(type, 10, 0).exercisesIds
+        val response = RetrofitClient.api.getBaseExercises(todayReview)
 
-    suspend fun getMatchExercises(): List<MatchExercise> {
-        val response = RetrofitClient.api.getExercises(listOf(7, 8))
-
-        val mockExercise = listOf(
-            MatchExercise(0, "morze", "sea"),
-            MatchExercise(0, "dom", "house"),
-        )
-
-        return mockExercise
+        return response.data.map { dto ->
+            BaseExercise(
+                id = dto.id,
+                sentence = dto.data.word,
+                options = dto.data.answers,
+                correctAnswerIndex = dto.data.correctIdx
+            )
+        }
     }
 }

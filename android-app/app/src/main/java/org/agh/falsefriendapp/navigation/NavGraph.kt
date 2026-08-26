@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
+import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
 import org.agh.falsefriendapp.ui.screens.SettingsScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
@@ -19,6 +20,7 @@ fun NavGraph() {
             UserMainScreen(
                 onStartTranslation = { navController.navigate("translation") },
                 onStartDefinition = { navController.navigate("definition") },
+                onStartMatch = { navController.navigate("match") },
                 onStartSettings = { navController.navigate("settings") }
             )
         }
@@ -40,6 +42,19 @@ fun NavGraph() {
             DefinitionExerciseScreen(
                 onFinished = { score, totalQuestions ->
                     navController.navigate("summary/$score/$totalQuestions/definition") {
+                        popUpTo("definition") { inclusive = true }
+                    }
+                },
+                onNavigateHome = {
+                    navController.popBackStack(route = "userHome", inclusive = false)
+                }
+            )
+        }
+
+        composable("match") {
+            MatchExerciseScreen(
+                onFinished = { score, totalQuestions ->
+                    navController.navigate("summary/$score/$totalQuestions/match") {
                         popUpTo("definition") { inclusive = true }
                     }
                 },

@@ -25,9 +25,9 @@ import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 fun ErrorScreen(message: String, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(160.dp))
         Icon(
             imageVector = Icons.Default.ErrorOutline,
             contentDescription = null,
@@ -47,8 +47,9 @@ fun ErrorScreen(message: String, onBack: () -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.weight(1f))
         NavigationButton("Powrót do menu", onBack)
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 

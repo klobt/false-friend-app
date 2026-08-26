@@ -1,12 +1,14 @@
 package org.agh.falsefriendapp.ui.state
 
-import org.agh.falsefriendapp.data.model.MatchExercise
-
 sealed class MatchExerciseUiState {
     data object Loading: MatchExerciseUiState()
 
     data class Success(
-        val exercises: List<MatchExercise>
+        val exercises: List<MatchExerciseSession>,
+        val currentIndex: Int,
+        val selectedLeft: Int? = null,
+        val connections: List<MatchConnection> = emptyList(),
+        val correctAnswers: Int = 0
     ): MatchExerciseUiState()
 
     data class Error(

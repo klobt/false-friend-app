@@ -132,8 +132,9 @@ fun SummaryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.weight(1f))
         NavigationButton(text = "Menu główne", onClick = onNavigateHome)
+        Spacer(modifier = Modifier.height(120.dp))
     }
 }
 

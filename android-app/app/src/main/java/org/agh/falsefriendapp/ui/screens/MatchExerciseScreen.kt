@@ -1,6 +1,8 @@
 package org.agh.falsefriendapp.ui.screens
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,43 +17,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.agh.falsefriendapp.data.model.MatchExercise
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
+import org.agh.falsefriendapp.ui.components.NavigationButton
+import org.agh.falsefriendapp.ui.state.MatchConnection
+import org.agh.falsefriendapp.ui.state.MatchExerciseSession
 import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
+import org.agh.falsefriendapp.ui.state.MatchOption
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.MatchExerciseViewModel
 
 @Composable
 fun MatchExerciseScreen(
     viewModel: MatchExerciseViewModel = viewModel(),
-    onNavigateHome: () -> Unit,
     onFinished: (score: Int, totalQuestions: Int) -> Unit,
-    currentStep: Int,
-    totalSteps: Int
+    onNavigateHome: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     MatchExerciseContent(
-        state,
-        onNavigateHome,
-        onFinished,
-        currentStep,
-        totalSteps
+        state = state,
+        onFinished = onFinished,
+        onNavigateHome = onNavigateHome,
+        onLeftSelected = viewModel::selectLeft,
+        onRightSelected = viewModel::selectRight,
+        onClearConnections = viewModel::clearConnections
     )
 }
 
 @Composable
 fun MatchExerciseContent(
     state: MatchExerciseUiState,
-    onNavigateHome: () -> Unit,
     onFinished: (score: Int, totalQuestions: Int) -> Unit,
-    currentStep: Int,
-    totalSteps: Int
+    onNavigateHome: () -> Unit,
+    onLeftSelected: (Int) -> Unit,
+    onRightSelected: (Int) -> Unit,
+    onClearConnections: () -> Unit
 ) {
     when (state) {
         MatchExerciseUiState.Loading -> {
@@ -61,10 +74,17 @@ fun MatchExerciseContent(
             ErrorScreen(state.message, onNavigateHome)
         }
         is MatchExerciseUiState.Success -> {
+            val currentExercise = state.exercises[state.currentIndex]
+
             MatchExerciseTask(
-                state.exercises,
-                currentStep,
-                totalSteps
+                exercise = currentExercise,
+                currentStep = state.currentIndex + 1,
+                totalSteps = state.exercises.size,
+                selectedLeft = state.selectedLeft,
+                connections = state.connections,
+                onLeftSelected = onLeftSelected,
+                onRightSelected = onRightSelected,
+                onClearConnections = onClearConnections
             )
         }
         is MatchExerciseUiState.Finished -> {
@@ -80,10 +100,25 @@ fun MatchExerciseContent(
 
 @Composable
 fun MatchExerciseTask(
-    exercises: List<MatchExercise>,
+    exercise: MatchExerciseSession,
     currentStep: Int,
-    totalSteps: Int
+    totalSteps: Int,
+    selectedLeft: Int?,
+    connections: List<MatchConnection>,
+    onLeftSelected: (Int) -> Unit,
+    onRightSelected: (Int) -> Unit,
+    onClearConnections: () -> Unit
 ) {
+    val leftPositions = remember(exercise) {
+        mutableStateMapOf<Int, Offset>()
+    }
+    val rightPositions = remember(exercise) {
+        mutableStateMapOf<Int, Offset>()
+    }
+    var boardCoordinates by remember {
+        mutableStateOf<LayoutCoordinates?>(null)
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -100,19 +135,94 @@ fun MatchExerciseTask(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        exercises.forEach { exercise ->
+        val lineColor = MaterialTheme.colorScheme.primary
+
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .weight(1f)
+                .onGloballyPositioned {
+                    boardCoordinates = it
+                }
+        ) {
+            Canvas(modifier = Modifier.matchParentSize()) {
+                connections.forEach { connection ->
+                    val left = leftPositions[connection.leftIndex]
+                    val right = rightPositions[connection.rightIndex]
+
+                    if (left != null && right != null) {
+                        drawLine(
+                            color = lineColor,
+                            start = left,
+                            end = right,
+                            strokeWidth = 5.dp.toPx(),
+                            cap = StrokeCap.Round
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
-                    92.dp,
+                    100.dp,
                     Alignment.CenterHorizontally
                 )
             ) {
-                MatchExerciseButton(exercise.left)
-                MatchExerciseButton(exercise.right)
+                Column(horizontalAlignment = Alignment.End) {
+                    exercise.left.forEachIndexed { index, left ->
+                        MatchExerciseButton(
+                            text = left,
+                            selected = selectedLeft == index,
+                            matched = connections.any {
+                                it.leftIndex == index
+                            },
+                            onClick = { onLeftSelected(index) },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                boardCoordinates?.let { board ->
+                                    val position = board.localPositionOf(coordinates)
+                                    leftPositions[index] = Offset(
+                                        x = position.x + coordinates.size.width,
+                                        y = position.y + coordinates.size.height / 2f
+                                    )
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+
+                Column(horizontalAlignment = Alignment.Start) {
+                    exercise.right.forEach { right ->
+                        MatchExerciseButton(
+                            text = right.text,
+                            selected = false,
+                            matched = connections.any {
+                                it.rightIndex == right.originalIndex
+                            },
+                            onClick = { onRightSelected(right.originalIndex) },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                boardCoordinates?.let { board ->
+                                    val position = board.localPositionOf(coordinates)
+                                    rightPositions[right.originalIndex] = Offset(
+                                        x = position.x,
+                                        y = position.y + coordinates.size.height / 2f
+                                    )
+                                }
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(12.dp))
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        NavigationButton(
+            text = "Cofnij",
+            onClick = onClearConnections
+        )
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -123,14 +233,23 @@ fun MatchExerciseContentPreview() {
         MatchExerciseContent(
             state = MatchExerciseUiState.Success(
                 listOf(
-                    MatchExercise(0, "morze", "sea"),
-                    MatchExercise(0, "dom", "house"),
-                )
+                    MatchExerciseSession(
+                        listOf("morze", "dom", "samochód", "pies"),
+                        listOf(
+                            MatchOption(1, "house"),
+                            MatchOption(3, "dog"),
+                            MatchOption(2, "car"),
+                            MatchOption(0, "sea"),
+                        )
+                    )
+                ),
+                currentIndex = 0
             ),
             onNavigateHome = {},
             onFinished = {_, _ -> },
-            currentStep = 1,
-            totalSteps = 5
+            onLeftSelected = {},
+            onRightSelected = {},
+            onClearConnections = {}
         )
     }
 }
