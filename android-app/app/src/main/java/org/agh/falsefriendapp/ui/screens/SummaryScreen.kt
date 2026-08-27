@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.components.NavigationButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import kotlin.math.roundToInt
@@ -36,17 +37,23 @@ import kotlin.math.roundToInt
 fun SummaryScreen(
     score: Int,
     totalQuestions: Int,
-    exerciseName: String,
+    exerciseType: ExerciseType?,
     onNavigateHome: () -> Unit
 ) {
-    val exerciseNameText = when (exerciseName) {
-        "translation" -> "Wybierz tłumaczenie"
-        "definition" -> "Wybierz definicję"
-        "match" -> "Połącz pary"
-        else -> "Unknown"
+    val exerciseTypeText = when (exerciseType) {
+        ExerciseType.TRANSLATION -> "Wybierz tłumaczenie"
+        ExerciseType.DEFINITION -> "Wybierz definicję"
+        ExerciseType.MATCH -> "Połącz pary"
+        null -> "Unknown"
     }
 
-    val progress = score.toFloat() / totalQuestions
+    val progress = if (totalQuestions > 0) {
+        score.toFloat() / totalQuestions
+    }
+    else {
+        0f
+    }
+
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         label = "summary_progress"
@@ -76,7 +83,7 @@ fun SummaryScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = exerciseNameText,
+            text = exerciseTypeText,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -140,8 +147,8 @@ fun SummaryScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun SummaryScreenPreview() {
+private fun SummaryScreenPreview() {
     FalseFriendAppTheme {
-        SummaryScreen(3, 10, "Wybierz", onNavigateHome = {})
+        SummaryScreen(3, 10, ExerciseType.MATCH, onNavigateHome = {})
     }
 }

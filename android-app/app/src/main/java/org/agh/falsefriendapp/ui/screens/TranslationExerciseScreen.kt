@@ -27,7 +27,7 @@ fun TranslationExerciseScreen(
 }
 
 @Composable
-fun TranslationExerciseContent(
+private fun TranslationExerciseContent(
     state: BaseExerciseUiState,
     onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
@@ -64,7 +64,7 @@ fun TranslationExerciseContent(
 
 @Preview(showBackground = true)
 @Composable
-fun TranslationExerciseContentPreview() {
+private fun TranslationExerciseContentPreview() {
     FalseFriendAppTheme {
         TranslationExerciseContent(
             state = BaseExerciseUiState.Success(

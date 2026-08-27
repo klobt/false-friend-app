@@ -95,7 +95,7 @@ private fun MenuHeader(onStartSettings: () -> Unit) {
 }
 
 @Composable
-fun ExerciseMenu(
+private fun ExerciseMenu(
     onStartTranslation: () -> Unit,
     onStartDefinition: () -> Unit,
     onStartMatch: () -> Unit
@@ -148,7 +148,7 @@ fun ExerciseMenu(
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+private fun HomeScreenPreview() {
     FalseFriendAppTheme {
         UserMainScreen(
             onStartTranslation = {},
