@@ -1,9 +1,11 @@
 package org.agh.falsefriendapp.data.repository
 
+import android.util.Log
 import org.agh.falsefriendapp.data.api.RetrofitClient
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.data.model.MatchExercise
+import org.agh.falsefriendapp.data.model.Session
 
 class ExerciseRepository {
     suspend fun getTranslationExercises(): List<BaseExercise> {
@@ -26,6 +28,10 @@ class ExerciseRepository {
                 right = dto.data.right
             )
         }
+    }
+
+    suspend fun postSession(session: Session) {
+        Log.e("Session", "not implemented")
     }
 
     private suspend fun getBaseExercises(type: ExerciseType): List<BaseExercise> {

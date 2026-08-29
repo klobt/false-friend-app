@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.MatchExercise
+import org.agh.falsefriendapp.data.model.Session
+import org.agh.falsefriendapp.data.model.SessionResult
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.ui.state.MatchConnection
 import org.agh.falsefriendapp.ui.state.MatchExerciseSession
@@ -22,6 +24,8 @@ class MatchExerciseViewModel : ViewModel() {
     val state = _state.asStateFlow()
 
     private val repository = ExerciseRepository()
+    private val sessionResults = mutableListOf<SessionResult>()
+    private var totalCorrectAnswers = 0
 
     init {
         fetchExercises()
@@ -90,14 +94,20 @@ class MatchExerciseViewModel : ViewModel() {
         if (currentState !is MatchExerciseUiState.Success) {
             return
         }
-        if (currentState.connections.isEmpty()) {
-            return
-        }
 
-        _state.value = currentState.copy(
-            selectedLeft = null,
-            connections = currentState.connections.dropLast(1)
-        )
+        when {
+            currentState.selectedLeft != null -> {
+                _state.value = currentState.copy(
+                    selectedLeft = null,
+                )
+            }
+            currentState.connections.isNotEmpty() -> {
+                _state.value = currentState.copy(
+                    selectedLeft = null,
+                    connections = currentState.connections.dropLast(1)
+                )
+            }
+        }
     }
 
     private fun finishExercise(
@@ -107,27 +117,51 @@ class MatchExerciseViewModel : ViewModel() {
         val correctAnswers = connections.count {
             it.leftIndex == it.rightIndex
         }
-        val totalCorrectAnswers = currentState.correctAnswers + correctAnswers
+        val currentExercise = currentState.exercises[currentState.currentIndex]
+        sessionResults += SessionResult(
+            exerciseId = currentExercise.id,
+            correct = correctAnswers == minOf(
+                currentExercise.left.size,
+                currentExercise.right.size
+            ),
+            timeMs = 0L // TODO czas wykonania
+        )
+
+        totalCorrectAnswers += correctAnswers
         val nextIndex = currentState.currentIndex + 1
 
         if (nextIndex < currentState.exercises.size) {
             _state.value = currentState.copy(
                 currentIndex = nextIndex,
                 selectedLeft = null,
-                connections = emptyList(),
-                correctAnswers = totalCorrectAnswers
+                connections = emptyList()
             )
         }
         else {
-            val totalQuestions = currentState.exercises.sumOf {
+            finishSession(currentState)
+        }
+    }
+
+    private fun finishSession(currentState: MatchExerciseUiState.Success) {
+        val session = Session(
+            1, // TODO users
+            sessionResults.toList()
+        )
+
+        viewModelScope.launch {
+            try {
+                repository.postSession(session)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to post session", e)
+            }
+        }
+
+        _state.value = MatchExerciseUiState.Finished(
+            correctAnswers = totalCorrectAnswers,
+            totalQuestions = currentState.exercises.sumOf {
                 minOf(it.left.size, it.right.size)
             }
-
-            _state.value = MatchExerciseUiState.Finished(
-                correctAnswers = totalCorrectAnswers,
-                totalQuestions = totalQuestions
-            )
-        }
+        )
     }
 
     private fun fetchExercises() {
@@ -142,8 +176,7 @@ class MatchExerciseViewModel : ViewModel() {
                     setSuccess(exercises)
                 }
             } catch (e: Exception) {
-                // TODO dokladniejszy opis
-                val msg = "Network error"
+                val msg = "Failed to fetch exercises"
                 Log.e(TAG, msg, e)
                 setError(msg)
             }
@@ -155,6 +188,9 @@ class MatchExerciseViewModel : ViewModel() {
     }
 
     private fun setSuccess(exercises: List<MatchExercise>) {
+        sessionResults.clear()
+        totalCorrectAnswers = 0
+
         val preparedExercises = exercises.map { exercise ->
             prepareExercise(exercise)
         }
@@ -173,6 +209,7 @@ class MatchExerciseViewModel : ViewModel() {
             )
         }.shuffled()
         return MatchExerciseSession(
+            id = exercise.id,
             left = exercise.left,
             right = rightOptions
         )

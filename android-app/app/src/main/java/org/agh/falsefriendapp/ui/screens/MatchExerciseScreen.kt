@@ -235,6 +235,7 @@ private fun MatchExerciseContentPreview() {
             state = MatchExerciseUiState.Success(
                 listOf(
                     MatchExerciseSession(
+                        1,
                         listOf("morze", "dom", "samochód", "pies"),
                         listOf(
                             MatchOption(1, "house"),

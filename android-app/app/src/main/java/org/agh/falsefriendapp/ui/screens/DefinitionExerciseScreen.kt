@@ -71,8 +71,7 @@ private fun DefinitionExerciseContentPreview() {
                 listOf(BaseExercise(0, "lektura", 0, listOf(
                     "wykład", "lecture", "książka", "czytanie"
                 ))),
-                0,
-                1
+                0
             ),
             onNavigateHome = {},
             onAnswerSelected = {},
