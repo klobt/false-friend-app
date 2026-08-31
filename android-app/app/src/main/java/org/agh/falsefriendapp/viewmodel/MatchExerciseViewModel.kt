@@ -3,6 +3,7 @@ package org.agh.falsefriendapp.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -152,6 +153,7 @@ class MatchExerciseViewModel : ViewModel() {
             try {
                 repository.postSession(session)
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(TAG, "Failed to post session", e)
             }
         }
