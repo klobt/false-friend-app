@@ -29,9 +29,8 @@ async def get_sessions(limit: int = Query(default=10), offset: int = Query(defau
 
 @app.post("/sessions/")
 async def post_session(session: Session):
-    SessionDao().create(session)
     return {
-        "success": True
+        "success": SessionDao().create(session)
     }
 
 @app.get("/users/")
