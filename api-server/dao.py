@@ -148,21 +148,21 @@ class SessionDao(Dao):
         rows = self._get().with_limit(limit, offset).fetch_rows()
         return self.from_rows(rows)
 
-    def create(self, session: Session) -> None:
+    def create(self, session: Session) -> bool:
         user_id = session.user_id or 1
+        try:
+            with self.conn:
+                self.create_rows([{
+                    'user_id': user_id,
+                    'results': json.dumps(list(map(lambda r: r.model_dump(), session.results))),
+                }], commit=False)
 
-        with self.conn:
-            self.create_rows([{
-                'user_id': user_id,
-                'results': json.dumps(list(map(lambda r: r.model_dump(), session.results))),
-                'correct_answers': session.correct_answers,
-                'total_answers': session.total_answers,
-                'total_time_ms': session.total_time_ms,
-            }], commit=False)
-
-            cards = CardDao(self.conn)
-            cards.sync_with_exercises(user_id, commit=False)
-            cards.resolve_session(session, commit=False)
+                cards = CardDao(self.conn)
+                cards.sync_with_exercises(user_id, commit=False)
+                cards.resolve_session(session, commit=False)
+                return False
+        except Exception:
+            return True
 
 class CardDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
