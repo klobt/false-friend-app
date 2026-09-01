@@ -58,9 +58,6 @@ class SessionResult(BaseModel):
 class Session(BaseModel):
     user_id: Optional[int] = Field(default=1)
     results: list[SessionResult]
-    correct_answers: int
-    total_answers: int
-    total_time_ms: float
 
 SessionAdapter = TypeAdapter(Session)
 
