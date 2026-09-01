@@ -55,7 +55,7 @@ fun SettingsScreen(onNavigateHome: () -> Unit) {
 }
 
 @Composable
-fun SettingsHeader(onNavigateHome: () -> Unit) {
+private fun SettingsHeader(onNavigateHome: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,7 +93,7 @@ fun SettingsHeader(onNavigateHome: () -> Unit) {
 }
 
 @Composable
-fun SettingsSection(
+private fun SettingsSection(
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -123,7 +123,7 @@ fun SettingsSection(
 }
 
 @Composable
-fun SettingsItem(
+private fun SettingsItem(
     title: String,
     value: String
 ) {
@@ -149,7 +149,7 @@ fun SettingsItem(
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsScreenPreview() {
+private fun SettingsScreenPreview() {
     FalseFriendAppTheme {
         SettingsScreen(onNavigateHome = {})
     }

@@ -95,7 +95,7 @@ private fun MenuHeader(onStartSettings: () -> Unit) {
 }
 
 @Composable
-fun ExerciseMenu(
+private fun ExerciseMenu(
     onStartTranslation: () -> Unit,
     onStartDefinition: () -> Unit,
     onStartMatch: () -> Unit
@@ -121,7 +121,7 @@ fun ExerciseMenu(
 
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             MenuButton(
@@ -148,7 +148,7 @@ fun ExerciseMenu(
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+private fun HomeScreenPreview() {
     FalseFriendAppTheme {
         UserMainScreen(
             onStartTranslation = {},

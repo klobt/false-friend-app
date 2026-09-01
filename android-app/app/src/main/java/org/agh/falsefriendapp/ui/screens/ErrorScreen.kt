@@ -54,7 +54,7 @@ fun ErrorScreen(message: String, onBack: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun ErrorScreenPreview() {
+private fun ErrorScreenPreview() {
     FalseFriendAppTheme {
         ErrorScreen("Network error") {}
     }
