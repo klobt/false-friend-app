@@ -43,7 +43,7 @@ class ExerciseRepository {
             }
         )
 
-//        RetrofitClient.api.postSession(request)
+        RetrofitClient.api.postSession(request)
     }
 
     private suspend fun getBaseExercises(type: ExerciseType): List<BaseExercise> {
