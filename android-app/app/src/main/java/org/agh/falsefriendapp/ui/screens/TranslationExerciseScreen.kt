@@ -8,6 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
+import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 
@@ -15,7 +16,7 @@ import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 fun TranslationExerciseScreen(
     viewModel: TranslationExerciseViewModel = viewModel(),
     onNavigateHome: () -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     TranslationExerciseContent(
@@ -31,7 +32,7 @@ private fun TranslationExerciseContent(
     state: BaseExerciseUiState,
     onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     when (state) {
         BaseExerciseUiState.Loading -> {
@@ -55,7 +56,8 @@ private fun TranslationExerciseContent(
             LaunchedEffect(state) {
                 onFinished(
                     state.correctAnswers,
-                    state.totalQuestions
+                    state.totalQuestions,
+                    state.reviewItems
                 )
             }
         }
@@ -75,7 +77,7 @@ private fun TranslationExerciseContentPreview() {
             ),
             onNavigateHome = {},
             onAnswerSelected = {},
-            onFinished = {_, _ -> }
+            onFinished = {_, _, _ -> }
         )
     }
 }

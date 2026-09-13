@@ -38,6 +38,7 @@ fun SummaryScreen(
     score: Int,
     totalQuestions: Int,
     exerciseType: ExerciseType?,
+    onShowAnswers: () -> Unit,
     onNavigateHome: () -> Unit
 ) {
     val exerciseTypeText = when (exerciseType) {
@@ -140,6 +141,8 @@ fun SummaryScreen(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+        NavigationButton(text = "Odpowiedzi", onClick = onShowAnswers)
+        Spacer(modifier = Modifier.height(16.dp))
         NavigationButton(text = "Menu główne", onClick = onNavigateHome)
         Spacer(modifier = Modifier.height(40.dp))
     }
@@ -149,6 +152,12 @@ fun SummaryScreen(
 @Composable
 private fun SummaryScreenPreview() {
     FalseFriendAppTheme {
-        SummaryScreen(3, 10, ExerciseType.MATCH, onNavigateHome = {})
+        SummaryScreen(
+            3,
+            10,
+            ExerciseType.MATCH,
+            onShowAnswers = {},
+            onNavigateHome = {}
+        )
     }
 }

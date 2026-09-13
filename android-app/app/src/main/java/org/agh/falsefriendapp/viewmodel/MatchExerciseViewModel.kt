@@ -15,6 +15,8 @@ import org.agh.falsefriendapp.ui.state.MatchConnection
 import org.agh.falsefriendapp.ui.state.MatchExerciseSession
 import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
 import org.agh.falsefriendapp.ui.state.MatchOption
+import org.agh.falsefriendapp.ui.state.MatchPairResult
+import org.agh.falsefriendapp.ui.state.ReviewItem
 
 private const val TAG = "MatchExerciseViewModel"
 
@@ -26,6 +28,7 @@ class MatchExerciseViewModel : ViewModel() {
 
     private val repository = ExerciseRepository()
     private val sessionResults = mutableListOf<SessionResult>()
+    private val reviewItems = mutableListOf<ReviewItem>()
     private var totalCorrectAnswers = 0
 
     init {
@@ -119,6 +122,22 @@ class MatchExerciseViewModel : ViewModel() {
             it.leftIndex == it.rightIndex
         }
         val currentExercise = currentState.exercises[currentState.currentIndex]
+        val pairs = currentExercise.left.indices.mapNotNull { leftIndex ->
+            val connection = connections.firstOrNull { it.leftIndex == it.rightIndex }
+                ?: return@mapNotNull null
+            MatchPairResult(
+                leftText = currentExercise.left[leftIndex],
+                selectedText = currentExercise.right.firstOrNull {
+                    it.originalIndex == connection.rightIndex
+                }?.text.orEmpty(),
+                correctText = currentExercise.right.firstOrNull {
+                    it.originalIndex == leftIndex
+                }?.text.orEmpty(),
+                correct = connection.rightIndex == leftIndex
+            )
+        }
+
+        reviewItems += ReviewItem.Match(pairs)
         sessionResults += SessionResult(
             exerciseId = currentExercise.id,
             correct = correctAnswers == minOf(
@@ -154,7 +173,8 @@ class MatchExerciseViewModel : ViewModel() {
             correctAnswers = totalCorrectAnswers,
             totalQuestions = currentState.exercises.sumOf {
                 minOf(it.left.size, it.right.size)
-            }
+            },
+            reviewItems = reviewItems.toList()
         )
     }
 
@@ -184,6 +204,7 @@ class MatchExerciseViewModel : ViewModel() {
 
     private fun setSuccess(exercises: List<MatchExercise>) {
         sessionResults.clear()
+        reviewItems.clear()
         totalCorrectAnswers = 0
 
         val preparedExercises = exercises.map { exercise ->

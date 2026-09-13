@@ -38,14 +38,15 @@ import org.agh.falsefriendapp.ui.state.MatchConnection
 import org.agh.falsefriendapp.ui.state.MatchExerciseSession
 import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
 import org.agh.falsefriendapp.ui.state.MatchOption
+import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.MatchExerciseViewModel
 
 @Composable
 fun MatchExerciseScreen(
     viewModel: MatchExerciseViewModel = viewModel(),
-    onFinished: (score: Int, totalQuestions: Int) -> Unit,
-    onNavigateHome: () -> Unit
+    onNavigateHome: () -> Unit,
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     MatchExerciseContent(
@@ -61,7 +62,7 @@ fun MatchExerciseScreen(
 @Composable
 private fun MatchExerciseContent(
     state: MatchExerciseUiState,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit,
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit,
     onNavigateHome: () -> Unit,
     onLeftSelected: (Int) -> Unit,
     onRightSelected: (Int) -> Unit,
@@ -92,7 +93,8 @@ private fun MatchExerciseContent(
             LaunchedEffect(state) {
                 onFinished(
                     state.correctAnswers,
-                    state.totalQuestions
+                    state.totalQuestions,
+                    state.reviewItems
                 )
             }
         }
@@ -248,7 +250,7 @@ private fun MatchExerciseContentPreview() {
                 currentIndex = 0
             ),
             onNavigateHome = {},
-            onFinished = {_, _ -> },
+            onFinished = {_, _, _ -> },
             onLeftSelected = {},
             onRightSelected = {},
             onClearConnections = {}

@@ -9,6 +9,7 @@ object Routes {
     const val MATCH = "match"
     const val SETTINGS = "settings"
     const val SUMMARY = "summary/{score}/{totalQuestions}/{exerciseType}"
+    const val REVIEW = "review"
 
     fun summary(score: Int, totalQuestions: Int, type: ExerciseType): String {
         return "summary/$score/$totalQuestions/${type.apiValue}"
