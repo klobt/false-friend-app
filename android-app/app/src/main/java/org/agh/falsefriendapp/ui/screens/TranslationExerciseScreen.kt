@@ -46,7 +46,7 @@ private fun TranslationExerciseContent(
             BaseExerciseScreen(
                 currentStep = state.currentIndex + 1,
                 totalSteps = state.exercises.size,
-                instruction = "Jak po angielsku powiemy:",
+                instruction = "Jak po polsku powiemy:",
                 exercise = currentExercise,
                 onAnswerSelected = onAnswerSelected
             )
@@ -68,8 +68,8 @@ private fun TranslationExerciseContentPreview() {
     FalseFriendAppTheme {
         TranslationExerciseContent(
             state = BaseExerciseUiState.Success(
-                listOf(BaseExercise(0, "lektura", 0, listOf(
-                    "wykład", "lecture", "książka", "czytanie"
+                listOf(BaseExercise(0, "lecture", 2, listOf(
+                    "czytanie", "lektura", "wykład", "lektor"
                 ))),
                 0
             ),

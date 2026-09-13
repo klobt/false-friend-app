@@ -77,7 +77,7 @@ private fun SettingsHeader(onNavigateHome: () -> Unit) {
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = "Profil użytkownika",
+                    contentDescription = "Wróć",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp)
                 )

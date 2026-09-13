@@ -44,7 +44,7 @@ fun SummaryScreen(
         ExerciseType.TRANSLATION -> "Wybierz tłumaczenie"
         ExerciseType.DEFINITION -> "Wybierz definicję"
         ExerciseType.MATCH -> "Połącz pary"
-        null -> "Unknown"
+        null -> "Nieznany"
     }
 
     val progress = if (totalQuestions > 0) {

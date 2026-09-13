@@ -19,18 +19,35 @@ fun NavGraph() {
     NavHost(navController = navController, startDestination = Routes.USER_HOME) {
         composable(Routes.USER_HOME) {
             UserMainScreen(
-                onStartTranslation = { navController.navigate(Routes.TRANSLATION) },
-                onStartDefinition = { navController.navigate(Routes.DEFINITION) },
-                onStartMatch = { navController.navigate(Routes.MATCH) },
-                onStartSettings = { navController.navigate(Routes.SETTINGS) }
+                onStartTranslation = {
+                    navController.navigate(Routes.TRANSLATION) {
+                        launchSingleTop = true
+                    }
+                },
+                onStartDefinition = {
+                    navController.navigate(Routes.DEFINITION) {
+                        launchSingleTop = true
+                    }
+                },
+                onStartMatch = {
+                    navController.navigate(Routes.MATCH) {
+                        launchSingleTop = true
+                    }
+                },
+                onStartSettings = {
+                    navController.navigate(Routes.SETTINGS) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
         composable(Routes.TRANSLATION) {
             TranslationExerciseScreen(
                 onFinished = { score, totalQuestions ->
-                    navController.navigate("summary/$score/$totalQuestions/translation") {
+                    navController.navigate(Routes.summary(score, totalQuestions, ExerciseType.TRANSLATION)) {
                         popUpTo(Routes.TRANSLATION) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateHome = {
@@ -42,8 +59,9 @@ fun NavGraph() {
         composable(Routes.DEFINITION) {
             DefinitionExerciseScreen(
                 onFinished = { score, totalQuestions ->
-                    navController.navigate("summary/$score/$totalQuestions/definition") {
+                    navController.navigate(Routes.summary(score, totalQuestions, ExerciseType.DEFINITION)) {
                         popUpTo(Routes.DEFINITION) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateHome = {
@@ -55,8 +73,9 @@ fun NavGraph() {
         composable(Routes.MATCH) {
             MatchExerciseScreen(
                 onFinished = { score, totalQuestions ->
-                    navController.navigate("summary/$score/$totalQuestions/match") {
+                    navController.navigate(Routes.summary(score, totalQuestions, ExerciseType.MATCH)) {
                         popUpTo(Routes.MATCH) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
                 onNavigateHome = {

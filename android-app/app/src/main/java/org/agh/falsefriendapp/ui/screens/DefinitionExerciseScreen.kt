@@ -46,7 +46,7 @@ private fun DefinitionExerciseContent(
             BaseExerciseScreen(
                 currentStep = state.currentIndex + 1,
                 totalSteps = state.exercises.size,
-                instruction = "Jak po angielsku powiemy:",
+                instruction = "Wybierz definicję słowa:",
                 exercise = currentExercise,
                 onAnswerSelected = onAnswerSelected
             )
@@ -68,8 +68,10 @@ private fun DefinitionExerciseContentPreview() {
     FalseFriendAppTheme {
         DefinitionExerciseContent(
             state = BaseExerciseUiState.Success(
-                listOf(BaseExercise(0, "lektura", 0, listOf(
-                    "wykład", "lecture", "książka", "czytanie"
+                listOf(BaseExercise(0, "desert", 0, listOf(
+                    "a waterless, desolate area of land with little vegetation",
+                    "a sweet course eaten at the end of a meal",
+                    "a place where people go to rest and relax"
                 ))),
                 0
             ),

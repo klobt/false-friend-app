@@ -1,18 +1,13 @@
 package org.agh.falsefriendapp.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.Session
 import org.agh.falsefriendapp.data.model.SessionResult
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
-
-private const val TAG = "BaseExerciseViewModel"
 
 abstract class BaseExerciseViewModel : ViewModel() {
     private val _state = MutableStateFlow<BaseExerciseUiState>(BaseExerciseUiState.Loading)
@@ -78,14 +73,7 @@ abstract class BaseExerciseViewModel : ViewModel() {
             userId = 1, // TODO users
             results = sessionResults.toList()
         )
-
-        viewModelScope.launch {
-            try {
-                repository.postSession(session)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to post session", e)
-            }
-        }
+        repository.submitSession(session)
 
         _state.value = BaseExerciseUiState.Finished(
             correctAnswers = totalCorrectAnswers,

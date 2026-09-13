@@ -75,9 +75,9 @@ private fun BaseExerciseScreenPreview() {
         BaseExerciseScreen(
             currentStep = 3,
             totalSteps = 10,
-            instruction = "Jak po angielsku powiemy:",
+            instruction = "Jak po polsku powiemy:",
             exercise = BaseExercise(
-                0, "lektura", 1, listOf("lecture", "wykład", "czytanie", "lektor")
+                0, "lecture", 2, listOf("czytanie", "lektura", "wykład", "lektor")
             ),
             onAnswerSelected = {}
         )

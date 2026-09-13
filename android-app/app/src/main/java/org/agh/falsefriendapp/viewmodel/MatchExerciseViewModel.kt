@@ -148,15 +148,7 @@ class MatchExerciseViewModel : ViewModel() {
             1, // TODO users
             sessionResults.toList()
         )
-
-        viewModelScope.launch {
-            try {
-                repository.postSession(session)
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                Log.e(TAG, "Failed to post session", e)
-            }
-        }
+        repository.submitSession(session)
 
         _state.value = MatchExerciseUiState.Finished(
             correctAnswers = totalCorrectAnswers,
@@ -178,6 +170,7 @@ class MatchExerciseViewModel : ViewModel() {
                     setSuccess(exercises)
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 val msg = "Failed to fetch exercises"
                 Log.e(TAG, msg, e)
                 setError(msg)
