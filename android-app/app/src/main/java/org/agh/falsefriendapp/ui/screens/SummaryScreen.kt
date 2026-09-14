@@ -24,13 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.components.NavigationButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.ui.theme.success
+import org.agh.falsefriendapp.ui.theme.warning
 import kotlin.math.roundToInt
 
 @Composable
@@ -60,8 +61,8 @@ fun SummaryScreen(
         label = "summary_progress"
     )
     val progressColor = when {
-        progress >= 0.8f -> Color(0xFF22C55E)
-        progress >= 0.5f -> Color(0xFFF59E0B)
+        progress >= 0.8f -> MaterialTheme.colorScheme.success
+        progress >= 0.5f -> MaterialTheme.colorScheme.warning
         else -> MaterialTheme.colorScheme.error
     }
 

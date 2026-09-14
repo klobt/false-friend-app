@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
 import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
+import org.agh.falsefriendapp.ui.screens.ReviewScreen
 import org.agh.falsefriendapp.ui.screens.SettingsScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
@@ -117,7 +118,7 @@ fun NavGraph() {
 
         composable(Routes.REVIEW) {
             val items by sessionReviewViewModel.items.collectAsState()
-//            ReviewScreen()
+            ReviewScreen(items = items, onNavigateBack = { navController.popBackStack() })
         }
 
         composable(Routes.SETTINGS) {

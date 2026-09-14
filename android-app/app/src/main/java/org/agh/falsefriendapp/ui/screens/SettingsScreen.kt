@@ -27,7 +27,7 @@ import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 @Composable
 fun SettingsScreen(onNavigateHome: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-        ScreenHeader(onNavigateHome)
+        ScreenHeader("Ustawienia", onNavigateHome)
         Column(
             modifier = Modifier
                 .fillMaxWidth()

@@ -123,7 +123,7 @@ class MatchExerciseViewModel : ViewModel() {
         }
         val currentExercise = currentState.exercises[currentState.currentIndex]
         val pairs = currentExercise.left.indices.mapNotNull { leftIndex ->
-            val connection = connections.firstOrNull { it.leftIndex == it.rightIndex }
+            val connection = connections.firstOrNull { it.leftIndex == leftIndex }
                 ?: return@mapNotNull null
             MatchPairResult(
                 leftText = currentExercise.left[leftIndex],

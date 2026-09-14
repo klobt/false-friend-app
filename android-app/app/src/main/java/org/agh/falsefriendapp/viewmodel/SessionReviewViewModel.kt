@@ -12,8 +12,4 @@ class SessionReviewViewModel : ViewModel() {
     fun setItems(items: List<ReviewItem>) {
         _items.value = items
     }
-
-    fun clear() {
-        _items.value = emptyList()
-    }
 }

@@ -15,4 +15,6 @@ val OnSurface = Color(0xFF0F172A)
 val OnSurfaceVariant = Color(0xFF6B7280)
 
 val Outline = Color(0xFFE5E7EB)
+val Success = Color(0xFF22C55E)
+val Warning = Color(0xFFF59E0B)
 val Error = Color(0xFFDC2626)

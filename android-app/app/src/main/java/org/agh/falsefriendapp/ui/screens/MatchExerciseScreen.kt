@@ -167,7 +167,7 @@ private fun MatchExerciseTask(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
-                    100.dp,
+                    92.dp,
                     Alignment.CenterHorizontally
                 )
             ) {
@@ -238,7 +238,7 @@ private fun MatchExerciseContentPreview() {
                 listOf(
                     MatchExerciseSession(
                         1,
-                        listOf("morze", "dom", "samochód", "pies"),
+                        listOf("współczujący rzeczywiście", "dom", "samochód", "pies"),
                         listOf(
                             MatchOption(1, "house"),
                             MatchOption(3, "dog"),

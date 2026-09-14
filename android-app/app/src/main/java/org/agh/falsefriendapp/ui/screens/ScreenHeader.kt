@@ -24,7 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ScreenHeader(onNavigateBack: () -> Unit) {
+fun ScreenHeader(
+    title: String,
+    onNavigateBack: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,7 +57,7 @@ fun ScreenHeader(onNavigateBack: () -> Unit) {
         }
         Spacer(modifier = Modifier.width(24.dp))
         Text(
-            text = "Ustawienia",
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
