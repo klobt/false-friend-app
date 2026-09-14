@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
-from dao import CardDao, ExerciseDao, SessionDao, UserDao
-from model import ExerciseType, PublicUserData, Session
+from dao import CardDao, ExerciseDao, SessionDao, StatsDao, UserDao
+from model import ExerciseType, PublicUserData, Session, UserStats
 
 app = FastAPI()
 
@@ -8,7 +8,7 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/exercises/")
+@app.get("/exercises")
 async def get_exercises(ids: list[int] = Query(default=[])):
     return {
         "data": ExerciseDao().get(ids)
@@ -20,37 +20,40 @@ async def get_card_exercise_ids(type_filter = Query(default=None), limit: int = 
         "exercise_ids": CardDao().get_review_exercise_ids(ExerciseType[type_filter] if type_filter else None, limit, offset)
     }
 
-@app.get("/sessions/")
+@app.get("/sessions")
 async def get_sessions(limit: int = Query(default=10), offset: int = Query(default=0)):
     return {
         "data": SessionDao().get(limit, offset),
         "total": SessionDao().total()
     }
 
-@app.post("/sessions/")
+@app.post("/sessions")
 async def post_session(session: Session):
-    SessionDao().create(session)
     return {
-        "success": True
+        "success": SessionDao().create(session)
     }
 
-@app.get("/users/")
+@app.get("/users")
 async def get_users(limit: int = Query(default=10), offset: int = Query(default=0)):
     return {
         "data": UserDao().get(limit, offset),
         "total": UserDao().total()
     }
 
-@app.get("/users/{user_id}/")
+@app.get("/users/{user_id}")
 async def get_user(user_id: int):
     return {
         "id": user_id,
         "public_data": UserDao().get_public_data(user_id)
     }
 
-@app.put("/users/{user_id}/")
+@app.put("/users/{user_id}")
 async def put_user(user_id: int, user: PublicUserData):
     UserDao().set_public_data(user.data, user_id)
     return {
         "success": True
     }
+
+@app.get("/users/{user_id}/stats", response_model=UserStats)
+async def get_user_stats(user_id: int):
+    return StatsDao().get(user_id)

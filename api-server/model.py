@@ -58,9 +58,6 @@ class SessionResult(BaseModel):
 class Session(BaseModel):
     user_id: Optional[int] = Field(default=1)
     results: list[SessionResult]
-    correct_answers: int
-    total_answers: int
-    total_time_ms: float
 
 SessionAdapter = TypeAdapter(Session)
 
@@ -83,3 +80,12 @@ def parse_card(row: dict) -> Card:
 
 class PublicUserData(BaseModel):
     data: dict[str, Any]
+
+class UserStats(BaseModel):
+    user_id: int
+    total_correct: int
+    total_answers: int
+    current_streak: int
+    longest_streak: int
+    last_active_date: Optional[date] = None
+    accuracy: float
