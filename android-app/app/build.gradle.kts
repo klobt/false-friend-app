@@ -27,8 +27,8 @@ android {
         minSdk = 26
         targetSdk = 37
 
-        versionCode = 8
-        versionName = "0.4.5"
+        versionCode = 9
+        versionName = "0.4.6"
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
