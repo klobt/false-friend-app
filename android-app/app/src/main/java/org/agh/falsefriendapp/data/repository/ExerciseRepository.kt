@@ -1,62 +1,69 @@
 package org.agh.falsefriendapp.data.repository
 
+import android.util.Log
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.api.RetrofitClient
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.data.model.MatchExercise
 import org.agh.falsefriendapp.data.model.Session
-import org.agh.falsefriendapp.data.model.network.SessionRequest
-import org.agh.falsefriendapp.data.model.network.SessionResultRequest
+import org.agh.falsefriendapp.data.model.network.toBaseExercise
+import org.agh.falsefriendapp.data.model.network.toMatchExercise
+import org.agh.falsefriendapp.data.model.network.toRequest
+
+private const val TAG = "ExerciseRepository"
+private const val BASE_EXERCISE_LIMIT = 10
+private const val MATCH_EXERCISE_LIMIT = 4
+private const val REVIEW_OFFSET = 0
 
 class ExerciseRepository {
-    suspend fun getTranslationExercises(): List<BaseExercise> {
-        return getBaseExercises(ExerciseType.TRANSLATION)
-    }
+    suspend fun getExercises(type: ExerciseType): List<BaseExercise> {
+        val todayReview = fetchReviewIds(type, BASE_EXERCISE_LIMIT)
 
-    suspend fun getDefinitionExercises(): List<BaseExercise> {
-        return getBaseExercises(ExerciseType.DEFINITION)
+        if (todayReview.isEmpty()) {
+            return emptyList()
+        }
+
+        return RetrofitClient.api.getBaseExercises(todayReview).data.map { dto ->
+            dto.toBaseExercise()
+        }
     }
 
     suspend fun getMatchExercises(): List<MatchExercise> {
-        val type = ExerciseType.MATCH.apiValue
-        val todayReview = RetrofitClient.api.getReviews(type, 4, 0).exercisesIds
-        val response = RetrofitClient.api.getMatchExercises(todayReview)
+        val todayReview = fetchReviewIds(ExerciseType.MATCH, MATCH_EXERCISE_LIMIT)
 
-        return response.data.map { dto ->
-            MatchExercise(
-                id = dto.id,
-                left = dto.data.left,
-                right = dto.data.right
-            )
+        if (todayReview.isEmpty()) {
+            return emptyList()
+        }
+
+        return RetrofitClient.api.getMatchExercises(todayReview).data.map { dto ->
+            dto.toMatchExercise()
         }
     }
 
-    suspend fun postSession(session: Session) {
-        val request = SessionRequest(
-            userId = session.userId,
-            results = session.results.map { result ->
-                SessionResultRequest(
-                    exerciseId = result.exerciseId,
-                    correct = result.correct,
-                    timeMs = result.timeMs
-                )
+    fun submitSession(session: Session) {
+        uploadScope.launch {
+            try {
+                RetrofitClient.api.postSession(session.toRequest())
             }
-        )
-
-        RetrofitClient.api.postSession(request)
+            catch (e: CancellationException) {
+                throw e
+            }
+            catch (e: Exception) {
+                Log.e(TAG, "Failed to post session", e)
+            }
+        }
     }
 
-    private suspend fun getBaseExercises(type: ExerciseType): List<BaseExercise> {
-        val todayReview = RetrofitClient.api.getReviews(type.apiValue, 10, 0).exercisesIds
-        val response = RetrofitClient.api.getBaseExercises(todayReview)
+    private suspend fun fetchReviewIds(type: ExerciseType, limit: Int): List<Int> {
+        return RetrofitClient.api.getReviews(type.apiValue, limit, REVIEW_OFFSET).exercisesIds
+    }
 
-        return response.data.map { dto ->
-            BaseExercise(
-                id = dto.id,
-                sentence = dto.data.word,
-                options = dto.data.answers,
-                correctAnswerIndex = dto.data.correctIdx
-            )
-        }
+    private companion object {
+        val uploadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 }

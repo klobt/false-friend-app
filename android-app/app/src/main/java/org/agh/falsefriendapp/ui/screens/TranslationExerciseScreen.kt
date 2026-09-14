@@ -8,6 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
+import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 
@@ -15,7 +16,7 @@ import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 fun TranslationExerciseScreen(
     viewModel: TranslationExerciseViewModel = viewModel(),
     onNavigateHome: () -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     TranslationExerciseContent(
@@ -31,7 +32,7 @@ private fun TranslationExerciseContent(
     state: BaseExerciseUiState,
     onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     when (state) {
         BaseExerciseUiState.Loading -> {
@@ -46,7 +47,7 @@ private fun TranslationExerciseContent(
             BaseExerciseScreen(
                 currentStep = state.currentIndex + 1,
                 totalSteps = state.exercises.size,
-                instruction = "Jak po angielsku powiemy:",
+                instruction = "Jak po polsku powiemy:",
                 exercise = currentExercise,
                 onAnswerSelected = onAnswerSelected
             )
@@ -55,7 +56,8 @@ private fun TranslationExerciseContent(
             LaunchedEffect(state) {
                 onFinished(
                     state.correctAnswers,
-                    state.totalQuestions
+                    state.totalQuestions,
+                    state.reviewItems
                 )
             }
         }
@@ -68,14 +70,14 @@ private fun TranslationExerciseContentPreview() {
     FalseFriendAppTheme {
         TranslationExerciseContent(
             state = BaseExerciseUiState.Success(
-                listOf(BaseExercise(0, "lektura", 0, listOf(
-                    "wykład", "lecture", "książka", "czytanie"
+                listOf(BaseExercise(0, "lecture", 2, listOf(
+                    "czytanie", "lektura", "wykład", "lektor"
                 ))),
                 0
             ),
             onNavigateHome = {},
             onAnswerSelected = {},
-            onFinished = {_, _ -> }
+            onFinished = {_, _, _ -> }
         )
     }
 }

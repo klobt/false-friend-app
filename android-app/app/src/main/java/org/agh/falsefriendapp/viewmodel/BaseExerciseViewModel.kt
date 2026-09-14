@@ -1,18 +1,14 @@
 package org.agh.falsefriendapp.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.Session
 import org.agh.falsefriendapp.data.model.SessionResult
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
-
-private const val TAG = "BaseExerciseViewModel"
+import org.agh.falsefriendapp.ui.state.ReviewItem
 
 abstract class BaseExerciseViewModel : ViewModel() {
     private val _state = MutableStateFlow<BaseExerciseUiState>(BaseExerciseUiState.Loading)
@@ -20,10 +16,12 @@ abstract class BaseExerciseViewModel : ViewModel() {
 
     protected val repository = ExerciseRepository()
     private val sessionResults = mutableListOf<SessionResult>()
+    private val reviewItems = mutableListOf<ReviewItem>()
     private var totalCorrectAnswers = 0
 
     protected fun setSuccess(exercises: List<BaseExercise>) {
         sessionResults.clear()
+        reviewItems.clear()
         totalCorrectAnswers = 0
 
         _state.value = BaseExerciseUiState.Success(
@@ -54,6 +52,12 @@ abstract class BaseExerciseViewModel : ViewModel() {
             correct = correct,
             timeMs = 0L // TODO
         )
+        reviewItems += ReviewItem.Choice(
+            question = currentExercise.sentence,
+            options = currentExercise.options,
+            correctAnswerIndex = currentExercise.correctAnswerIndex,
+            selectedAnswerIndex = selectedIndex
+        )
 
         nextQuestion(currentState)
     }
@@ -78,18 +82,12 @@ abstract class BaseExerciseViewModel : ViewModel() {
             userId = 1, // TODO users
             results = sessionResults.toList()
         )
-
-        viewModelScope.launch {
-            try {
-                repository.postSession(session)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to post session", e)
-            }
-        }
+        repository.submitSession(session)
 
         _state.value = BaseExerciseUiState.Finished(
             correctAnswers = totalCorrectAnswers,
-            totalQuestions = currentState.exercises.size
+            totalQuestions = currentState.exercises.size,
+            reviewItems = reviewItems.toList()
         )
     }
 }
