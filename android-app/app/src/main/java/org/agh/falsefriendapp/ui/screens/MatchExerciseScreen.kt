@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
 import org.agh.falsefriendapp.ui.components.NavigationButton
 import org.agh.falsefriendapp.ui.state.MatchConnection
@@ -58,7 +59,7 @@ fun MatchExerciseScreen(
 }
 
 @Composable
-fun MatchExerciseContent(
+private fun MatchExerciseContent(
     state: MatchExerciseUiState,
     onFinished: (score: Int, totalQuestions: Int) -> Unit,
     onNavigateHome: () -> Unit,
@@ -99,7 +100,7 @@ fun MatchExerciseContent(
 }
 
 @Composable
-fun MatchExerciseTask(
+private fun MatchExerciseTask(
     exercise: MatchExerciseSession,
     currentStep: Int,
     totalSteps: Int,
@@ -228,12 +229,13 @@ fun MatchExerciseTask(
 
 @Preview(showBackground = true)
 @Composable
-fun MatchExerciseContentPreview() {
+private fun MatchExerciseContentPreview() {
     FalseFriendAppTheme {
         MatchExerciseContent(
             state = MatchExerciseUiState.Success(
                 listOf(
                     MatchExerciseSession(
+                        1,
                         listOf("morze", "dom", "samochód", "pies"),
                         listOf(
                             MatchOption(1, "house"),

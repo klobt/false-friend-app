@@ -27,7 +27,7 @@ fun DefinitionExerciseScreen(
 }
 
 @Composable
-fun DefinitionExerciseContent(
+private fun DefinitionExerciseContent(
     state: BaseExerciseUiState,
     onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
@@ -64,15 +64,14 @@ fun DefinitionExerciseContent(
 
 @Preview(showBackground = true)
 @Composable
-fun DefinitionExerciseContentPreview() {
+private fun DefinitionExerciseContentPreview() {
     FalseFriendAppTheme {
         DefinitionExerciseContent(
             state = BaseExerciseUiState.Success(
                 listOf(BaseExercise(0, "lektura", 0, listOf(
                     "wykład", "lecture", "książka", "czytanie"
                 ))),
-                0,
-                1
+                0
             ),
             onNavigateHome = {},
             onAnswerSelected = {},

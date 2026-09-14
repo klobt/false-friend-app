@@ -56,7 +56,7 @@ fun LoginScreen() {
 }
 
 @Composable
-fun LoginHeader() {
+private fun LoginHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,7 +81,7 @@ fun LoginHeader() {
 }
 
 @Composable
-fun AuthModeSelector(
+private fun AuthModeSelector(
     isLoginSelected: Boolean,
     onSelectionChanged: (Boolean) -> Unit
 ) {
@@ -130,7 +130,7 @@ fun AuthModeSelector(
 }
 
 @Composable
-fun LoginForm() {
+private fun LoginForm() {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -166,7 +166,7 @@ fun LoginForm() {
 }
 
 @Composable
-fun RegisterForm() {
+private fun RegisterForm() {
     var username by remember { mutableStateOf("") }
     var password1 by remember { mutableStateOf("") }
     var password2 by remember { mutableStateOf("") }
@@ -214,7 +214,7 @@ fun RegisterForm() {
 
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+private fun LoginScreenPreview() {
     FalseFriendAppTheme {
         LoginScreen()
     }

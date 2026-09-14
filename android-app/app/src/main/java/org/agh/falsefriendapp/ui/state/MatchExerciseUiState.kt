@@ -7,8 +7,7 @@ sealed class MatchExerciseUiState {
         val exercises: List<MatchExerciseSession>,
         val currentIndex: Int,
         val selectedLeft: Int? = null,
-        val connections: List<MatchConnection> = emptyList(),
-        val correctAnswers: Int = 0
+        val connections: List<MatchConnection> = emptyList()
     ): MatchExerciseUiState()
 
     data class Error(

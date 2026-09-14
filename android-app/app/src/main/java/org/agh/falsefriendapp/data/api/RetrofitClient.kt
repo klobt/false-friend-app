@@ -12,7 +12,7 @@ object RetrofitClient {
     private const val CONNECT_TIMEOUT = 3L
     private const val READ_TIMEOUT = 3L
     private const val WRITE_TIMEOUT = 3L
-    private const val BASE_URL = "http://192.168.8.104:8000/"
+    private const val BASE_URL = "http://192.168.8.102:8000/"
 
     private val json = Json {
         ignoreUnknownKeys = true

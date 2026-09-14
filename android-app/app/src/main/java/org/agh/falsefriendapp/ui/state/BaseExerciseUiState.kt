@@ -7,8 +7,7 @@ sealed class BaseExerciseUiState {
 
     data class Success(
         val exercises: List<BaseExercise>,
-        val currentIndex: Int,
-        val correctAnswers: Int
+        val currentIndex: Int
     ): BaseExerciseUiState()
 
     data class Error(

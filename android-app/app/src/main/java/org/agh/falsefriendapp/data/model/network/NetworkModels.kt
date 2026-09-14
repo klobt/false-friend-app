@@ -46,3 +46,19 @@ data class ExercisesIds(
     @SerialName("exercise_ids")
     val exercisesIds: List<Int>
 )
+
+@Serializable
+data class SessionRequest(
+    @SerialName("user_id")
+    val userId: Int,
+    val results: List<SessionResultRequest>
+)
+
+@Serializable
+data class SessionResultRequest(
+    @SerialName("exercise_id")
+    val exerciseId: Int,
+    val correct: Boolean,
+    @SerialName("time_ms")
+    val timeMs: Long
+)

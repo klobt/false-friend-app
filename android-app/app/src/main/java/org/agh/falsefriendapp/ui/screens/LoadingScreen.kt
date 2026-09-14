@@ -22,7 +22,7 @@ fun LoadingScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun LoadingScreenPreview() {
+private fun LoadingScreenPreview() {
     FalseFriendAppTheme {
         LoadingScreen()
     }
