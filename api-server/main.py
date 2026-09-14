@@ -1,9 +1,9 @@
 from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
-from dao import CardDao, EmailCodeDao, ExerciseDao, IdentityDao, SessionDao, UserDao
+from dao import CardDao, EmailCodeDao, ExerciseDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
     ChangePasswordRequest, ExerciseType, LoginRequest, PublicUserData,
-    RegisterRequest, Session, SocialLoginRequest, TokenResponse, VerifyEmailRequest,
+    RegisterRequest, Session, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
 
 app = FastAPI()
@@ -57,6 +57,10 @@ async def put_user(user_id: int, user: PublicUserData):
     return {
         "success": True
     }
+
+@app.get("/users/{user_id}/stats", response_model=UserStats)
+async def get_user_stats(user_id: int):
+    return StatsDao().get(user_id)
 
 @app.post("/auth/register", response_model=TokenResponse)
 async def register(body: RegisterRequest):

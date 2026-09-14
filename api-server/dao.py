@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import json
 from os.path import join
 from typing import Any, Generator, Mapping, Optional, Self
@@ -164,6 +164,7 @@ class SessionDao(Dao):
                 cards = CardDao(self.conn)
                 cards.sync_with_exercises(user_id, commit=False)
                 cards.resolve_session(session, commit=False)
+                StatsDao(self.conn).update_after_session(user_id, session.results, commit=False)
                 return False
         except Exception:
             return True
@@ -297,6 +298,56 @@ class CardDao(Dao):
                 AND "exercise_id" = ?
             ''',
             updates
+        )
+
+        if commit:
+            self.conn.commit()
+
+class StatsDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("user_stats", conn)
+
+    def get(self, user_id: int = 1) -> dict[str, Any]:
+        rows = self._get().where('user_id', '=', user_id).fetch_rows()
+        stats = dict(rows[0]) if rows else {
+            'user_id': user_id, 'total_correct': 0, 'total_answers': 0,
+            'current_streak': 0, 'longest_streak': 0, 'last_active_date': None
+        }
+        stats['accuracy'] = stats['total_correct'] / stats['total_answers'] if stats['total_answers'] else 0.0
+        return stats
+
+    def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:
+        today = today or date.today()
+        stats = self.get(user_id)
+        correct = sum(1 for r in results if r.correct)
+
+        if stats['last_active_date'] == today.isoformat():
+            streak = stats['current_streak'] or 1
+        elif stats['last_active_date'] == (today - timedelta(days=1)).isoformat():
+            streak = stats['current_streak'] + 1
+        else:
+            streak = 1
+
+        self.conn.execute(
+            '''
+                INSERT INTO "user_stats"
+                    ("user_id", "total_correct", "total_answers", "current_streak", "longest_streak", "last_active_date")
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT ("user_id") DO UPDATE SET
+                    "total_correct" = excluded."total_correct",
+                    "total_answers" = excluded."total_answers",
+                    "current_streak" = excluded."current_streak",
+                    "longest_streak" = excluded."longest_streak",
+                    "last_active_date" = excluded."last_active_date"
+            ''',
+            [
+                user_id,
+                stats['total_correct'] + correct,
+                stats['total_answers'] + len(results),
+                streak,
+                max(stats['longest_streak'], streak),
+                today.isoformat(),
+            ]
         )
 
         if commit:

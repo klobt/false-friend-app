@@ -81,6 +81,15 @@ def parse_card(row: dict) -> Card:
 class PublicUserData(BaseModel):
     data: dict[str, Any]
 
+class UserStats(BaseModel):
+    user_id: int
+    total_correct: int
+    total_answers: int
+    current_streak: int
+    longest_streak: int
+    last_active_date: Optional[date] = None
+    accuracy: float
+
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
