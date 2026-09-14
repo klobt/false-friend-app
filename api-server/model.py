@@ -3,7 +3,7 @@ from enum import IntEnum
 import json
 from typing import Any, Annotated, Literal, Optional, Union, NamedTuple
 
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, EmailStr, Field, TypeAdapter
 
 class ExerciseType(IntEnum):
     translation = 101
@@ -80,3 +80,26 @@ def parse_card(row: dict) -> Card:
 
 class PublicUserData(BaseModel):
     data: dict[str, Any]
+
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class SocialLoginRequest(BaseModel):
+    id_token: str
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = 'bearer'

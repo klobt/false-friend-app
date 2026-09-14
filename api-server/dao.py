@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from os.path import join
 from typing import Any, Generator, Mapping, Optional, Self
@@ -32,6 +32,10 @@ class GetBuilder:
         return self
 
     def where(self, col: str, op: str, value) -> Self:
+        if isinstance(value, (str, bytes)):
+            self.where_raw(col, op, '?')
+            self.where_params += [value]
+            return self
         try:
             value_it = iter(value)
             value_list = list(value_it)
@@ -335,5 +339,71 @@ class UserDao(Dao):
                     "public_data" = excluded."public_data"
             ''',
             [user_id, json.dumps(dict(data))]
+        )
+        self.conn.commit()
+
+    def get_by_id(self, user_id: int) -> Optional[dict[str, Any]]:
+        rows = self._get().where('id', '=', user_id).fetch_rows()
+        return dict(rows[0]) if rows else None
+
+    def get_by_email(self, email: str) -> Optional[dict[str, Any]]:
+        rows = self._get().where('email', '=', email).fetch_rows()
+        return dict(rows[0]) if rows else None
+
+    def create_with_email(self, email: Optional[str], password_hash: Optional[str]) -> int:
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'INSERT INTO "users" ("email", "password_hash", "public_data") VALUES (?, ?, ?)',
+            [email, password_hash, '{}']
+        )
+        self.conn.commit()
+        return cursor.lastrowid
+
+    def set_verified(self, user_id: int) -> None:
+        self.conn.execute('UPDATE "users" SET "email_verified" = 1 WHERE "id" = ?', [user_id])
+        self.conn.commit()
+
+    def set_password(self, user_id: int, password_hash: str) -> None:
+        self.conn.execute('UPDATE "users" SET "password_hash" = ? WHERE "id" = ?', [password_hash, user_id])
+        self.conn.commit()
+
+class EmailCodeDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("email_codes", conn)
+
+    def set(self, user_id: int, code: str, ttl_minutes: int = 15) -> None:
+        expires_at = (datetime.utcnow() + timedelta(minutes=ttl_minutes)).isoformat()
+        self.conn.execute(
+            '''
+                INSERT INTO "email_codes" ("user_id", "code", "expires_at")
+                VALUES (?, ?, ?)
+                ON CONFLICT ("user_id") DO UPDATE SET
+                    "code" = excluded."code",
+                    "expires_at" = excluded."expires_at"
+            ''',
+            [user_id, code, expires_at]
+        )
+        self.conn.commit()
+
+    def verify(self, user_id: int, code: str) -> bool:
+        rows = self._get().where('user_id', '=', user_id).fetch_rows()
+        if len(rows) == 0 or rows[0]['code'] != code or datetime.fromisoformat(rows[0]['expires_at']) < datetime.utcnow():
+            return False
+        self.conn.execute('DELETE FROM "email_codes" WHERE "user_id" = ?', [user_id])
+        self.conn.commit()
+        return True
+
+class IdentityDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("auth_identities", conn)
+
+    def get_user_id(self, provider: str, provider_user_id: str) -> Optional[int]:
+        rows = self._get().where('provider', '=', provider).where('provider_user_id', '=', provider_user_id).fetch_rows()
+        return rows[0]['user_id'] if rows else None
+
+    def link(self, provider: str, provider_user_id: str, user_id: int) -> None:
+        self.conn.execute(
+            'INSERT OR IGNORE INTO "auth_identities" ("provider", "provider_user_id", "user_id") VALUES (?, ?, ?)',
+            [provider, provider_user_id, user_id]
         )
         self.conn.commit()
