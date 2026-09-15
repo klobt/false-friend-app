@@ -80,3 +80,15 @@ def parse_card(row: dict) -> Card:
 
 class PublicUserData(BaseModel):
     data: dict[str, Any]
+
+class FriendAction(BaseModel):
+    accept: bool
+
+class DeviceToken(BaseModel):
+    token: str
+    platform: Optional[str] = None
+
+class PushMessage(BaseModel):
+    title: str
+    body: str
+    data: Optional[dict[str, Any]] = None

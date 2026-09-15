@@ -298,6 +298,115 @@ class CardDao(Dao):
         if commit:
             self.conn.commit()
 
+class FriendDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("friendships", conn)
+
+    def request(self, from_id: int, to_id: int) -> str:
+        if from_id == to_id:
+            raise ValueError('Cannot friend yourself')
+
+        a, b = min(from_id, to_id), max(from_id, to_id)
+        row = self.conn.execute(
+            'SELECT "status", "requested_by" FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?',
+            [a, b]
+        ).fetchone()
+
+        if row is None:
+            self.conn.execute(
+                'INSERT INTO "friendships" ("user_id_1", "user_id_2", "status", "requested_by") VALUES (?, ?, ?, ?)',
+                [a, b, 'pending', from_id]
+            )
+            self.conn.commit()
+            return 'pending'
+
+        if row['status'] == 'accepted':
+            return 'already_friends'
+
+        if row['requested_by'] == from_id:
+            return 'pending'  # already requested, idempotent
+
+        # the other side had already sent a request -> mutual, auto-accept
+        self.conn.execute(
+            'UPDATE "friendships" SET "status" = ? WHERE "user_id_1" = ? AND "user_id_2" = ?',
+            ['accepted', a, b]
+        )
+        self.conn.commit()
+        return 'accepted'
+
+    def respond(self, user_id: int, other_id: int, accept: bool) -> bool:
+        a, b = min(user_id, other_id), max(user_id, other_id)
+        row = self.conn.execute(
+            'SELECT "status", "requested_by" FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?',
+            [a, b]
+        ).fetchone()
+
+        if row is None or row['status'] != 'pending' or row['requested_by'] == user_id:
+            return False
+
+        if accept:
+            self.conn.execute(
+                'UPDATE "friendships" SET "status" = ? WHERE "user_id_1" = ? AND "user_id_2" = ?',
+                ['accepted', a, b]
+            )
+        else:
+            self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
+
+        self.conn.commit()
+        return True
+
+    def list_friends(self, user_id: int) -> list[int]:
+        rows = self.conn.execute(
+            '''
+                SELECT CASE WHEN "user_id_1" = ? THEN "user_id_2" ELSE "user_id_1" END AS "friend_id"
+                FROM "friendships"
+                WHERE ("user_id_1" = ? OR "user_id_2" = ?) AND "status" = 'accepted'
+            ''',
+            [user_id, user_id, user_id]
+        ).fetchall()
+        return [row['friend_id'] for row in rows]
+
+    def list_pending(self, user_id: int) -> list[int]:
+        rows = self.conn.execute(
+            '''
+                SELECT CASE WHEN "user_id_1" = ? THEN "user_id_2" ELSE "user_id_1" END AS "requester_id"
+                FROM "friendships"
+                WHERE ("user_id_1" = ? OR "user_id_2" = ?) AND "status" = 'pending' AND "requested_by" != ?
+            ''',
+            [user_id, user_id, user_id, user_id]
+        ).fetchall()
+        return [row['requester_id'] for row in rows]
+
+    def remove(self, user_id: int, other_id: int) -> None:
+        a, b = min(user_id, other_id), max(user_id, other_id)
+        self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
+        self.conn.commit()
+
+class DeviceTokenDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("device_tokens", conn)
+
+    def upsert(self, user_id: int, token: str, platform: Optional[str] = None) -> None:
+        self.conn.execute(
+            '''
+                INSERT INTO "device_tokens" ("token", "user_id", "platform")
+                VALUES (?, ?, ?)
+                ON CONFLICT ("token") DO UPDATE SET
+                    "user_id" = excluded."user_id",
+                    "platform" = excluded."platform"
+            ''',
+            [token, user_id, platform]
+        )
+        self.conn.commit()
+
+    def remove(self, token: str) -> None:
+        self.conn.execute('DELETE FROM "device_tokens" WHERE "token" = ?', [token])
+        self.conn.commit()
+
+    def get_tokens(self, user_id: int) -> list[str]:
+        rows = self.conn.execute('SELECT "token" FROM "device_tokens" WHERE "user_id" = ?', [user_id]).fetchall()
+        return [row['token'] for row in rows]
+
 class UserDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
         super().__init__("users", conn)
