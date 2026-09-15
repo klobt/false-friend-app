@@ -10,50 +10,51 @@ import notifications
 app = FastAPI()
 
 @app.get("/")
-async def root():
+async def root(user_id: int = Depends(auth.get_current_user_id)):
     return {"message": "Hello World"}
 
 @app.get("/exercises")
-async def get_exercises(ids: list[int] = Query(default=[])):
+async def get_exercises(ids: list[int] = Query(default=[]), user_id: int = Depends(auth.get_current_user_id)):
     return {
         "data": ExerciseDao().get(ids)
     }
 
 @app.get("/reviews/today")
-async def get_card_exercise_ids(type_filter = Query(default=None), limit: int = Query(default=10), offset: int = Query(default=0)):
+async def get_card_exercise_ids(type_filter = Query(default=None), limit: int = Query(default=10), offset: int = Query(default=0), user_id: int = Depends(auth.get_current_user_id)):
     return {
-        "exercise_ids": CardDao().get_review_exercise_ids(ExerciseType[type_filter] if type_filter else None, limit, offset)
+        "exercise_ids": CardDao().get_review_exercise_ids(ExerciseType[type_filter] if type_filter else None, limit, offset, user_id)
     }
 
 @app.get("/sessions")
-async def get_sessions(limit: int = Query(default=10), offset: int = Query(default=0)):
+async def get_sessions(limit: int = Query(default=10), offset: int = Query(default=0), user_id: int = Depends(auth.get_current_user_id)):
     return {
-        "data": SessionDao().get(limit, offset),
-        "total": SessionDao().total()
+        "data": SessionDao().get(limit, offset, user_id),
+        "total": SessionDao().total_for_user(user_id)
     }
 
 @app.post("/sessions")
-async def post_session(session: Session):
+async def post_session(session: Session, user_id: int = Depends(auth.get_current_user_id)):
+    session.user_id = user_id
     return {
         "success": SessionDao().create(session)
     }
 
 @app.get("/users")
-async def get_users(limit: int = Query(default=10), offset: int = Query(default=0)):
+async def get_users(limit: int = Query(default=10), offset: int = Query(default=0), user_id: int = Depends(auth.get_current_user_id)):
     return {
         "data": UserDao().get(limit, offset),
         "total": UserDao().total()
     }
 
-@app.get("/users/{user_id}")
-async def get_user(user_id: int):
+@app.get("/users/me")
+async def get_user(user_id: int = Depends(auth.get_current_user_id)):
     return {
         "id": user_id,
         "public_data": UserDao().get_public_data(user_id)
     }
 
-@app.put("/users/{user_id}")
-async def put_user(user_id: int, user: PublicUserData):
+@app.put("/users/me")
+async def put_user(user: PublicUserData, user_id: int = Depends(auth.get_current_user_id)):
     UserDao().set_public_data(user.data, user_id)
     return {
         "success": True
@@ -112,8 +113,8 @@ async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_c
     notifications.send_push_to_user(user_id, body.title, body.body, body.data)
     return {"success": True}
 
-@app.get("/users/{user_id}/stats", response_model=UserStats)
-async def get_user_stats(user_id: int):
+@app.get("/users/me/stats", response_model=UserStats)
+async def get_user_stats(user_id: int = Depends(auth.get_current_user_id)):
     return StatsDao().get(user_id)
 
 @app.post("/auth/register", response_model=TokenResponse)

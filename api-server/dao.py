@@ -148,9 +148,14 @@ class SessionDao(Dao):
     def from_rows(self, rows: list[Mapping[str, Any]]) -> list[Session]:
         return list(map(lambda r: parse_session(dict(r)), rows))
 
-    def get(self, limit: int, offset: int) -> list[Session]:
-        rows = self._get().with_limit(limit, offset).fetch_rows()
+    def get(self, limit: int, offset: int, user_id: int) -> list[Session]:
+        rows = self._get().where('user_id', '=', user_id).with_limit(limit, offset).fetch_rows()
         return self.from_rows(rows)
+
+    def total_for_user(self, user_id: int) -> int:
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT COUNT(*) AS "total" FROM "sessions" WHERE "user_id" = ?', [user_id])
+        return cursor.fetchone()['total']
 
     def create(self, session: Session) -> bool:
         user_id = session.user_id or 1
@@ -573,3 +578,4 @@ class IdentityDao(Dao):
             [provider, provider_user_id, user_id]
         )
         self.conn.commit()
+
