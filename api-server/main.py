@@ -1,6 +1,10 @@
-from fastapi import FastAPI, HTTPException, Query
-from dao import CardDao, DeviceTokenDao, ExerciseDao, FriendDao, SessionDao, UserDao
-from model import DeviceToken, ExerciseType, FriendAction, PublicUserData, PushMessage, Session
+from fastapi import Depends, FastAPI, HTTPException, Query
+import auth
+from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
+from model import (
+    ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, PublicUserData, PushMessage,
+    RegisterRequest, Session, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
+)
 import notifications
 
 app = FastAPI()
@@ -105,4 +109,55 @@ async def unregister_token(token: str):
 @app.post("/notifications/{user_id}/send")
 async def send_notification(user_id: int, body: PushMessage):
     notifications.send_push_to_user(user_id, body.title, body.body, body.data)
+@app.get("/users/{user_id}/stats", response_model=UserStats)
+async def get_user_stats(user_id: int):
+    return StatsDao().get(user_id)
+
+@app.post("/auth/register", response_model=TokenResponse)
+async def register(body: RegisterRequest):
+    users = UserDao()
+    if users.get_by_email(body.email):
+        raise HTTPException(status_code=409, detail="Email already registered")
+    user_id = users.create_with_email(body.email, auth.hash_password(body.password))
+    code = auth.generate_code()
+    EmailCodeDao().set(user_id, code)
+    auth.send_email(body.email, "Kod weryfikacyjny", f"Twój kod weryfikacyjny: {code}")
+    return TokenResponse(access_token=auth.create_token(user_id))
+
+@app.post("/auth/verify-email")
+async def verify_email(body: VerifyEmailRequest):
+    user = UserDao().get_by_email(body.email)
+    if not user or not EmailCodeDao().verify(user['id'], body.code):
+        raise HTTPException(status_code=400, detail="Invalid or expired code")
+    UserDao().set_verified(user['id'])
+    return {"success": True}
+
+@app.post("/auth/login", response_model=TokenResponse)
+async def login(body: LoginRequest):
+    user = UserDao().get_by_email(body.email)
+    if not user or not user['password_hash'] or not auth.verify_password(body.password, user['password_hash']):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    return TokenResponse(access_token=auth.create_token(user['id']))
+
+@app.post("/auth/social/{provider}", response_model=TokenResponse)
+async def social_login(provider: str, body: SocialLoginRequest):
+    provider_user_id, email = auth.verify_social_token(provider, body.id_token)
+    identities = IdentityDao()
+    user_id = identities.get_user_id(provider, provider_user_id)
+    if user_id is None:
+        users = UserDao()
+        existing = users.get_by_email(email) if email else None
+        user_id = existing['id'] if existing else users.create_with_email(email, None)
+        if email:
+            users.set_verified(user_id)
+        identities.link(provider, provider_user_id, user_id)
+    return TokenResponse(access_token=auth.create_token(user_id))
+
+@app.put("/auth/password")
+async def change_password(body: ChangePasswordRequest, user_id: int = Depends(auth.get_current_user_id)):
+    users = UserDao()
+    user = users.get_by_id(user_id)
+    if not user or not user['password_hash'] or not auth.verify_password(body.current_password, user['password_hash']):
+        raise HTTPException(status_code=401, detail="Invalid current password")
+    users.set_password(user_id, auth.hash_password(body.new_password))
     return {"success": True}

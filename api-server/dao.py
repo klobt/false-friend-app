@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import json
 from os.path import join
 from typing import Any, Generator, Mapping, Optional, Self
@@ -32,6 +32,10 @@ class GetBuilder:
         return self
 
     def where(self, col: str, op: str, value) -> Self:
+        if isinstance(value, (str, bytes)):
+            self.where_raw(col, op, '?')
+            self.where_params += [value]
+            return self
         try:
             value_it = iter(value)
             value_list = list(value_it)
@@ -160,6 +164,7 @@ class SessionDao(Dao):
                 cards = CardDao(self.conn)
                 cards.sync_with_exercises(user_id, commit=False)
                 cards.resolve_session(session, commit=False)
+                StatsDao(self.conn).update_after_session(user_id, session.results, commit=False)
                 return False
         except Exception:
             return True
@@ -406,6 +411,55 @@ class DeviceTokenDao(Dao):
     def get_tokens(self, user_id: int) -> list[str]:
         rows = self.conn.execute('SELECT "token" FROM "device_tokens" WHERE "user_id" = ?', [user_id]).fetchall()
         return [row['token'] for row in rows]
+class StatsDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("user_stats", conn)
+
+    def get(self, user_id: int = 1) -> dict[str, Any]:
+        rows = self._get().where('user_id', '=', user_id).fetch_rows()
+        stats = dict(rows[0]) if rows else {
+            'user_id': user_id, 'total_correct': 0, 'total_answers': 0,
+            'current_streak': 0, 'longest_streak': 0, 'last_active_date': None
+        }
+        stats['accuracy'] = stats['total_correct'] / stats['total_answers'] if stats['total_answers'] else 0.0
+        return stats
+
+    def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:
+        today = today or date.today()
+        stats = self.get(user_id)
+        correct = sum(1 for r in results if r.correct)
+
+        if stats['last_active_date'] == today.isoformat():
+            streak = stats['current_streak'] or 1
+        elif stats['last_active_date'] == (today - timedelta(days=1)).isoformat():
+            streak = stats['current_streak'] + 1
+        else:
+            streak = 1
+
+        self.conn.execute(
+            '''
+                INSERT INTO "user_stats"
+                    ("user_id", "total_correct", "total_answers", "current_streak", "longest_streak", "last_active_date")
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT ("user_id") DO UPDATE SET
+                    "total_correct" = excluded."total_correct",
+                    "total_answers" = excluded."total_answers",
+                    "current_streak" = excluded."current_streak",
+                    "longest_streak" = excluded."longest_streak",
+                    "last_active_date" = excluded."last_active_date"
+            ''',
+            [
+                user_id,
+                stats['total_correct'] + correct,
+                stats['total_answers'] + len(results),
+                streak,
+                max(stats['longest_streak'], streak),
+                today.isoformat(),
+            ]
+        )
+
+        if commit:
+            self.conn.commit()
 
 class UserDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
@@ -444,5 +498,71 @@ class UserDao(Dao):
                     "public_data" = excluded."public_data"
             ''',
             [user_id, json.dumps(dict(data))]
+        )
+        self.conn.commit()
+
+    def get_by_id(self, user_id: int) -> Optional[dict[str, Any]]:
+        rows = self._get().where('id', '=', user_id).fetch_rows()
+        return dict(rows[0]) if rows else None
+
+    def get_by_email(self, email: str) -> Optional[dict[str, Any]]:
+        rows = self._get().where('email', '=', email).fetch_rows()
+        return dict(rows[0]) if rows else None
+
+    def create_with_email(self, email: Optional[str], password_hash: Optional[str]) -> int:
+        cursor = self.conn.cursor()
+        cursor.execute(
+            'INSERT INTO "users" ("email", "password_hash", "public_data") VALUES (?, ?, ?)',
+            [email, password_hash, '{}']
+        )
+        self.conn.commit()
+        return cursor.lastrowid
+
+    def set_verified(self, user_id: int) -> None:
+        self.conn.execute('UPDATE "users" SET "email_verified" = 1 WHERE "id" = ?', [user_id])
+        self.conn.commit()
+
+    def set_password(self, user_id: int, password_hash: str) -> None:
+        self.conn.execute('UPDATE "users" SET "password_hash" = ? WHERE "id" = ?', [password_hash, user_id])
+        self.conn.commit()
+
+class EmailCodeDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("email_codes", conn)
+
+    def set(self, user_id: int, code: str, ttl_minutes: int = 15) -> None:
+        expires_at = (datetime.utcnow() + timedelta(minutes=ttl_minutes)).isoformat()
+        self.conn.execute(
+            '''
+                INSERT INTO "email_codes" ("user_id", "code", "expires_at")
+                VALUES (?, ?, ?)
+                ON CONFLICT ("user_id") DO UPDATE SET
+                    "code" = excluded."code",
+                    "expires_at" = excluded."expires_at"
+            ''',
+            [user_id, code, expires_at]
+        )
+        self.conn.commit()
+
+    def verify(self, user_id: int, code: str) -> bool:
+        rows = self._get().where('user_id', '=', user_id).fetch_rows()
+        if len(rows) == 0 or rows[0]['code'] != code or datetime.fromisoformat(rows[0]['expires_at']) < datetime.utcnow():
+            return False
+        self.conn.execute('DELETE FROM "email_codes" WHERE "user_id" = ?', [user_id])
+        self.conn.commit()
+        return True
+
+class IdentityDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("auth_identities", conn)
+
+    def get_user_id(self, provider: str, provider_user_id: str) -> Optional[int]:
+        rows = self._get().where('provider', '=', provider).where('provider_user_id', '=', provider_user_id).fetch_rows()
+        return rows[0]['user_id'] if rows else None
+
+    def link(self, provider: str, provider_user_id: str, user_id: int) -> None:
+        self.conn.execute(
+            'INSERT OR IGNORE INTO "auth_identities" ("provider", "provider_user_id", "user_id") VALUES (?, ?, ?)',
+            [provider, provider_user_id, user_id]
         )
         self.conn.commit()

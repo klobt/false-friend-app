@@ -5,14 +5,15 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.agh.falsefriendapp.BuildConfig
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
+    // TODO podnieść timeouty do 10 dla connect i 20 dla read, write
     private const val CONNECT_TIMEOUT = 3L
     private const val READ_TIMEOUT = 3L
     private const val WRITE_TIMEOUT = 3L
-    private const val BASE_URL = "http://192.168.8.102:8000/"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -20,7 +21,11 @@ object RetrofitClient {
     }
 
     private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.NONE
+        }
     }
 
     private val client = OkHttpClient.Builder()
@@ -32,7 +37,7 @@ object RetrofitClient {
 
     val api: ExerciseApi by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.API_BASE_URL)
             .client(client)
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())

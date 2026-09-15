@@ -8,6 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
+import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.DefinitionExerciseViewModel
 
@@ -15,7 +16,7 @@ import org.agh.falsefriendapp.viewmodel.DefinitionExerciseViewModel
 fun DefinitionExerciseScreen(
     viewModel: DefinitionExerciseViewModel = viewModel(),
     onNavigateHome: () -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     DefinitionExerciseContent(
@@ -31,7 +32,7 @@ private fun DefinitionExerciseContent(
     state: BaseExerciseUiState,
     onNavigateHome: () -> Unit,
     onAnswerSelected: (Int) -> Unit,
-    onFinished: (score: Int, totalQuestions: Int) -> Unit
+    onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
     when (state) {
         BaseExerciseUiState.Loading -> {
@@ -46,7 +47,7 @@ private fun DefinitionExerciseContent(
             BaseExerciseScreen(
                 currentStep = state.currentIndex + 1,
                 totalSteps = state.exercises.size,
-                instruction = "Jak po angielsku powiemy:",
+                instruction = "Wybierz definicję słowa:",
                 exercise = currentExercise,
                 onAnswerSelected = onAnswerSelected
             )
@@ -55,7 +56,8 @@ private fun DefinitionExerciseContent(
             LaunchedEffect(state) {
                 onFinished(
                     state.correctAnswers,
-                    state.totalQuestions
+                    state.totalQuestions,
+                    state.reviewItems
                 )
             }
         }
@@ -68,14 +70,16 @@ private fun DefinitionExerciseContentPreview() {
     FalseFriendAppTheme {
         DefinitionExerciseContent(
             state = BaseExerciseUiState.Success(
-                listOf(BaseExercise(0, "lektura", 0, listOf(
-                    "wykład", "lecture", "książka", "czytanie"
+                listOf(BaseExercise(0, "desert", 0, listOf(
+                    "a waterless, desolate area of land with little vegetation",
+                    "a sweet course eaten at the end of a meal",
+                    "a place where people go to rest and relax"
                 ))),
                 0
             ),
             onNavigateHome = {},
             onAnswerSelected = {},
-            onFinished = {_, _ -> }
+            onFinished = {_, _, _ -> }
         )
     }
 }

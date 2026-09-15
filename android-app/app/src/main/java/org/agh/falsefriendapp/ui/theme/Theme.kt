@@ -1,8 +1,10 @@
 package org.agh.falsefriendapp.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun FalseFriendAppTheme(content: @Composable () -> Unit) {
@@ -29,3 +31,9 @@ private val LightColors = lightColorScheme(
     outline = Outline,
     error = Error
 )
+
+val ColorScheme.success: Color
+    get() = Success
+
+val ColorScheme.warning: Color
+    get() = Warning

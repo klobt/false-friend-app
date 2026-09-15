@@ -16,6 +16,7 @@ sealed class BaseExerciseUiState {
 
     data class Finished(
         val correctAnswers: Int,
-        val totalQuestions: Int
+        val totalQuestions: Int,
+        val reviewItems: List<ReviewItem>
     ): BaseExerciseUiState()
 }
