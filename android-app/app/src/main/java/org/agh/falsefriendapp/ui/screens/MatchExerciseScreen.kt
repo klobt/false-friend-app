@@ -129,7 +129,8 @@ private fun MatchExerciseTask(
         BaseExerciseHeader(currentStep, totalSteps)
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Wybierz polskie słowo, a następnie jego angielski odpowiednik:",
+            text = "Wybierz słowo z lewej strony, a następnie " +
+                    "odpowiadające mu z prawej:",
             modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 10.dp),
             style = MaterialTheme.typography.bodyLarge,
