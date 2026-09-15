@@ -103,5 +103,14 @@ def down(steps):
     else:
         click.echo("Nothing to roll back.")
 
+@cli.command()
+def reset():
+    """Reset the database."""
+    os.remove(get_db())
+    click.echo("Database removed")
+    migrations = read_migrations_from_disk('migrations')
+    if migrate(migrations):
+        click.echo("Migrations applied successfully.")
+
 if __name__ == "__main__":
     cli()
