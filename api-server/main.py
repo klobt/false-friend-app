@@ -1,10 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
-from dao import CardDao, EmailCodeDao, ExerciseDao, IdentityDao, SessionDao, StatsDao, UserDao
+from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
-    ChangePasswordRequest, ExerciseType, LoginRequest, PublicUserData,
+    ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, PublicUserData, PushMessage,
     RegisterRequest, Session, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
+import notifications
 
 app = FastAPI()
 
@@ -58,6 +59,56 @@ async def put_user(user_id: int, user: PublicUserData):
         "success": True
     }
 
+@app.post("/friends/{user_id}/requests")
+async def send_friend_request(user_id: int, to_user_id: int = Query(...)):
+    try:
+        status = FriendDao().request(user_id, to_user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if status == 'pending':
+        notifications.send_push_to_user(to_user_id, "Nowe zaproszenie", "Masz nowe zaproszenie do znajomych!")
+    elif status == 'accepted':
+        notifications.send_push_to_user(to_user_id, "Nowy znajomy", "Zostaliście znajomymi!")
+
+    return {"status": status}
+
+@app.get("/friends/{user_id}")
+async def list_friends(user_id: int):
+    return {"data": FriendDao().list_friends(user_id)}
+
+@app.get("/friends/{user_id}/requests")
+async def list_friend_requests(user_id: int):
+    return {"data": FriendDao().list_pending(user_id)}
+
+@app.put("/friends/{user_id}/requests/{other_id}")
+async def respond_friend_request(user_id: int, other_id: int, action: FriendAction):
+    if not FriendDao().respond(user_id, other_id, action.accept):
+        raise HTTPException(status_code=404, detail="No pending request")
+
+    if action.accept:
+        notifications.send_push_to_user(other_id, "Nowy znajomy", "Twoje zaproszenie zostało zaakceptowane!")
+
+    return {"success": True}
+
+@app.delete("/friends/{user_id}/{other_id}")
+async def remove_friend(user_id: int, other_id: int):
+    FriendDao().remove(user_id, other_id)
+    return {"success": True}
+
+@app.post("/notifications/{user_id}/tokens")
+async def register_token(user_id: int, body: DeviceToken):
+    DeviceTokenDao().upsert(user_id, body.token, body.platform)
+    return {"success": True}
+
+@app.delete("/notifications/tokens/{token}")
+async def unregister_token(token: str):
+    DeviceTokenDao().remove(token)
+    return {"success": True}
+
+@app.post("/notifications/{user_id}/send")
+async def send_notification(user_id: int, body: PushMessage):
+    notifications.send_push_to_user(user_id, body.title, body.body, body.data)
 @app.get("/users/{user_id}/stats", response_model=UserStats)
 async def get_user_stats(user_id: int):
     return StatsDao().get(user_id)
