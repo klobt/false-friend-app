@@ -59,8 +59,8 @@ async def put_user(user_id: int, user: PublicUserData):
         "success": True
     }
 
-@app.post("/friends/{user_id}/requests")
-async def send_friend_request(user_id: int, to_user_id: int = Query(...)):
+@app.post("/friends/requests")
+async def send_friend_request(to_user_id: int = Query(...), user_id: int = Depends(auth.get_current_user_id)):
     try:
         status = FriendDao().request(user_id, to_user_id)
     except ValueError as e:
@@ -73,16 +73,16 @@ async def send_friend_request(user_id: int, to_user_id: int = Query(...)):
 
     return {"status": status}
 
-@app.get("/friends/{user_id}")
-async def list_friends(user_id: int):
+@app.get("/friends")
+async def list_friends(user_id: int = Depends(auth.get_current_user_id)):
     return {"data": FriendDao().list_friends(user_id)}
 
-@app.get("/friends/{user_id}/requests")
-async def list_friend_requests(user_id: int):
+@app.get("/friends/requests")
+async def list_friend_requests(user_id: int = Depends(auth.get_current_user_id)):
     return {"data": FriendDao().list_pending(user_id)}
 
-@app.put("/friends/{user_id}/requests/{other_id}")
-async def respond_friend_request(user_id: int, other_id: int, action: FriendAction):
+@app.put("/friends/requests/{other_id}")
+async def respond_friend_request(other_id: int, action: FriendAction, user_id: int = Depends(auth.get_current_user_id)):
     if not FriendDao().respond(user_id, other_id, action.accept):
         raise HTTPException(status_code=404, detail="No pending request")
 
@@ -91,24 +91,27 @@ async def respond_friend_request(user_id: int, other_id: int, action: FriendActi
 
     return {"success": True}
 
-@app.delete("/friends/{user_id}/{other_id}")
-async def remove_friend(user_id: int, other_id: int):
+@app.delete("/friends/{other_id}")
+async def remove_friend(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
     FriendDao().remove(user_id, other_id)
     return {"success": True}
 
-@app.post("/notifications/{user_id}/tokens")
-async def register_token(user_id: int, body: DeviceToken):
+@app.post("/notifications/tokens")
+async def register_token(body: DeviceToken, user_id: int = Depends(auth.get_current_user_id)):
     DeviceTokenDao().upsert(user_id, body.token, body.platform)
     return {"success": True}
 
 @app.delete("/notifications/tokens/{token}")
-async def unregister_token(token: str):
-    DeviceTokenDao().remove(token)
+async def unregister_token(token: str, user_id: int = Depends(auth.get_current_user_id)):
+    if not DeviceTokenDao().remove_owned(token, user_id):
+        raise HTTPException(status_code=404, detail="Token not found")
     return {"success": True}
 
-@app.post("/notifications/{user_id}/send")
-async def send_notification(user_id: int, body: PushMessage):
+@app.post("/notifications/send")
+async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_current_user_id)):
     notifications.send_push_to_user(user_id, body.title, body.body, body.data)
+    return {"success": True}
+
 @app.get("/users/{user_id}/stats", response_model=UserStats)
 async def get_user_stats(user_id: int):
     return StatsDao().get(user_id)

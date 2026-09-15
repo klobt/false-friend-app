@@ -408,6 +408,13 @@ class DeviceTokenDao(Dao):
         self.conn.execute('DELETE FROM "device_tokens" WHERE "token" = ?', [token])
         self.conn.commit()
 
+    def remove_owned(self, token: str, user_id: int) -> bool:
+        cursor = self.conn.execute(
+            'DELETE FROM "device_tokens" WHERE "token" = ? AND "user_id" = ?', [token, user_id]
+        )
+        self.conn.commit()
+        return cursor.rowcount > 0
+
     def get_tokens(self, user_id: int) -> list[str]:
         rows = self.conn.execute('SELECT "token" FROM "device_tokens" WHERE "user_id" = ?', [user_id]).fetchall()
         return [row['token'] for row in rows]
