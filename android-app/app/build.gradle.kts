@@ -63,6 +63,7 @@ dependencies {
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.datastore.preferences)
 
     // Compose
     implementation(libs.androidx.activity.compose)
