@@ -30,7 +30,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
 import org.agh.falsefriendapp.ui.components.NavigationButton
@@ -44,7 +44,7 @@ import org.agh.falsefriendapp.viewmodel.MatchExerciseViewModel
 
 @Composable
 fun MatchExerciseScreen(
-    viewModel: MatchExerciseViewModel = viewModel(),
+    viewModel: MatchExerciseViewModel = hiltViewModel(),
     onNavigateHome: () -> Unit,
     onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {

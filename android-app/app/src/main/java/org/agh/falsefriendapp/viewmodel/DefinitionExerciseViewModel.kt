@@ -2,13 +2,19 @@ package org.agh.falsefriendapp.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.ExerciseType
+import org.agh.falsefriendapp.data.repository.ExerciseRepository
+import javax.inject.Inject
 
 private const val TAG = "DefinitionExerciseViewModel"
 
-class DefinitionExerciseViewModel : BaseExerciseViewModel() {
+@HiltViewModel
+class DefinitionExerciseViewModel @Inject constructor(
+    repository: ExerciseRepository
+) : BaseExerciseViewModel(repository) {
     init {
         fetchExercises()
     }

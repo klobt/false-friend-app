@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.state.ReviewItem
@@ -14,7 +14,7 @@ import org.agh.falsefriendapp.viewmodel.DefinitionExerciseViewModel
 
 @Composable
 fun DefinitionExerciseScreen(
-    viewModel: DefinitionExerciseViewModel = viewModel(),
+    viewModel: DefinitionExerciseViewModel = hiltViewModel(),
     onNavigateHome: () -> Unit,
     onFinished: (score: Int, totalQuestions: Int, reviewItems: List<ReviewItem>) -> Unit
 ) {
