@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 val localProperties = Properties().apply {
@@ -64,6 +66,11 @@ dependencies {
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
+
+    // Dependency injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // Compose
     implementation(libs.androidx.activity.compose)
