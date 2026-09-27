@@ -23,7 +23,6 @@ fun MatchExerciseDto.toMatchExercise(): MatchExercise {
 
 fun Session.toRequest(): SessionRequest {
     return SessionRequest(
-        userId = userId,
         results = results.map { result ->
             SessionResultRequest(
                 exerciseId = result.exerciseId,

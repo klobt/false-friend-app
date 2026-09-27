@@ -49,8 +49,6 @@ data class ExercisesIds(
 
 @Serializable
 data class SessionRequest(
-    @SerialName("user_id")
-    val userId: Int,
     val results: List<SessionResultRequest>
 )
 
@@ -61,4 +59,22 @@ data class SessionResultRequest(
     val correct: Boolean,
     @SerialName("time_ms")
     val timeMs: Long
+)
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class RegisterRequest(
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class TokenResponse(
+    @SerialName("access_token")
+    val accessToken: String
 )

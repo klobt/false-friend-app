@@ -3,6 +3,7 @@ package org.agh.falsefriendapp.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,16 +18,19 @@ import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
 import org.agh.falsefriendapp.ui.state.MatchOption
 import org.agh.falsefriendapp.ui.state.MatchPairResult
 import org.agh.falsefriendapp.ui.state.ReviewItem
+import javax.inject.Inject
 
 private const val TAG = "MatchExerciseViewModel"
 
-class MatchExerciseViewModel : ViewModel() {
+@HiltViewModel
+class MatchExerciseViewModel @Inject constructor(
+    private val repository: ExerciseRepository
+) : ViewModel() {
     private val _state = MutableStateFlow<MatchExerciseUiState>(
         MatchExerciseUiState.Loading
     )
     val state = _state.asStateFlow()
 
-    private val repository = ExerciseRepository()
     private val sessionResults = mutableListOf<SessionResult>()
     private val reviewItems = mutableListOf<ReviewItem>()
     private var totalCorrectAnswers = 0
@@ -163,10 +167,7 @@ class MatchExerciseViewModel : ViewModel() {
     }
 
     private fun finishSession(currentState: MatchExerciseUiState.Success) {
-        val session = Session(
-            1, // TODO users
-            sessionResults.toList()
-        )
+        val session = Session(sessionResults.toList())
         repository.submitSession(session)
 
         _state.value = MatchExerciseUiState.Finished(

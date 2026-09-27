@@ -10,11 +10,12 @@ import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.state.ReviewItem
 
-abstract class BaseExerciseViewModel : ViewModel() {
+abstract class BaseExerciseViewModel(
+    protected val repository: ExerciseRepository
+) : ViewModel() {
     private val _state = MutableStateFlow<BaseExerciseUiState>(BaseExerciseUiState.Loading)
     val state = _state.asStateFlow()
 
-    protected val repository = ExerciseRepository()
     private val sessionResults = mutableListOf<SessionResult>()
     private val reviewItems = mutableListOf<ReviewItem>()
     private var totalCorrectAnswers = 0
@@ -78,10 +79,7 @@ abstract class BaseExerciseViewModel : ViewModel() {
     private fun finishSession(
         currentState: BaseExerciseUiState.Success
     ) {
-        val session = Session(
-            userId = 1, // TODO users
-            results = sessionResults.toList()
-        )
+        val session = Session(results = sessionResults.toList())
         repository.submitSession(session)
 
         _state.value = BaseExerciseUiState.Finished(

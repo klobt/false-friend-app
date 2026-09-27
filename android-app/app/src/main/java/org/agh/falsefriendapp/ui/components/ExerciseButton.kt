@@ -8,5 +8,10 @@ fun ExerciseButton(
     text: String,
     onClick: () -> Unit
 ) {
-    BaseButton(text, 70.dp, onClick)
+    BaseButton(
+        text = text,
+        height = 70.dp,
+        enabled = true,
+        onClick = onClick
+    )
 }

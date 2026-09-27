@@ -16,10 +16,12 @@ import androidx.compose.ui.unit.dp
 fun BaseButton(
     text: String,
     height: Dp,
+    enabled: Boolean,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .width(300.dp)
             .height(height),

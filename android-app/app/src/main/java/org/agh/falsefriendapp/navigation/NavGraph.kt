@@ -1,14 +1,17 @@
 package org.agh.falsefriendapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
+import org.agh.falsefriendapp.ui.screens.LoginScreen
 import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
 import org.agh.falsefriendapp.ui.screens.ReviewScreen
 import org.agh.falsefriendapp.ui.screens.SettingsScreen
@@ -16,13 +19,39 @@ import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
 import org.agh.falsefriendapp.viewmodel.SessionReviewViewModel
+import org.agh.falsefriendapp.viewmodel.SessionViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val sessionReviewViewModel: SessionReviewViewModel = viewModel()
+    val sessionViewModel: SessionViewModel = hiltViewModel()
 
-    NavHost(navController = navController, startDestination = Routes.USER_HOME) {
+    val navigateToLogin: () -> Unit = {
+        navController.navigate(Routes.LOGIN) {
+            popUpTo(Routes.USER_HOME) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        sessionViewModel.forcedLogout.collect {
+            navigateToLogin()
+        }
+    }
+
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+        composable(Routes.LOGIN) {
+            LoginScreen(
+                onLoggedIn = {
+                    navController.navigate(Routes.USER_HOME) {
+                        popUpTo(Routes.LOGIN) {inclusive = true}
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         composable(Routes.USER_HOME) {
             UserMainScreen(
                 onStartTranslation = {
@@ -123,7 +152,8 @@ fun NavGraph() {
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onNavigateHome = { navController.popBackStack() }
+                onNavigateHome = { navController.popBackStack() },
+                onLoggedOut = navigateToLogin
             )
         }
     }
