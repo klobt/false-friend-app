@@ -54,11 +54,9 @@ class ExerciseRepository @Inject constructor(
         uploadScope.launch {
             try {
                 api.postSession(session.toRequest())
-            }
-            catch (e: CancellationException) {
+            } catch (e: CancellationException) {
                 throw e
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 Log.e(TAG, "Failed to post session", e)
             }
         }

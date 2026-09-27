@@ -10,7 +10,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.agh.falsefriendapp.BuildConfig
+import org.agh.falsefriendapp.data.api.AuthInterceptor
 import org.agh.falsefriendapp.data.api.ExerciseApi
+import org.agh.falsefriendapp.data.api.LoginApi
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -33,8 +35,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor())
             .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
@@ -58,6 +61,12 @@ object NetworkModule {
     @Singleton
     fun provideExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginApi(retrofit: Retrofit): LoginApi {
+        return retrofit.create(LoginApi::class.java)
     }
 
     private fun loggingInterceptor(): HttpLoggingInterceptor {

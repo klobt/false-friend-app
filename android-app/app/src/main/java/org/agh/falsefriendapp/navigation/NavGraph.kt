@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
+import org.agh.falsefriendapp.ui.screens.LoginScreen
 import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
 import org.agh.falsefriendapp.ui.screens.ReviewScreen
 import org.agh.falsefriendapp.ui.screens.SettingsScreen
@@ -22,7 +23,18 @@ fun NavGraph() {
     val navController = rememberNavController()
     val sessionReviewViewModel: SessionReviewViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = Routes.USER_HOME) {
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+        composable(Routes.LOGIN) {
+            LoginScreen(
+                onLoggedIn = {
+                    navController.navigate(Routes.USER_HOME) {
+                        popUpTo(Routes.LOGIN) {inclusive = true}
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         composable(Routes.USER_HOME) {
             UserMainScreen(
                 onStartTranslation = {

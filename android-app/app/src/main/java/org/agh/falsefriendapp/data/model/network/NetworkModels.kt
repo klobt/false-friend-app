@@ -62,3 +62,21 @@ data class SessionResultRequest(
     @SerialName("time_ms")
     val timeMs: Long
 )
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class RegisterRequest(
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class TokenResponse(
+    @SerialName("access_token")
+    val accessToken: String
+)

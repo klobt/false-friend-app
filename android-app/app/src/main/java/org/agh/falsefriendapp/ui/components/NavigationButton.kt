@@ -8,5 +8,10 @@ fun NavigationButton(
     text: String,
     onClick: () -> Unit
 ) {
-    BaseButton(text, 60.dp, onClick)
+    BaseButton(
+        text = text,
+        height = 60.dp,
+        enabled = true,
+        onClick = onClick
+    )
 }
