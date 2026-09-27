@@ -49,8 +49,6 @@ data class ExercisesIds(
 
 @Serializable
 data class SessionRequest(
-    @SerialName("user_id")
-    val userId: Int,
     val results: List<SessionResultRequest>
 )
 

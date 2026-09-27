@@ -1,8 +1,10 @@
 package org.agh.falsefriendapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,11 +19,26 @@ import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
 import org.agh.falsefriendapp.viewmodel.SessionReviewViewModel
+import org.agh.falsefriendapp.viewmodel.SessionViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val sessionReviewViewModel: SessionReviewViewModel = viewModel()
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+
+    val navigateToLogin: () -> Unit = {
+        navController.navigate(Routes.LOGIN) {
+            popUpTo(Routes.USER_HOME) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        sessionViewModel.forcedLogout.collect {
+            navigateToLogin()
+        }
+    }
 
     NavHost(navController = navController, startDestination = Routes.LOGIN) {
         composable(Routes.LOGIN) {
@@ -135,7 +152,8 @@ fun NavGraph() {
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onNavigateHome = { navController.popBackStack() }
+                onNavigateHome = { navController.popBackStack() },
+                onLoggedOut = navigateToLogin
             )
         }
     }

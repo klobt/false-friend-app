@@ -167,10 +167,7 @@ class MatchExerciseViewModel @Inject constructor(
     }
 
     private fun finishSession(currentState: MatchExerciseUiState.Success) {
-        val session = Session(
-            1, // TODO users
-            sessionResults.toList()
-        )
+        val session = Session(sessionResults.toList())
         repository.submitSession(session)
 
         _state.value = MatchExerciseUiState.Finished(

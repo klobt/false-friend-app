@@ -79,10 +79,7 @@ abstract class BaseExerciseViewModel(
     private fun finishSession(
         currentState: BaseExerciseUiState.Success
     ) {
-        val session = Session(
-            userId = 1, // TODO users
-            results = sessionResults.toList()
-        )
+        val session = Session(results = sessionResults.toList())
         repository.submitSession(session)
 
         _state.value = BaseExerciseUiState.Finished(
