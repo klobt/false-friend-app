@@ -1,9 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
+import clock
+from datetime import timedelta
 from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
     ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
-    RegisterRequest, Session, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
+    RegisterRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
 import notifications
 
@@ -187,3 +189,27 @@ async def change_password(body: ChangePasswordRequest, user_id: int = Depends(au
         raise HTTPException(status_code=401, detail="Invalid current password")
     users.set_password(user_id, auth.hash_password(body.new_password))
     return {"success": True}
+
+def _require_time_control():
+    if not clock.ENABLED:
+        raise HTTPException(status_code=404, detail="Not found")
+
+def _time_state():
+    return {"now": clock.utcnow().isoformat(), "offset_seconds": int(clock.offset().total_seconds())}
+
+@app.get("/debug/time")
+async def get_time(user_id: int = Depends(auth.get_current_user_id)):
+    _require_time_control()
+    return _time_state()
+
+@app.post("/debug/time/advance")
+async def advance_time(body: TimeAdvanceRequest, user_id: int = Depends(auth.get_current_user_id)):
+    _require_time_control()
+    clock.advance(timedelta(days=body.days, hours=body.hours, minutes=body.minutes))
+    return _time_state()
+
+@app.post("/debug/time/reset")
+async def reset_time(user_id: int = Depends(auth.get_current_user_id)):
+    _require_time_control()
+    clock.reset()
+    return _time_state()
