@@ -6,6 +6,7 @@ from typing import Any, Generator, Mapping, Optional, Self
 from model import Card, Exercise, ExerciseType, parse_card, parse_exercise, Session, parse_session
 import sqlite3 as sql
 import dotenv
+import clock
 
 class GetBuilder:
     def __init__(self, dao: 'Dao') -> None:
@@ -184,7 +185,7 @@ class CardDao(Dao):
     def get(self, limit: int, offset: int, only_for_review: bool = False, user_id: int = 1) -> list[Card]:
         get_builder = self._get().where('user_id', '=', user_id).with_limit(limit, offset)
         if only_for_review:
-            get_builder.where_raw('review_at', '<=', 'CURRENT_TIMESTAMP')
+            get_builder.where_raw('review_at', '<=', clock.sql_now())
         rows = get_builder.fetch_rows()
         return self.from_rows(rows)
 
@@ -221,7 +222,7 @@ class CardDao(Dao):
 
         rows = (
             row_builder
-            .where_raw('review_at', '<=', 'CURRENT_TIMESTAMP')
+            .where_raw('review_at', '<=', clock.sql_now())
             .with_limit(limit, offset)
             .fetch_rows()
         )
@@ -229,9 +230,9 @@ class CardDao(Dao):
         return list(map(lambda row: row['exercise_id'], rows))
 
     def sync_with_exercises(self, user_id: int = 1, commit: bool = True) -> None:
-        query = '''
+        query = f'''
             INSERT INTO "cards" ("user_id", "exercise_id", "box_id", "review_at")
-            SELECT ?, "id", 201, CURRENT_TIMESTAMP
+            SELECT ?, "id", 201, {clock.sql_now()}
             FROM "exercises"
             WHERE NOT EXISTS (
                 SELECT 1
@@ -290,6 +291,7 @@ class CardDao(Dao):
             updates.append((
                 box_id,
                 f'+{box_days[box_id]} days',
+                clock.sql_modifier(),
                 user_id,
                 card['exercise_id']
             ))
@@ -298,7 +300,7 @@ class CardDao(Dao):
             '''
                 UPDATE "cards"
                 SET "box_id" = ?,
-                    "review_at" = datetime('now', ?)
+                    "review_at" = datetime('now', ?, ?)
                 WHERE "user_id" = ?
                 AND "exercise_id" = ?
             ''',
@@ -437,7 +439,7 @@ class StatsDao(Dao):
         return stats
 
     def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:
-        today = today or date.today()
+        today = today or clock.today()
         stats = self.get(user_id)
         correct = sum(1 for r in results if r.correct)
 
@@ -548,7 +550,7 @@ class EmailCodeDao(Dao):
         super().__init__("email_codes", conn)
 
     def set(self, user_id: int, code: str, ttl_minutes: int = 15) -> None:
-        expires_at = (datetime.utcnow() + timedelta(minutes=ttl_minutes)).isoformat()
+        expires_at = (clock.utcnow() + timedelta(minutes=ttl_minutes)).isoformat()
         self.conn.execute(
             '''
                 INSERT INTO "email_codes" ("user_id", "code", "expires_at")
@@ -563,7 +565,7 @@ class EmailCodeDao(Dao):
 
     def verify(self, user_id: int, code: str) -> bool:
         rows = self._get().where('user_id', '=', user_id).fetch_rows()
-        if len(rows) == 0 or rows[0]['code'] != code or datetime.fromisoformat(rows[0]['expires_at']) < datetime.utcnow():
+        if len(rows) == 0 or rows[0]['code'] != code or datetime.fromisoformat(rows[0]['expires_at']) < clock.utcnow():
             return False
         self.conn.execute('DELETE FROM "email_codes" WHERE "user_id" = ?', [user_id])
         self.conn.commit()

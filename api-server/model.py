@@ -123,6 +123,11 @@ class ChangePasswordRequest(BaseModel):
 class NicknameRequest(BaseModel):
     nickname: str = Field(min_length=1, max_length=32)
 
+class TimeAdvanceRequest(BaseModel):
+    days: float = 0
+    hours: float = 0
+    minutes: float = 0
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
