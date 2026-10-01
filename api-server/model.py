@@ -26,16 +26,19 @@ class ConnectData(BaseModel):
 class TranslationExercise(BaseModel):
     id: int
     type: Literal[ExerciseType.translation] = ExerciseType.translation
+    title: Optional[str] = None
     data: ChooseOneData
 
 class DefinitionExercise(BaseModel):
     id: int
     type: Literal[ExerciseType.definition] = ExerciseType.definition
+    title: Optional[str] = None
     data: ChooseOneData
 
 class ConnectExercise(BaseModel):
     id: int
     type: Literal[ExerciseType.connect] = ExerciseType.connect
+    title: Optional[str] = None
     data: ConnectData
 
 Exercise = Annotated[
