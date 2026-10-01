@@ -1,4 +1,4 @@
-import json, os, random, smtplib
+import json, os, secrets, smtplib
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 
@@ -12,6 +12,7 @@ dotenv.load_dotenv()
 
 JWT_SECRET = os.getenv('JWT_SECRET', 'dev-secret')
 JWT_TTL_MIN = 60 * 24 * 30
+REQUIRE_EMAIL_VERIFICATION = os.getenv('REQUIRE_EMAIL_VERIFICATION', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
 
 # (issuer, jwks_uri, expected audience) for verifying provider-issued OIDC id_tokens
 OIDC_PROVIDERS = {
@@ -39,7 +40,7 @@ def get_current_user_id(authorization: str = Header(...)) -> int:
         raise HTTPException(status_code=401, detail='Invalid or expired token')
 
 def generate_code() -> str:
-    return f'{random.randint(0, 999999):06d}'
+    return f'{secrets.randbelow(1_000_000):06d}'
 
 def send_email(to: str, subject: str, body: str) -> None:
     host = os.getenv('SMTP_HOST')
