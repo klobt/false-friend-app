@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
 from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
-    ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, PublicUserData, PushMessage,
+    ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
     RegisterRequest, Session, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
 import notifications
@@ -48,10 +48,20 @@ async def get_users(limit: int = Query(default=10), offset: int = Query(default=
 
 @app.get("/users/me")
 async def get_user(user_id: int = Depends(auth.get_current_user_id)):
+    user = UserDao().get_by_id(user_id)
     return {
         "id": user_id,
+        "nickname": user['nickname'] if user else None,
         "public_data": UserDao().get_public_data(user_id)
     }
+
+@app.put("/users/me/nickname")
+async def put_nickname(body: NicknameRequest, user_id: int = Depends(auth.get_current_user_id)):
+    nickname = body.nickname.strip()
+    if not nickname:
+        raise HTTPException(status_code=400, detail="Nickname cannot be empty")
+    UserDao().set_nickname(user_id, nickname)
+    return {"success": True, "nickname": nickname}
 
 @app.put("/users/me")
 async def put_user(user: PublicUserData, user_id: int = Depends(auth.get_current_user_id)):
@@ -117,30 +127,42 @@ async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_c
 async def get_user_stats(user_id: int = Depends(auth.get_current_user_id)):
     return StatsDao().get(user_id)
 
-@app.post("/auth/register", response_model=TokenResponse)
+@app.post("/auth/register")
 async def register(body: RegisterRequest):
     users = UserDao()
-    if users.get_by_email(body.email):
+    existing = users.get_by_email(body.email)
+    if existing and existing['email_verified']:
         raise HTTPException(status_code=409, detail="Email already registered")
-    user_id = users.create_with_email(body.email, auth.hash_password(body.password))
+    password_hash = auth.hash_password(body.password)
+    if existing:
+        # never-verified account: let the person retry with a fresh code
+        user_id = existing['id']
+        users.set_password(user_id, password_hash)
+    else:
+        user_id = users.create_with_email(body.email, password_hash)
+    if not auth.REQUIRE_EMAIL_VERIFICATION:
+        users.set_verified(user_id)
+        return {"success": True, "verification_required": False, "access_token": auth.create_token(user_id), "token_type": "bearer"}
     code = auth.generate_code()
     EmailCodeDao().set(user_id, code)
     auth.send_email(body.email, "Kod weryfikacyjny", f"Twój kod weryfikacyjny: {code}")
-    return TokenResponse(access_token=auth.create_token(user_id))
+    return {"success": True, "verification_required": True}
 
-@app.post("/auth/verify-email")
+@app.post("/auth/verify-email", response_model=TokenResponse)
 async def verify_email(body: VerifyEmailRequest):
     user = UserDao().get_by_email(body.email)
     if not user or not EmailCodeDao().verify(user['id'], body.code):
         raise HTTPException(status_code=400, detail="Invalid or expired code")
     UserDao().set_verified(user['id'])
-    return {"success": True}
+    return TokenResponse(access_token=auth.create_token(user['id']))
 
 @app.post("/auth/login", response_model=TokenResponse)
 async def login(body: LoginRequest):
     user = UserDao().get_by_email(body.email)
     if not user or not user['password_hash'] or not auth.verify_password(body.password, user['password_hash']):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user['email_verified']:
+        raise HTTPException(status_code=403, detail="Email not verified")
     return TokenResponse(access_token=auth.create_token(user['id']))
 
 @app.post("/auth/social/{provider}", response_model=TokenResponse)

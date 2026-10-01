@@ -481,6 +481,7 @@ class UserDao(Dao):
         rows = self._get().with_limit(limit, offset).fetch_rows()
         return list(map(lambda row: {
             'id': row['id'],
+            'nickname': row['nickname'],
             'public_data': json.loads(row['public_data'])
         }, rows))
 
@@ -532,6 +533,10 @@ class UserDao(Dao):
 
     def set_verified(self, user_id: int) -> None:
         self.conn.execute('UPDATE "users" SET "email_verified" = 1 WHERE "id" = ?', [user_id])
+        self.conn.commit()
+
+    def set_nickname(self, user_id: int, nickname: str) -> None:
+        self.conn.execute('UPDATE "users" SET "nickname" = ? WHERE "id" = ?', [nickname, user_id])
         self.conn.commit()
 
     def set_password(self, user_id: int, password_hash: str) -> None:
