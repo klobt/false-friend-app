@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.ui.screens.DefinitionExerciseScreen
+import org.agh.falsefriendapp.ui.screens.FriendsScreen
 import org.agh.falsefriendapp.ui.screens.LoginScreen
 import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
 import org.agh.falsefriendapp.ui.screens.ReviewScreen
@@ -71,6 +72,11 @@ fun NavGraph() {
                 },
                 onStartSettings = {
                     navController.navigate(Routes.SETTINGS) {
+                        launchSingleTop = true
+                    }
+                },
+                onStartFriends = {
+                    navController.navigate(Routes.FRIENDS) {
                         launchSingleTop = true
                     }
                 }
@@ -154,6 +160,12 @@ fun NavGraph() {
             SettingsScreen(
                 onNavigateHome = { navController.popBackStack() },
                 onLoggedOut = navigateToLogin
+            )
+        }
+
+        composable(Routes.FRIENDS) {
+            FriendsScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

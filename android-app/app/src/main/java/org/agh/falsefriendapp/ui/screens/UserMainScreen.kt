@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Icon
@@ -35,15 +38,23 @@ fun UserMainScreen(
     onStartTranslation: () -> Unit,
     onStartDefinition: () -> Unit,
     onStartMatch: () -> Unit,
-    onStartSettings: () -> Unit
+    onStartSettings: () -> Unit,
+    onStartFriends: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
         MenuHeader(onStartSettings)
-        ExerciseMenu(
-            onStartTranslation = onStartTranslation,
-            onStartDefinition = onStartDefinition,
-            onStartMatch = onStartMatch
-        )
+        Column(modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
+        ) {
+            ExerciseMenu(
+                onStartTranslation = onStartTranslation,
+                onStartDefinition = onStartDefinition,
+                onStartMatch = onStartMatch
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            CommunityMenu(onStartFriends)
+        }
     }
 }
 
@@ -101,11 +112,9 @@ private fun ExerciseMenu(
     onStartMatch: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "Ćwiczenia",
             style = MaterialTheme.typography.headlineSmall,
@@ -117,11 +126,11 @@ private fun ExerciseMenu(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             MenuButton(
@@ -146,6 +155,30 @@ private fun ExerciseMenu(
     }
 }
 
+@Composable
+private fun CommunityMenu(onStartFriends: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Społeczność",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            MenuButton(
+                title = "Znajomi",
+                description = "Dodawaj znajomych i przeglądaj profile",
+                icon = Icons.Default.Group,
+                onClick = onStartFriends
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
@@ -154,7 +187,8 @@ private fun HomeScreenPreview() {
             onStartTranslation = {},
             onStartDefinition = {},
             onStartMatch = {},
-            onStartSettings = {}
+            onStartSettings = {},
+            onStartFriends = {}
         )
     }
 }

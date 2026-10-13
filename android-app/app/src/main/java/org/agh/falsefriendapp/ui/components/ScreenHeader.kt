@@ -1,4 +1,4 @@
-package org.agh.falsefriendapp.ui.screens
+package org.agh.falsefriendapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row

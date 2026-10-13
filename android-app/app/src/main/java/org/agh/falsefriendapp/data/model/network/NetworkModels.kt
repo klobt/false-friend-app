@@ -78,3 +78,34 @@ data class TokenResponse(
     @SerialName("access_token")
     val accessToken: String
 )
+
+@Serializable
+data class UserIdsResponse(
+    val data: List<Int>
+)
+
+@Serializable
+data class FriendRequestResponse(
+    val status: String
+)
+
+@Serializable
+data class FriendActionRequest(
+    val accept: Boolean
+)
+
+@Serializable
+data class UserDto(
+    val id: Int,
+    val nickname: String? = null
+)
+
+@Serializable
+data class UsersResponse(
+    val data: List<UserDto>
+)
+
+@Serializable
+data class NicknameRequest(
+    val nickname: String
+)

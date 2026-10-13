@@ -12,7 +12,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.agh.falsefriendapp.BuildConfig
 import org.agh.falsefriendapp.data.api.AuthInterceptor
 import org.agh.falsefriendapp.data.api.ExerciseApi
+import org.agh.falsefriendapp.data.api.FriendApi
 import org.agh.falsefriendapp.data.api.LoginApi
+import org.agh.falsefriendapp.data.api.UserApi
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -78,5 +80,17 @@ object NetworkModule {
             }
             redactHeader("Authorization")
         }
+    }
+
+    @Provides
+    @Singleton
+    fun provideFriendApi(retrofit: Retrofit): FriendApi {
+        return retrofit.create(FriendApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): UserApi {
+        return retrofit.create(UserApi::class.java)
     }
 }
