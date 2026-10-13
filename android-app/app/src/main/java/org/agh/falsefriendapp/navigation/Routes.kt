@@ -11,6 +11,7 @@ object Routes {
     const val SUMMARY = "summary/{score}/{totalQuestions}/{exerciseType}"
     const val REVIEW = "review"
     const val LOGIN = "login"
+    const val FRIENDS = "friends"
 
     fun summary(score: Int, totalQuestions: Int, type: ExerciseType): String {
         return "summary/$score/$totalQuestions/${type.apiValue}"
