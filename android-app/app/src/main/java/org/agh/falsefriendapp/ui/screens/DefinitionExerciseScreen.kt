@@ -49,7 +49,8 @@ private fun DefinitionExerciseContent(
                 totalSteps = state.exercises.size,
                 instruction = "Wybierz definicję słowa:",
                 exercise = currentExercise,
-                onAnswerSelected = onAnswerSelected
+                onAnswerSelected = onAnswerSelected,
+                onExit = onNavigateHome
             )
         }
         is BaseExerciseUiState.Finished -> {

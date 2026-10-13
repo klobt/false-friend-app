@@ -86,7 +86,8 @@ private fun MatchExerciseContent(
                 connections = state.connections,
                 onLeftSelected = onLeftSelected,
                 onRightSelected = onRightSelected,
-                onClearConnections = onClearConnections
+                onClearConnections = onClearConnections,
+                onExit = onNavigateHome
             )
         }
         is MatchExerciseUiState.Finished -> {
@@ -110,7 +111,8 @@ private fun MatchExerciseTask(
     connections: List<MatchConnection>,
     onLeftSelected: (Int) -> Unit,
     onRightSelected: (Int) -> Unit,
-    onClearConnections: () -> Unit
+    onClearConnections: () -> Unit,
+    onExit: () -> Unit
 ) {
     val leftPositions = remember(exercise) {
         mutableStateMapOf<Int, Offset>()
@@ -126,7 +128,7 @@ private fun MatchExerciseTask(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BaseExerciseHeader(currentStep, totalSteps)
+        BaseExerciseHeader(currentStep, totalSteps, onExit)
         Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = "Wybierz słowo z lewej strony, a następnie " +
