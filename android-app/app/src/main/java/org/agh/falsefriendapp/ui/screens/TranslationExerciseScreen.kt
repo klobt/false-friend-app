@@ -49,7 +49,8 @@ private fun TranslationExerciseContent(
                 totalSteps = state.exercises.size,
                 instruction = "Jak po polsku powiemy:",
                 exercise = currentExercise,
-                onAnswerSelected = onAnswerSelected
+                onAnswerSelected = onAnswerSelected,
+                onExit = onNavigateHome
             )
         }
         is BaseExerciseUiState.Finished -> {

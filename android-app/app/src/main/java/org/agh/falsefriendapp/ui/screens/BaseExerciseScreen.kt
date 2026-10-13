@@ -29,13 +29,14 @@ fun BaseExerciseScreen(
     totalSteps: Int,
     instruction: String,
     exercise: BaseExercise,
-    onAnswerSelected: (Int) -> Unit
+    onAnswerSelected: (Int) -> Unit,
+    onExit: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BaseExerciseHeader(currentStep, totalSteps)
+        BaseExerciseHeader(currentStep, totalSteps, onExit)
         Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = instruction,
@@ -79,7 +80,8 @@ private fun BaseExerciseScreenPreview() {
             exercise = BaseExercise(
                 0, "lecture", 2, listOf("czytanie", "lektura", "wykład", "lektor")
             ),
-            onAnswerSelected = {}
+            onAnswerSelected = {},
+            onExit = {}
         )
     }
 }
