@@ -1,10 +1,8 @@
 package org.agh.falsefriendapp.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,26 +12,24 @@ import org.agh.falsefriendapp.ui.state.MAX_NICKNAME_LENGTH
 import org.agh.falsefriendapp.ui.state.SettingsUiState
 import javax.inject.Inject
 
-private const val TAG = "SettingsViewModel"
-
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow(SettingsUiState())
+    private val _state = MutableStateFlow(
+        SettingsUiState(
+            nickname = repository.profile.value?.nickname,
+            isProfileLoaded = repository.profile.value != null
+        )
+    )
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            try {
-                val nickname = repository.getNickname()
+            repository.profile.collect { profile ->
                 _state.update {
-                    it.copy(nickname = nickname)
+                    it.copy(nickname = profile?.nickname, isProfileLoaded = profile != null)
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to load nickname", e)
             }
         }
     }
@@ -66,19 +62,17 @@ class SettingsViewModel @Inject constructor(
             return
         }
 
-        val nickname = current.nicknameInput.trim()
         _state.update {
             it.copy(isSaving = true, saveFailed = false)
         }
 
         viewModelScope.launch {
-            val saved = repository.setNickname(nickname)
+            val saved = repository.setNickname(current.nicknameInput.trim())
             _state.update {
                 it.copy(
                     isSaving = false,
                     saveFailed = !saved,
-                    isEditingNickname = !saved,
-                    nickname = if (saved) nickname else it.nickname
+                    isEditingNickname = !saved
                 )
             }
         }

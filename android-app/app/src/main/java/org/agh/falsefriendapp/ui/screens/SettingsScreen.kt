@@ -84,9 +84,14 @@ private fun SettingsContent(
                 .padding(horizontal = 20.dp, vertical = 20.dp)
         ) {
             SectionCard(title = "UŻYTKOWNIK") {
+                val username = if (state.isProfileLoaded) {
+                    state.nickname ?: "Nie ustawiono"
+                } else {
+                    "Nie wczytano"
+                }
                 SettingsItem(
                     title = "Nazwa",
-                    value = state.nickname ?: "Nie ustawiono",
+                    value =  username,
                     onClick = onEditNickname
                 )
             }
@@ -216,6 +221,12 @@ private fun NicknameDialog(
 @Composable
 private fun SettingsScreenPreview() {
     FalseFriendAppTheme {
-        SettingsContent(SettingsUiState(nickname = "Mateusz"), {}, {}, {}, {}, {}, {})
+        SettingsContent(
+            SettingsUiState(
+                nickname = "Mateusz",
+                isProfileLoaded = true
+            ),
+            {}, {}, {}, {}, {}, {}
+        )
     }
 }

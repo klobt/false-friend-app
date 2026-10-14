@@ -1,6 +1,8 @@
 package org.agh.falsefriendapp.data.repository
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.agh.falsefriendapp.data.api.FriendApi
 import org.agh.falsefriendapp.data.api.UserApi
 import org.agh.falsefriendapp.data.model.AddFriendResult
@@ -26,17 +28,36 @@ class FriendRepository @Inject constructor(
     private val friendApi: FriendApi,
     private val userApi: UserApi
 ) {
+    private val _requestsCount = MutableStateFlow(0)
+    val requestsCount = _requestsCount.asStateFlow()
+
     suspend fun getOverview(): FriendOverview {
         val ownId = userApi.getMe().id
-        val requestIds = friendApi.getRequests().data
         val friendIds = friendApi.getFriends().data
-        val nicknames = fetchNicknames((requestIds + friendIds).toSet())
+        val nicknames = fetchNicknames(friendIds.toSet())
 
         return FriendOverview(
             ownId = ownId,
-            requests = requestIds.map { Friend(it, nicknames[it]) },
             friends = friendIds.map { Friend(it, nicknames[it]) }
         )
+    }
+
+    suspend fun getRequests(): List<Friend> {
+        val requestIds = friendApi.getRequests().data
+        _requestsCount.value = requestIds.size
+        val nicknames = fetchNicknames(requestIds.toSet())
+
+        return requestIds.map { Friend(it, nicknames[it]) }
+    }
+
+    suspend fun refreshRequestsCount() {
+        _requestsCount.value = try {
+            friendApi.getRequests().data.size
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            0
+        }
     }
 
     suspend fun sendRequest(userId: Int): AddFriendResult {

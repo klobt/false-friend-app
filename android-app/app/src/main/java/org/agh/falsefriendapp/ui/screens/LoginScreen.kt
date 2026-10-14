@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -26,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,14 +56,19 @@ fun LoginScreen(
         }
     }
 
-    LoginContent(
-        state = state,
-        onModeChange = viewModel::onModeChange,
-        onEmailChange = viewModel::onEmailChange,
-        onPasswordChange = viewModel::onPasswordChange,
-        onPasswordRepeatChange = viewModel::onPasswordRepeatChange,
-        onSubmit = viewModel::onSubmit
-    )
+    if (state.isCheckingSession || state.isLoggedIn) {
+        LoadingScreen()
+    }
+    else {
+        LoginContent(
+            state = state,
+            onModeChange = viewModel::onModeChange,
+            onEmailChange = viewModel::onEmailChange,
+            onPasswordChange = viewModel::onPasswordChange,
+            onPasswordRepeatChange = viewModel::onPasswordRepeatChange,
+            onSubmit = viewModel::onSubmit
+        )
+    }
 }
 
 @Composable
@@ -72,7 +81,11 @@ private fun LoginContent(
     onSubmit: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LoginHeader()
@@ -105,7 +118,9 @@ private fun AuthForm(
     val repeatError = passwordRepeatErrorMessage(state)
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
@@ -115,15 +130,24 @@ private fun AuthForm(
             label = { Text("E-mail") },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
             isError = emailError != null,
             supportingText = {
                 if (emailError != null) {
                     Text(emailError)
                 }
-            }
+            },
         )
         Spacer(modifier = Modifier.height(8.dp))
+
+        val imeAction = if (state.isLoginMode) {
+            ImeAction.Done
+        } else {
+            ImeAction.Next
+        }
         OutlinedTextField(
             value = state.password,
             onValueChange = onPasswordChange,
@@ -132,7 +156,10 @@ private fun AuthForm(
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = imeAction
+            ),
             isError = passwordError != null,
             supportingText = {
                 if (passwordError != null) {
@@ -151,7 +178,10 @@ private fun AuthForm(
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
                 isError = repeatError != null,
                 supportingText = {
                     if (repeatError != null) {
@@ -260,7 +290,9 @@ private fun AuthModeSelector(
     onSelectionChanged: (Boolean) -> Unit
 ) {
     SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
     ) {
         SegmentedButton(
             selected = isLoginSelected,

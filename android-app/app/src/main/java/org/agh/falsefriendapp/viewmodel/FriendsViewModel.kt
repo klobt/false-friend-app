@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +25,7 @@ class FriendsViewModel @Inject constructor(
     private val _state = MutableStateFlow(FriendsUiState(isLoading = true))
     val state = _state.asStateFlow()
 
-    private var isActionRunning = false
+    private var removeJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -71,37 +72,20 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    fun onAcceptRequest(userId: Int) {
-        runAction { repository.respondToRequest(userId, accept = true) }
-    }
-
-    fun onRejectRequest(userId: Int) {
-        runAction { repository.respondToRequest(userId, accept = false) }
-    }
-
     fun onRemoveFriend(userId: Int) {
-        runAction { repository.removeFriend(userId) }
-    }
-
-    private fun runAction(action: suspend () -> Boolean) {
-        if (isActionRunning) {
+        if (removeJob?.isActive == true) {
             return
         }
-        isActionRunning = true
 
         _state.update {
             it.copy(actionFailed = false, addResult = null)
         }
 
-        viewModelScope.launch {
-            try {
-                val succeeded = action()
-                val reloaded = loadFriends()
-                _state.update {
-                    it.copy(actionFailed = !succeeded || !reloaded)
-                }
-            } finally {
-                isActionRunning = false
+        removeJob = viewModelScope.launch {
+            val succeeded = repository.removeFriend(userId)
+            val reloaded = loadFriends()
+            _state.update {
+                it.copy(actionFailed = !succeeded || !reloaded)
             }
         }
     }
@@ -112,7 +96,6 @@ class FriendsViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     ownId = overview.ownId,
-                    requests = overview.requests,
                     friends = overview.friends
                 )
             }
