@@ -8,6 +8,7 @@ const val MIN_PASSWORD_LENGTH = 4
 const val MAX_PASSWORD_LENGTH = 24
 
 data class LoginUiState(
+    val isCheckingSession: Boolean = true,
     val isLoginMode: Boolean = true,
     val email: String = "",
     val password: String = "",

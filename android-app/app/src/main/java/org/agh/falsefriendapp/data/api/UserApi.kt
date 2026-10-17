@@ -1,6 +1,7 @@
 package org.agh.falsefriendapp.data.api
 
 import org.agh.falsefriendapp.data.model.network.NicknameRequest
+import org.agh.falsefriendapp.data.model.network.PublicDataRequest
 import org.agh.falsefriendapp.data.model.network.UserDto
 import org.agh.falsefriendapp.data.model.network.UsersResponse
 import retrofit2.http.Body
@@ -20,4 +21,7 @@ interface UserApi {
 
     @PUT("users/me/nickname")
     suspend fun setNickname(@Body body: NicknameRequest)
+
+    @PUT("users/me")
+    suspend fun setPublicData(@Body body: PublicDataRequest)
 }

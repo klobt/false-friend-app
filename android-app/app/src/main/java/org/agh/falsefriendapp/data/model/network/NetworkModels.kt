@@ -97,7 +97,19 @@ data class FriendActionRequest(
 @Serializable
 data class UserDto(
     val id: Int,
-    val nickname: String? = null
+    val nickname: String? = null,
+    @SerialName("public_data")
+    val publicData: PublicDataDto = PublicDataDto()
+)
+
+@Serializable
+data class PublicDataDto(
+    val avatar: String? = null
+)
+
+@Serializable
+data class PublicDataRequest(
+    val data: PublicDataDto
 )
 
 @Serializable
