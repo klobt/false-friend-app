@@ -9,6 +9,8 @@ import org.agh.falsefriendapp.data.model.AddFriendResult
 import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.FriendOverview
 import org.agh.falsefriendapp.data.model.network.FriendActionRequest
+import org.agh.falsefriendapp.data.model.network.UserDto
+import org.agh.falsefriendapp.data.model.network.toFriend
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -34,20 +36,20 @@ class FriendRepository @Inject constructor(
     suspend fun getOverview(): FriendOverview {
         val ownId = userApi.getMe().id
         val friendIds = friendApi.getFriends().data
-        val nicknames = fetchNicknames(friendIds.toSet())
+        val users = fetchUsers(friendIds.toSet())
 
         return FriendOverview(
             ownId = ownId,
-            friends = friendIds.map { Friend(it, nicknames[it]) }
+            friends = friendIds.map { toFriend(it, users) }
         )
     }
 
     suspend fun getRequests(): List<Friend> {
         val requestIds = friendApi.getRequests().data
         _requestsCount.value = requestIds.size
-        val nicknames = fetchNicknames(requestIds.toSet())
+        val users = fetchUsers(requestIds.toSet())
 
-        return requestIds.map { Friend(it, nicknames[it]) }
+        return requestIds.map { toFriend(it, users) }
     }
 
     suspend fun refreshRequestsCount() {
@@ -97,14 +99,14 @@ class FriendRepository @Inject constructor(
         }
     }
 
-    // TODO: usunąć, gdy serwer zacznie zwracać nicki razem z listą znajomych
-    private suspend fun fetchNicknames(userIds: Set<Int>): Map<Int, String?> {
-        val nicknames = mutableMapOf<Int, String?>()
+    // TODO: usunąć, gdy serwer zacznie zwracać nicki i awatary razem z listą znajomych
+    private suspend fun fetchUsers(userIds: Set<Int>): Map<Int, UserDto> {
+        val users = mutableMapOf<Int, UserDto>()
         var offset = 0
 
-        while (nicknames.size < userIds.size) {
+        while (users.size < userIds.size) {
             val page = userApi.getUsers(USERS_PAGE_SIZE, offset).data
-            page.filter { it.id in userIds }.forEach { nicknames[it.id] = it.nickname }
+            page.filter { it.id in userIds }.forEach { users[it.id] = it }
 
             if (page.size < USERS_PAGE_SIZE) {
                 break
@@ -112,7 +114,11 @@ class FriendRepository @Inject constructor(
             offset += USERS_PAGE_SIZE
         }
 
-        return nicknames
+        return users
+    }
+
+    private fun toFriend(id: Int, users: Map<Int, UserDto>): Friend {
+        return users[id]?.toFriend() ?: Friend(id, null)
     }
 
     private fun mapToAddFriendResult(e: Throwable): AddFriendResult {

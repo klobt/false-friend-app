@@ -18,7 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -39,8 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.ui.components.HeaderIconButton
 import org.agh.falsefriendapp.ui.components.MenuButton
+import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.viewmodel.UserMainViewModel
@@ -89,6 +90,7 @@ private fun UserMainContent(
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
         MenuHeader(
             nickname = state.nickname,
+            avatar = state.avatar,
             notificationCount = state.notificationsCount,
             onStartNotifications = onStartNotifications,
             onStartSettings = onStartSettings
@@ -132,6 +134,7 @@ private fun ProfileErrorDialog(onDismiss: () -> Unit) {
 @Composable
 private fun MenuHeader(
     nickname: String?,
+    avatar: Avatar,
     notificationCount: Int,
     onStartNotifications: () -> Unit,
     onStartSettings: () -> Unit
@@ -164,7 +167,7 @@ private fun MenuHeader(
             NotificationsButton(notificationCount, onStartNotifications)
             Spacer(modifier = Modifier.width(12.dp))
             HeaderIconButton(
-                icon = Icons.Default.Person,
+                icon = avatar.icon(),
                 contentDescription = "Profil użytkownika",
                 onClick = onStartSettings
             )
@@ -276,7 +279,11 @@ private fun CommunityMenu(onStartFriends: () -> Unit) {
 private fun HomeScreenPreview() {
     FalseFriendAppTheme {
         UserMainContent(
-            state = UserMainUiState(nickname = "Mateusz", notificationsCount = 3),
+            state = UserMainUiState(
+                nickname = "Mateusz",
+                notificationsCount = 3,
+                avatar = Avatar.PETS
+            ),
             onStartTranslation = {},
             onStartDefinition = {},
             onStartMatch = {},

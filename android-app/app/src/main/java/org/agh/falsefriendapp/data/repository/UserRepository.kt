@@ -4,8 +4,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.agh.falsefriendapp.data.api.UserApi
+import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.UserProfile
 import org.agh.falsefriendapp.data.model.network.NicknameRequest
+import org.agh.falsefriendapp.data.model.network.PublicDataDto
+import org.agh.falsefriendapp.data.model.network.PublicDataRequest
+import org.agh.falsefriendapp.data.model.network.toUserProfile
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,8 +24,7 @@ class UserRepository @Inject constructor(
 
     suspend fun loadProfile(): Boolean {
         return try {
-            val user = userApi.getMe()
-            _profile.value = UserProfile(user.id, user.nickname)
+            _profile.value = userApi.getMe().toUserProfile()
             profileLoadFailed = false
             true
         } catch (e: CancellationException) {
@@ -44,6 +47,26 @@ class UserRepository @Inject constructor(
             else {
                 loadProfile()
             }
+            true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    suspend fun setAvatar(avatar: Avatar): Boolean {
+        return try {
+            userApi.setPublicData(PublicDataRequest(PublicDataDto(avatar.key)))
+
+            val current = _profile.value
+            if (current != null) {
+                _profile.value = current.copy(avatar = avatar)
+            }
+            else {
+                loadProfile()
+            }
+
             true
         } catch (e: CancellationException) {
             throw e

@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.AddFriendResult
+import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.ui.components.FriendRow
 import org.agh.falsefriendapp.ui.components.ScreenHeader
@@ -316,8 +317,8 @@ private fun FriendsContentPreview() {
             FriendsUiState(
                 ownId = 42,
                 friends = listOf(
-                    Friend(12, "Kuba"),
-                    Friend(31, "Marta"),
+                    Friend(12, "Kuba", Avatar.GAMES),
+                    Friend(31, "Marta", Avatar.MUSIC),
                     Friend(8, "tomek99"),
                     Friend(23, null)
                 )

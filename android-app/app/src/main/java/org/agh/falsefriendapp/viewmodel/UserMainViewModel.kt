@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.repository.FriendRepository
 import org.agh.falsefriendapp.data.repository.UserRepository
 import org.agh.falsefriendapp.ui.state.UserMainUiState
@@ -21,7 +22,8 @@ class UserMainViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         UserMainUiState(
             nickname = userRepository.profile.value?.nickname,
-            notificationsCount = friendRepository.requestsCount.value
+            notificationsCount = friendRepository.requestsCount.value,
+            avatar = userRepository.profile.value?.avatar ?: Avatar.DEFAULT
         )
     )
     val state = _state.asStateFlow()
@@ -33,7 +35,10 @@ class UserMainViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.profile.collect { profile ->
                 _state.update {
-                    it.copy(nickname = profile?.nickname)
+                    it.copy(
+                        nickname = profile?.nickname,
+                        avatar = profile?.avatar ?: Avatar.DEFAULT
+                    )
                 }
             }
         }
