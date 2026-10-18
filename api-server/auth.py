@@ -43,18 +43,24 @@ def generate_code() -> str:
     return f'{secrets.randbelow(1_000_000):06d}'
 
 def send_email(to: str, subject: str, body: str) -> None:
-    host = os.getenv('SMTP_HOST')
-    if not host:
-        print(f'[email to {to}] {subject}: {body}')  # dev fallback, no SMTP configured
+    key = os.getenv('BREVO_API_KEY')
+    if not key:
+        print(f'[email to {to}] {subject}: {body}')  # dev fallback
         return
-    msg = EmailMessage()
-    msg['From'] = os.getenv('SMTP_FROM', 'noreply@falsefriend.app')
-    msg['To'], msg['Subject'] = to, subject
-    msg.set_content(body)
-    with smtplib.SMTP(host, int(os.getenv('SMTP_PORT', 587))) as s:
-        s.starttls()
-        s.login(os.getenv('SMTP_USER'), os.getenv('SMTP_PASSWORD'))
-        s.send_message(msg)
+    r = httpx.post(
+        'https://api.brevo.com/v3/smtp/email',
+        headers={'api-key': key},
+        json={
+            'sender': {'email': os.environ['BREVO_SENDER']},
+            'to': [{'email': to}],
+            'subject': subject,
+            'textContent': body,
+        },
+        timeout=10,
+    )
+    if r.status_code >= 400:
+        print(r.status_code, r.text)
+    r.raise_for_status()
 
 def verify_social_token(provider: str, id_token: str) -> tuple[str, str | None]:
     """Verifies a provider-issued OIDC id_token (as obtained by the mobile app's
