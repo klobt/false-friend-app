@@ -73,10 +73,16 @@ class GetBuilder:
             limit_sql += ' OFFSET ? '
             params.append(self.offset)
 
-        query = f'SELECT {select_sql} FROM "{self.table}" {join_sql} WHERE {where_sql} {limit_sql}'
+        order_sql = f' ORDER BY {self.order_by} ' if self.order_by else ''
+
+        query = f'SELECT {select_sql} FROM "{self.table}" {join_sql} WHERE {where_sql} {order_sql} {limit_sql}'
 
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
+
+    def order(self, col: str, desc: bool = False) -> Self:
+        self.order_by = f'"{col}" {"DESC" if desc else "ASC"}'
+        return self
 
 class Dao:
     def __init__(self, table: str, conn: sql.Connection | None = None) -> None:
@@ -150,7 +156,7 @@ class SessionDao(Dao):
         return list(map(lambda r: parse_session(dict(r)), rows))
 
     def get(self, limit: int, offset: int, user_id: int) -> list[Session]:
-        rows = self._get().where('user_id', '=', user_id).with_limit(limit, offset).fetch_rows()
+        rows = self._get().where('user_id', '=', user_id).order('id').with_limit(limit, offset).fetch_rows()
         return self.from_rows(rows)
 
     def total_for_user(self, user_id: int) -> int:

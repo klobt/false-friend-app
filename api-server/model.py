@@ -61,6 +61,8 @@ class SessionResult(BaseModel):
 class Session(BaseModel):
     user_id: Optional[int] = Field(default=1)
     results: list[SessionResult]
+    id: Optional[int] = None
+    created_at: Optional[datetime] = None
 
 SessionAdapter = TypeAdapter(Session)
 

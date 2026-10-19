@@ -6,7 +6,8 @@ import bcrypt
 import dotenv
 import httpx
 import jwt
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 dotenv.load_dotenv()
 
@@ -31,10 +32,11 @@ def create_token(user_id: int) -> str:
     payload = {'sub': str(user_id), 'exp': datetime.now(timezone.utc) + timedelta(minutes=JWT_TTL_MIN)}
     return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
 
-def get_current_user_id(authorization: str = Header(...)) -> int:
+bearer = HTTPBearer()
+
+def get_current_user_id(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> int:
     try:
-        token = authorization.removeprefix('Bearer ').strip()
-        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        payload = jwt.decode(creds.credentials, JWT_SECRET, algorithms=['HS256'])
         return int(payload['sub'])
     except Exception:
         raise HTTPException(status_code=401, detail='Invalid or expired token')
