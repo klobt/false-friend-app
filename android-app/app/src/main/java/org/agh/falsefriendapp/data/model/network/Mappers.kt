@@ -6,6 +6,7 @@ import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.MatchExercise
 import org.agh.falsefriendapp.data.model.Session
 import org.agh.falsefriendapp.data.model.UserProfile
+import org.agh.falsefriendapp.data.model.UserStats
 
 fun BaseExerciseDto.toBaseExercise(): BaseExercise {
     return BaseExercise(
@@ -49,5 +50,13 @@ fun UserDto.toFriend(): Friend {
         id = id,
         nickname = nickname,
         avatar = Avatar.fromKey(publicData.avatar)
+    )
+}
+
+fun UserStatsDto.toUserStats(): UserStats {
+    return UserStats(
+        currentStreak = currentStreak,
+        totalCorrect = totalCorrect,
+        totalAnswers = totalAnswers
     )
 }

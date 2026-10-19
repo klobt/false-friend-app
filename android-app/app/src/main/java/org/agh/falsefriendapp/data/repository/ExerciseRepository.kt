@@ -24,7 +24,8 @@ private const val REVIEW_OFFSET = 0
 
 @Singleton
 class ExerciseRepository @Inject constructor(
-    private val api: ExerciseApi
+    private val exerciseApi: ExerciseApi,
+    private val statsRepository: StatsRepository
 ) {
     suspend fun getExercises(type: ExerciseType): List<BaseExercise> {
         val todayReview = fetchReviewIds(type, BASE_EXERCISE_LIMIT)
@@ -33,7 +34,7 @@ class ExerciseRepository @Inject constructor(
             return emptyList()
         }
 
-        return api.getBaseExercises(todayReview).data.map { dto ->
+        return exerciseApi.getBaseExercises(todayReview).data.map { dto ->
             dto.toBaseExercise()
         }
     }
@@ -45,7 +46,7 @@ class ExerciseRepository @Inject constructor(
             return emptyList()
         }
 
-        return api.getMatchExercises(todayReview).data.map { dto ->
+        return exerciseApi.getMatchExercises(todayReview).data.map { dto ->
             dto.toMatchExercise()
         }
     }
@@ -53,7 +54,8 @@ class ExerciseRepository @Inject constructor(
     fun submitSession(session: Session) {
         uploadScope.launch {
             try {
-                api.postSession(session.toRequest())
+                exerciseApi.postSession(session.toRequest())
+                statsRepository.refreshStats()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -63,7 +65,7 @@ class ExerciseRepository @Inject constructor(
     }
 
     private suspend fun fetchReviewIds(type: ExerciseType, limit: Int): List<Int> {
-        return api.getReviews(type.apiValue, limit, REVIEW_OFFSET).exercisesIds
+        return exerciseApi.getReviews(type.apiValue, limit, REVIEW_OFFSET).exercisesIds
     }
 
     private companion object {
