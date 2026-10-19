@@ -121,3 +121,13 @@ data class UsersResponse(
 data class NicknameRequest(
     val nickname: String
 )
+
+@Serializable
+data class UserStatsDto(
+    @SerialName("current_streak")
+    val currentStreak: Int,
+    @SerialName("total_correct")
+    val totalCorrect: Int,
+    @SerialName("total_answers")
+    val totalAnswers: Int
+)

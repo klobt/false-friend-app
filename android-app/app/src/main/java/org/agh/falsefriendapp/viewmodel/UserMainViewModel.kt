@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.repository.FriendRepository
+import org.agh.falsefriendapp.data.repository.StatsRepository
 import org.agh.falsefriendapp.data.repository.UserRepository
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import javax.inject.Inject
@@ -17,13 +18,15 @@ import javax.inject.Inject
 @HiltViewModel
 class UserMainViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val friendRepository: FriendRepository
+    private val friendRepository: FriendRepository,
+    private val statsRepository: StatsRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         UserMainUiState(
             nickname = userRepository.profile.value?.nickname,
             notificationsCount = friendRepository.requestsCount.value,
-            avatar = userRepository.profile.value?.avatar ?: Avatar.DEFAULT
+            avatar = userRepository.profile.value?.avatar ?: Avatar.DEFAULT,
+            stats = statsRepository.stats.value
         )
     )
     val state = _state.asStateFlow()
@@ -49,6 +52,13 @@ class UserMainViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            statsRepository.stats.collect { stats ->
+                _state.update {
+                    it.copy(stats = stats)
+                }
+            }
+        }
     }
 
     fun refresh() {
@@ -68,7 +78,9 @@ class UserMainViewModel @Inject constructor(
                     showProfileError()
                 }
             }
+
             friendRepository.refreshRequestsCount()
+            statsRepository.refreshStats()
         }
     }
 

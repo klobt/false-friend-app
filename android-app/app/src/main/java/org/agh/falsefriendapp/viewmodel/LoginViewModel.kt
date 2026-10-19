@@ -9,22 +9,24 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.repository.FriendRepository
 import org.agh.falsefriendapp.data.repository.LoginRepository
+import org.agh.falsefriendapp.data.repository.StatsRepository
 import org.agh.falsefriendapp.data.repository.UserRepository
 import org.agh.falsefriendapp.ui.state.LoginUiState
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository,
+    private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,
-    private val friendRepository: FriendRepository
+    private val friendRepository: FriendRepository,
+    private val statsRepository: StatsRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginUiState())
     val state = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            if (repository.hasToken()) {
+            if (loginRepository.hasToken()) {
                 loadSessionData()
             }
             _state.update {
@@ -69,9 +71,9 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             val error = if (current.isLoginMode) {
-                repository.login(current.email.trim(), current.password)
+                loginRepository.login(current.email.trim(), current.password)
             } else {
-                repository.register(current.email.trim(), current.password)
+                loginRepository.register(current.email.trim(), current.password)
             }
 
             if (error == null) {
@@ -87,8 +89,9 @@ class LoginViewModel @Inject constructor(
     private suspend fun loadSessionData() {
         userRepository.loadProfile()
         friendRepository.refreshRequestsCount()
+        statsRepository.refreshStats()
 
-        if (repository.hasToken()) {
+        if (loginRepository.hasToken()) {
             _state.update {
                 it.copy(isLoggedIn = true)
             }
