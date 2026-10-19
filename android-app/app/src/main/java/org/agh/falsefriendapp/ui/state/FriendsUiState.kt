@@ -11,7 +11,6 @@ data class FriendsUiState(
     val isSending: Boolean = false,
     val addResult: AddFriendResult? = null,
     val actionFailed: Boolean = false,
-    val requests: List<Friend> = emptyList(),
     val friends: List<Friend> = emptyList()
 ) {
     fun canSubmit(): Boolean {

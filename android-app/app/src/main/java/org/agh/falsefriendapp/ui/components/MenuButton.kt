@@ -1,5 +1,6 @@
 package org.agh.falsefriendapp.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ fun MenuButton(
     title: String,
     description: String,
     icon: ImageVector,
+    badge: Int? = null,
     onClick: () -> Unit
 ) {
     Card(
@@ -61,7 +63,7 @@ fun MenuButton(
             )
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -75,6 +77,20 @@ fun MenuButton(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            if (badge != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = badge.toString(),
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        RoundedCornerShape(12.dp)
+                    ).padding(horizontal = 10.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
@@ -84,9 +100,10 @@ fun MenuButton(
 fun MenuButtonPreview() {
     FalseFriendAppTheme {
         MenuButton(
-            "Wybierz tłumaczenie",
-            "Wybierz poprawne tłumaczenie słowa",
-            Icons.Default.Translate
+            title = "Wybierz tłumaczenie",
+            description = "Wybierz poprawne tłumaczenie",
+            icon = Icons.Default.Translate,
+            badge = 3
         ) {}
     }
 }

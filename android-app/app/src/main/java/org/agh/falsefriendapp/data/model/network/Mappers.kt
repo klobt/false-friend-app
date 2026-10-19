@@ -1,8 +1,12 @@
 package org.agh.falsefriendapp.data.model.network
 
+import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.MatchExercise
 import org.agh.falsefriendapp.data.model.Session
+import org.agh.falsefriendapp.data.model.UserProfile
+import org.agh.falsefriendapp.data.model.UserStats
 
 fun BaseExerciseDto.toBaseExercise(): BaseExercise {
     return BaseExercise(
@@ -30,5 +34,29 @@ fun Session.toRequest(): SessionRequest {
                 timeMs = result.timeMs
             )
         }
+    )
+}
+
+fun UserDto.toUserProfile(): UserProfile {
+    return UserProfile(
+        id = id,
+        nickname = nickname,
+        avatar = Avatar.fromKey(publicData.avatar)
+    )
+}
+
+fun UserDto.toFriend(): Friend {
+    return Friend(
+        id = id,
+        nickname = nickname,
+        avatar = Avatar.fromKey(publicData.avatar)
+    )
+}
+
+fun UserStatsDto.toUserStats(): UserStats {
+    return UserStats(
+        currentStreak = currentStreak,
+        totalCorrect = totalCorrect,
+        totalAnswers = totalAnswers
     )
 }

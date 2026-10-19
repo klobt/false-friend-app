@@ -14,7 +14,9 @@ val localProperties = Properties().apply {
         file.inputStream().use { load(it) }
     }
 }
-val apiBaseUrl: String = localProperties.getProperty("API_BASE_URL") ?: "http://10.0.2.2:8000/"
+
+val productionApiUrl = "https://false-friend-app.onrender.com/"
+val debugApiUrl: String = localProperties.getProperty("API_BASE_URL") ?: "http://10.0.2.2:8000/"
 
 android {
     namespace = "org.agh.falsefriendapp"
@@ -29,15 +31,18 @@ android {
         minSdk = 26
         targetSdk = 37
 
-        versionCode = 11
-        versionName = "0.5.1"
-        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        versionCode = 12
+        versionName = "0.5.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"$debugApiUrl\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"$productionApiUrl\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -82,6 +87,7 @@ dependencies {
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Navigation
