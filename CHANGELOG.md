@@ -8,7 +8,7 @@
 ## [0.5.2] - 2026-10-19
 ### Dodano
 - Skrzynka powiadomień: przycisk z liczbą zaproszeń na ekranie głównym.
-- Ekran ładowania przy starcie aplikacji: wczytanie profilu i liczby zaproszeń przed pokazaniem ekranu głównego.
+- Ekran ładowania przy starcie aplikacji.
 - Dialog "Nie udało się wczytać profilu".
 - Nick użytkownika na ekranie głównym.
 - Wybór avatara w ustawieniach z 8 dostępnych ikon.
