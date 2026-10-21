@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.data.repository.FriendRepository
 import org.agh.falsefriendapp.data.repository.LoginRepository
 import org.agh.falsefriendapp.data.repository.StatsRepository
@@ -19,7 +20,8 @@ class LoginViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,
     private val friendRepository: FriendRepository,
-    private val statsRepository: StatsRepository
+    private val statsRepository: StatsRepository,
+    private val exerciseRepository: ExerciseRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginUiState())
     val state = _state.asStateFlow()
@@ -90,6 +92,7 @@ class LoginViewModel @Inject constructor(
         userRepository.loadProfile()
         friendRepository.refreshRequestsCount()
         statsRepository.refreshStats()
+        exerciseRepository.refreshDueCounts()
 
         if (loginRepository.hasToken()) {
             _state.update {
