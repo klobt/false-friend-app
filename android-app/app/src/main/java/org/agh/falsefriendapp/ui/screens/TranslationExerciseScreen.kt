@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.data.model.BaseExercise
+import org.agh.falsefriendapp.ui.components.NoReviewsDialog
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
@@ -40,6 +41,9 @@ private fun TranslationExerciseContent(
         }
         is BaseExerciseUiState.Error -> {
             ErrorScreen(state.message, onNavigateHome)
+        }
+        BaseExerciseUiState.Empty -> {
+            NoReviewsDialog(onDismiss = onNavigateHome)
         }
         is BaseExerciseUiState.Success -> {
             val currentExercise = state.exercises[state.currentIndex]

@@ -35,6 +35,10 @@ abstract class BaseExerciseViewModel(
         _state.value = BaseExerciseUiState.Error(message)
     }
 
+    protected fun setEmpty() {
+        _state.value = BaseExerciseUiState.Empty
+    }
+
     fun onAnswerSelected(selectedIndex: Int) {
         val currentState = _state.value
         if (currentState !is BaseExerciseUiState.Success) {
