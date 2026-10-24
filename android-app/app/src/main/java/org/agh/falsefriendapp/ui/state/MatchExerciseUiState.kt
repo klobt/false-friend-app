@@ -14,6 +14,8 @@ sealed class MatchExerciseUiState {
         val message: String
     ): MatchExerciseUiState()
 
+    data object Empty: MatchExerciseUiState()
+
     data class Finished(
         val correctAnswers: Int,
         val totalQuestions: Int,

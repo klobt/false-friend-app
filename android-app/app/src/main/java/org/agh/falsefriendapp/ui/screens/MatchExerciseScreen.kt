@@ -34,6 +34,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
 import org.agh.falsefriendapp.ui.components.NavigationButton
+import org.agh.falsefriendapp.ui.components.NoReviewsDialog
 import org.agh.falsefriendapp.ui.state.MatchConnection
 import org.agh.falsefriendapp.ui.state.MatchExerciseSession
 import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
@@ -74,6 +75,9 @@ private fun MatchExerciseContent(
         }
         is MatchExerciseUiState.Error -> {
             ErrorScreen(state.message, onNavigateHome)
+        }
+        MatchExerciseUiState.Empty -> {
+            NoReviewsDialog(onDismiss = onNavigateHome)
         }
         is MatchExerciseUiState.Success -> {
             val currentExercise = state.exercises[state.currentIndex]

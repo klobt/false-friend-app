@@ -185,22 +185,25 @@ class MatchExerciseViewModel @Inject constructor(
                 val exercises = repository.getMatchExercises()
 
                 if (exercises.isEmpty()) {
-                    setError("Empty list")
+                    setEmpty()
                 }
                 else {
                     setSuccess(exercises)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                val msg = "Failed to fetch exercises"
-                Log.e(TAG, msg, e)
-                setError(msg)
+                Log.e(TAG, "Failed to fetch exercises", e)
+                setError()
             }
         }
     }
 
-    private fun setError(message: String) {
-        _state.value = MatchExerciseUiState.Error(message)
+    private fun setError() {
+        _state.value = MatchExerciseUiState.Error("Nie udało się pobrać ćwiczeń")
+    }
+
+    private fun setEmpty() {
+        _state.value = MatchExerciseUiState.Empty
     }
 
     private fun setSuccess(exercises: List<MatchExercise>) {

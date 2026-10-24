@@ -25,16 +25,15 @@ class TranslationExerciseViewModel @Inject constructor(
                 val exercises = repository.getExercises(ExerciseType.TRANSLATION)
 
                 if (exercises.isEmpty()) {
-                    setError("Empty list")
+                    setEmpty()
                 }
                 else {
                     setSuccess(exercises)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                val msg = "Failed to fetch exercises"
-                Log.e(TAG, msg, e)
-                setError(msg)
+                Log.e(TAG, "Failed to fetch exercises", e)
+                setError("Nie udało się pobrać ćwiczeń")
             }
         }
     }
