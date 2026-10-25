@@ -94,6 +94,8 @@ class FriendRepository @Inject constructor(
             true
         } catch (e: CancellationException) {
             throw e
+        } catch (e: HttpException) {
+            e.code() == NOT_FOUND
         } catch (_: Exception) {
             false
         }
