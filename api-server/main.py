@@ -131,6 +131,12 @@ async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_c
 async def get_user_stats(user_id: int = Depends(auth.get_current_user_id)):
     return StatsDao().get(user_id)
 
+@app.get("/users/{other_id}/stats", response_model=UserStats)
+async def get_other_user_stats(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
+    if UserDao().get_by_id(other_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return StatsDao().get(other_id)
+
 @app.post("/auth/register")
 async def register(body: RegisterRequest):
     users = UserDao()
