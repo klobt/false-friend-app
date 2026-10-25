@@ -4,21 +4,17 @@ import org.agh.falsefriendapp.data.model.network.NicknameRequest
 import org.agh.falsefriendapp.data.model.network.PublicDataRequest
 import org.agh.falsefriendapp.data.model.network.UserDto
 import org.agh.falsefriendapp.data.model.network.UserStatsDto
-import org.agh.falsefriendapp.data.model.network.UsersResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
-import retrofit2.http.Query
+import retrofit2.http.Path
 
 interface UserApi {
     @GET("users/me")
     suspend fun getMe(): UserDto
 
-    @GET("users")
-    suspend fun getUsers(
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int
-    ): UsersResponse
+    @GET("users/{id}")
+    suspend fun getUser(@Path("id") userId: Int): UserDto
 
     @PUT("users/me/nickname")
     suspend fun setNickname(@Body body: NicknameRequest)
