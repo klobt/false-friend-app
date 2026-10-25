@@ -395,10 +395,11 @@ class FriendDao(Dao):
         ).fetchall()
         return [row['requester_id'] for row in rows]
 
-    def remove(self, user_id: int, other_id: int) -> None:
+    def remove(self, user_id: int, other_id: int) -> bool:
         a, b = min(user_id, other_id), max(user_id, other_id)
-        self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
+        cursor = self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
         self.conn.commit()
+        return cursor.rowcount > 0
 
 class DeviceTokenDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
@@ -442,6 +443,9 @@ class StatsDao(Dao):
             'current_streak': 0, 'longest_streak': 0, 'last_active_date': None
         }
         stats['accuracy'] = stats['total_correct'] / stats['total_answers'] if stats['total_answers'] else 0.0
+        last_active = stats['last_active_date']
+        if last_active and last_active < (clock.today() - timedelta(days=1)).isoformat():
+            stats['current_streak'] = 0
         return stats
 
     def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:

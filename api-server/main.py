@@ -4,8 +4,8 @@ import clock
 from datetime import timedelta
 from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
-    ChangePasswordRequest, DeviceToken, ExerciseType, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
-    RegisterRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
+    ChangePasswordRequest, DeviceToken, ExerciseType, ForgotPasswordRequest, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
+    RegisterRequest, ResetPasswordRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
 import notifications
 
@@ -55,6 +55,17 @@ async def get_user(user_id: int = Depends(auth.get_current_user_id)):
         "id": user_id,
         "nickname": user['nickname'] if user else None,
         "public_data": UserDao().get_public_data(user_id)
+    }
+
+@app.get("/users/{other_id}")
+async def get_user_by_id(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
+    user = UserDao().get_by_id(other_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "id": other_id,
+        "nickname": user['nickname'],
+        "public_data": UserDao().get_public_data(other_id)
     }
 
 @app.put("/users/me/nickname")
@@ -108,7 +119,8 @@ async def respond_friend_request(other_id: int, action: FriendAction, user_id: i
 
 @app.delete("/friends/{other_id}")
 async def remove_friend(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
-    FriendDao().remove(user_id, other_id)
+    if not FriendDao().remove(user_id, other_id):
+        raise HTTPException(status_code=404, detail="Friendship not found")
     return {"success": True}
 
 @app.post("/notifications/tokens")
@@ -130,6 +142,12 @@ async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_c
 @app.get("/users/me/stats", response_model=UserStats)
 async def get_user_stats(user_id: int = Depends(auth.get_current_user_id)):
     return StatsDao().get(user_id)
+
+@app.get("/users/{other_id}/stats", response_model=UserStats)
+async def get_other_user_stats(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
+    if UserDao().get_by_id(other_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return StatsDao().get(other_id)
 
 @app.post("/auth/register")
 async def register(body: RegisterRequest):
@@ -190,6 +208,24 @@ async def change_password(body: ChangePasswordRequest, user_id: int = Depends(au
     if not user or not user['password_hash'] or not auth.verify_password(body.current_password, user['password_hash']):
         raise HTTPException(status_code=401, detail="Invalid current password")
     users.set_password(user_id, auth.hash_password(body.new_password))
+    return {"success": True}
+
+@app.post("/auth/forgot-password")
+async def forgot_password(body: ForgotPasswordRequest):
+    user = UserDao().get_by_email(body.email)
+    if user:
+        code = auth.generate_code()
+        EmailCodeDao().set(user['id'], code)
+        auth.send_email(body.email, "Kod resetu hasła", f"Twój kod resetu hasła: {code}")
+    return {"success": True}
+
+@app.post("/auth/reset-password")
+async def reset_password(body: ResetPasswordRequest):
+    users = UserDao()
+    user = users.get_by_email(body.email)
+    if not user or not EmailCodeDao().verify(user['id'], body.code):
+        raise HTTPException(status_code=400, detail="Invalid or expired code")
+    users.set_password(user['id'], auth.hash_password(body.new_password))
     return {"success": True}
 
 def _require_time_control():

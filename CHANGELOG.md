@@ -3,7 +3,8 @@
 ## [Unreleased]
 ### Dodano
 - Pasek statystyk na ekranie głównym.
-- Miejsce na liczbę powtórek z każdego ćwiczenia.
+- Plakietki z liczbą dostępnych powtórek z każdego ćwiczenia.
+- Dialog "Brak powtórek na dziś".
 
 ## [0.5.2] - 2026-10-19
 ### Dodano
