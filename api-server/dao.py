@@ -395,10 +395,11 @@ class FriendDao(Dao):
         ).fetchall()
         return [row['requester_id'] for row in rows]
 
-    def remove(self, user_id: int, other_id: int) -> None:
+    def remove(self, user_id: int, other_id: int) -> bool:
         a, b = min(user_id, other_id), max(user_id, other_id)
-        self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
+        cursor = self.conn.execute('DELETE FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ?', [a, b])
         self.conn.commit()
+        return cursor.rowcount > 0
 
 class DeviceTokenDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
