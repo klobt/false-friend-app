@@ -125,6 +125,14 @@ class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str
+
 class NicknameRequest(BaseModel):
     nickname: str = Field(min_length=1, max_length=32)
 
