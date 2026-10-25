@@ -443,6 +443,9 @@ class StatsDao(Dao):
             'current_streak': 0, 'longest_streak': 0, 'last_active_date': None
         }
         stats['accuracy'] = stats['total_correct'] / stats['total_answers'] if stats['total_answers'] else 0.0
+        last_active = stats['last_active_date']
+        if last_active and last_active < (clock.today() - timedelta(days=1)).isoformat():
+            stats['current_streak'] = 0
         return stats
 
     def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:
