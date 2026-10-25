@@ -1,3 +1,4 @@
+# Scenariusze użycia
 1. Jako nowy użytkownik chcę się zarejestrować, aby mieć własne konto.
 1. Jako użytkownik chcę się zalogować i wylogować, aby mieć dostęp do swoich danych i móc przełączać konta.
 1. Jako użytkownik chcę zmienić swój nick, aby znajomi mogli mnie łatwo rozpoznać.
