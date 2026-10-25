@@ -74,6 +74,8 @@ async def put_user(user: PublicUserData, user_id: int = Depends(auth.get_current
 
 @app.post("/friends/requests")
 async def send_friend_request(to_user_id: int = Query(...), user_id: int = Depends(auth.get_current_user_id)):
+    if UserDao().get_by_id(to_user_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
     try:
         status = FriendDao().request(user_id, to_user_id)
     except ValueError as e:
