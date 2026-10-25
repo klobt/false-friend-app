@@ -57,6 +57,17 @@ async def get_user(user_id: int = Depends(auth.get_current_user_id)):
         "public_data": UserDao().get_public_data(user_id)
     }
 
+@app.get("/users/{other_id}")
+async def get_user_by_id(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
+    user = UserDao().get_by_id(other_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "id": other_id,
+        "nickname": user['nickname'],
+        "public_data": UserDao().get_public_data(other_id)
+    }
+
 @app.put("/users/me/nickname")
 async def put_nickname(body: NicknameRequest, user_id: int = Depends(auth.get_current_user_id)):
     nickname = body.nickname.strip()
