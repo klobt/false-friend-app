@@ -108,7 +108,8 @@ async def respond_friend_request(other_id: int, action: FriendAction, user_id: i
 
 @app.delete("/friends/{other_id}")
 async def remove_friend(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
-    FriendDao().remove(user_id, other_id)
+    if not FriendDao().remove(user_id, other_id):
+        raise HTTPException(status_code=404, detail="Friendship not found")
     return {"success": True}
 
 @app.post("/notifications/tokens")
