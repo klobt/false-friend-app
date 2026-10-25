@@ -49,15 +49,15 @@ import org.agh.falsefriendapp.data.model.ExerciseType
 import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.ui.components.HeaderIconButton
 import org.agh.falsefriendapp.ui.components.MenuButton
+import org.agh.falsefriendapp.ui.components.NO_VALUE
+import org.agh.falsefriendapp.ui.components.accuracyText
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import org.agh.falsefriendapp.ui.theme.warning
 import org.agh.falsefriendapp.viewmodel.UserMainViewModel
-import kotlin.math.roundToInt
 
 private const val MAX_BADGE_COUNT = 9
-private const val NO_VALUE = "—"
 
 @Composable
 fun UserMainScreen(
@@ -194,9 +194,7 @@ private fun MenuHeader(
 
 @Composable
 private fun StatsStrip(stats: UserStats?) {
-    val accuracy = stats?.accuracy()?.let {
-        "${(it * 100).roundToInt()}%"
-    } ?: NO_VALUE
+    val accuracy = accuracyText(stats)
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
