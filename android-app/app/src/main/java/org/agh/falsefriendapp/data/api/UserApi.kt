@@ -24,4 +24,7 @@ interface UserApi {
 
     @GET("users/me/stats")
     suspend fun getStats(): UserStatsDto
+
+    @GET("users/{id}/stats")
+    suspend fun getUserStats(@Path("id") userId: Int): UserStatsDto
 }

@@ -11,8 +11,10 @@ import org.agh.falsefriendapp.data.api.UserApi
 import org.agh.falsefriendapp.data.model.AddFriendResult
 import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.FriendOverview
+import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.data.model.network.FriendActionRequest
 import org.agh.falsefriendapp.data.model.network.toFriend
+import org.agh.falsefriendapp.data.model.network.toUserStats
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -39,7 +41,7 @@ class FriendRepository @Inject constructor(
 
         return FriendOverview(
             ownId = ownId,
-            friends = fetchFriends(friendIds)
+            friends = fetchFriends(friendIds, withStats = true)
         )
     }
 
@@ -47,7 +49,7 @@ class FriendRepository @Inject constructor(
         val requestIds = friendApi.getRequests().data
         _requestsCount.value = requestIds.size
 
-        return fetchFriends(requestIds)
+        return fetchFriends(requestIds, withStats = false)
     }
 
     suspend fun refreshRequestsCount() {
@@ -100,10 +102,17 @@ class FriendRepository @Inject constructor(
     }
 
     // TODO: usunąć, gdy serwer zacznie zwracać nicki i awatary razem z listą znajomych
-    private suspend fun fetchFriends(userIds: List<Int>): List<Friend> {
+    private suspend fun fetchFriends(userIds: List<Int>, withStats: Boolean): List<Friend> {
         return coroutineScope {
             userIds.map { userId ->
-                async { fetchFriend(userId) }
+                async {
+                    val friend = fetchFriend(userId)
+                    if (withStats) {
+                        friend.copy(stats = fetchStats(userId))
+                    } else {
+                        friend
+                    }
+                }
             }.awaitAll()
         }
     }
@@ -116,6 +125,16 @@ class FriendRepository @Inject constructor(
                 throw e
             }
             Friend(userId, null)
+        }
+    }
+
+    private suspend fun fetchStats(userId: Int): UserStats? {
+        return try {
+            userApi.getUserStats(userId).toUserStats()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
         }
     }
 
