@@ -113,11 +113,6 @@ data class PublicDataRequest(
 )
 
 @Serializable
-data class UsersResponse(
-    val data: List<UserDto>
-)
-
-@Serializable
 data class NicknameRequest(
     val nickname: String
 )

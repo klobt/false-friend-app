@@ -1,5 +1,7 @@
 package org.agh.falsefriendapp.data.model
 
+import kotlin.math.roundToInt
+
 data class UserStats(
     val currentStreak: Int,
     val totalCorrect: Int,
@@ -11,5 +13,9 @@ data class UserStats(
         } else {
             null
         }
+    }
+
+    fun accuracyPercent(): Int? {
+        return accuracy()?.let { (it * 100).roundToInt() }
     }
 }
