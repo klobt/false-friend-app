@@ -5,6 +5,7 @@
 - Pasek statystyk na ekranie głównym.
 - Plakietki z liczbą dostępnych powtórek z każdego ćwiczenia.
 - Dialog "Brak powtórek na dziś".
+- Pasek statystyk znajomego.
 
 ## [0.5.2] - 2026-10-19
 ### Dodano
