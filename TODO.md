@@ -5,3 +5,4 @@
 - Powiększenie bazy o ćwiczenia, które nie są fałszywymi przyjaciółmi.
 - Opcja zmiany hasła.
 - Ciemny motyw kolorystyczny.
+- Poprawa dynamiki aplikacji (np. animacje, bardziej żywe kolory, przyjemniejsza czcionka).
