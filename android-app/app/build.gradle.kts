@@ -66,7 +66,9 @@ kotlin {
 
 dependencies {
     // Compose BOM
-    implementation(platform(libs.androidx.compose.bom))
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
