@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
@@ -61,6 +64,7 @@ import org.agh.falsefriendapp.ui.components.answersLabel
 import org.agh.falsefriendapp.ui.state.STATS_DAYS
 import org.agh.falsefriendapp.ui.state.StatsUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.viewmodel.StatsViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -72,8 +76,23 @@ private const val PERCENT_STEP = 25.0
 private const val MAX_PERCENT = 100.0
 
 @Composable
-fun StatsScreen(onNavigateBack: () -> Unit) {
-    StatsContent(StatsUiState(), onNavigateBack)
+fun StatsScreen(
+    viewModel: StatsViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit
+) {
+    val state by viewModel.state.collectAsState()
+
+    when {
+        state.isLoading -> {
+            LoadingScreen()
+        }
+        state.loadFailed -> {
+            ErrorScreen("Nie udało się pobrać statystyk", onNavigateBack)
+        }
+        else -> {
+            StatsContent(state, onNavigateBack)
+        }
+    }
 }
 
 @Composable
@@ -230,7 +249,7 @@ private fun EmptyChart() {
 
 @Composable
 private fun SummarySection(state: StatsUiState) {
-    SectionCard(title = "PODSUMOWANIE") {
+    SectionCard(title = "PODSUMOWANIE · OSTATNIE $STATS_DAYS DNI") {
         SummaryRow("Średnia skuteczność", state.accuracyPercent()?.let { "$it%" } ?: NO_VALUE)
         HorizontalDivider(color = MaterialTheme.colorScheme.outline)
         SummaryRow("Dni z ćwiczeniami", "${state.days.size} z $STATS_DAYS")
