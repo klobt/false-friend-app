@@ -17,6 +17,7 @@ import org.agh.falsefriendapp.ui.screens.MatchExerciseScreen
 import org.agh.falsefriendapp.ui.screens.NotificationsScreen
 import org.agh.falsefriendapp.ui.screens.ReviewScreen
 import org.agh.falsefriendapp.ui.screens.SettingsScreen
+import org.agh.falsefriendapp.ui.screens.StatsScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
@@ -83,6 +84,11 @@ fun NavGraph() {
                 },
                 onStartNotifications = {
                     navController.navigate(Routes.NOTIFICATIONS) {
+                        launchSingleTop = true
+                    }
+                },
+                onStartStats = {
+                    navController.navigate(Routes.STATS) {
                         launchSingleTop = true
                     }
                 }
@@ -177,6 +183,12 @@ fun NavGraph() {
 
         composable(Routes.NOTIFICATIONS) {
             NotificationsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.STATS) {
+            StatsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
