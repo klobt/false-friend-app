@@ -31,17 +31,24 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.axis.Axis
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModel
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.ColumnCartesianLayerModel
 import com.patrykandpatrick.vico.compose.cartesian.data.LineCartesianLayerModel
+import com.patrykandpatrick.vico.compose.cartesian.layer.CartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarkerController
@@ -53,6 +60,8 @@ import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.Insets
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
+import com.patrykandpatrick.vico.compose.common.component.TextComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
@@ -72,8 +81,10 @@ import kotlin.math.roundToInt
 
 private val DAY_FORMAT = DateTimeFormatter.ofPattern("d.MM")
 private const val LABEL_SPACING = 7
+private const val LAST_DAY = STATS_DAYS - 1.0
 private const val PERCENT_STEP = 25.0
 private const val MAX_PERCENT = 100.0
+private const val MAX_ANSWER_STEPS = 5
 
 @Composable
 fun StatsScreen(
@@ -109,25 +120,28 @@ private fun StatsContent(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            SectionCard(title = "SKUTECZNOŚĆ · OSTATNIE $STATS_DAYS DNI") {
-                if (state.days.isEmpty()) {
-                    EmptyChart()
-                } else {
-                    AccuracyChart(state.days, state.firstDay())
+            if (state.days.isNotEmpty()) {
+                val firstDay = state.firstDay()
+                val daysByIndex = remember(state.days, firstDay) {
+                    state.days.sortedBy { it.date }.associateBy { dayIndex(firstDay, it.date) }
+                }
+
+                ProvideVicoTheme(rememberM3VicoTheme()) {
+                    SectionCard(title = "SKUTECZNOŚĆ · OSTATNIE $STATS_DAYS DNI") {
+                        AccuracyChart(daysByIndex, firstDay)
+                    }
+                    SectionCard(title = "AKTYWNOŚĆ · OSTATNIE $STATS_DAYS DNI") {
+                        ActivityChart(daysByIndex, firstDay)
+                    }
                 }
             }
-            if (state.days.isNotEmpty()) {
-                SummarySection(state)
-            }
+            SummarySection(state)
         }
     }
 }
 
 @Composable
-private fun AccuracyChart(days: List<DailyAccuracy>, firstDay: LocalDate) {
-    val daysByIndex = remember(days, firstDay) {
-        days.sortedBy { it.date }.associateBy { dayIndex(firstDay, it.date) }
-    }
+private fun AccuracyChart(daysByIndex: Map<Int, DailyAccuracy>, firstDay: LocalDate) {
     val model = remember(daysByIndex) {
         CartesianChartModel(
             LineCartesianLayerModel.build {
@@ -140,11 +154,6 @@ private fun AccuracyChart(days: List<DailyAccuracy>, firstDay: LocalDate) {
     }
 
     val primary = MaterialTheme.colorScheme.primary
-    val axisLabel = rememberTextComponent(
-        style = MaterialTheme.typography.labelSmall.copy(
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    )
     val line = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(Fill(primary)),
         pointProvider = LineCartesianLayer.PointProvider.single(
@@ -154,6 +163,94 @@ private fun AccuracyChart(days: List<DailyAccuracy>, firstDay: LocalDate) {
             )
         )
     )
+
+    DayChartHost(
+        chart = rememberDayChart(
+            layer = rememberLineCartesianLayer(
+                lineProvider = LineCartesianLayer.LineProvider.series(line),
+                rangeProvider = CartesianLayerRangeProvider.fixed(
+                    minX = 0.0,
+                    maxX = LAST_DAY,
+                    minY = 0.0,
+                    maxY = MAX_PERCENT
+                )
+            ),
+            startAxis = VerticalAxis.rememberStart(
+                label = rememberAxisLabel(),
+                valueFormatter = PercentFormatter,
+                itemPlacer = remember { VerticalAxis.ItemPlacer.step({ PERCENT_STEP }) }
+            ),
+            firstDay = firstDay,
+            daysByIndex = daysByIndex,
+            markerText = ::accuracyMarkerText
+        ),
+        model = model,
+        height = 240.dp,
+        description = "Wykres skuteczności z ostatnich $STATS_DAYS dni"
+    )
+}
+
+@Composable
+private fun ActivityChart(daysByIndex: Map<Int, DailyAccuracy>, firstDay: LocalDate) {
+    val model = remember(daysByIndex) {
+        CartesianChartModel(
+            ColumnCartesianLayerModel.build {
+                series(
+                    x = daysByIndex.keys.toList(),
+                    y = daysByIndex.values.map { it.answers }
+                )
+            }
+        )
+    }
+    val maxAnswers = daysByIndex.values.maxOf { it.answers }
+    val step = answersAxisStep(maxAnswers)
+    val maxY = (maxAnswers / step + 1) * step
+
+    val column = rememberLineComponent(
+        fill = Fill(MaterialTheme.colorScheme.secondary),
+        thickness = 6.dp,
+        shape = RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)
+    )
+
+    DayChartHost(
+        chart = rememberDayChart(
+            layer = rememberColumnCartesianLayer(
+                columnProvider = ColumnCartesianLayer.ColumnProvider.series(column),
+                rangeProvider = CartesianLayerRangeProvider.fixed(
+                    minX = 0.0,
+                    maxX = LAST_DAY,
+                    minY = 0.0,
+                    maxY = maxY.toDouble()
+                )
+            ),
+            startAxis = VerticalAxis.rememberStart(
+                label = rememberAxisLabel(),
+                valueFormatter = CountFormatter,
+                itemPlacer = remember(step) { VerticalAxis.ItemPlacer.step({ step.toDouble() }) }
+            ),
+            firstDay = firstDay,
+            daysByIndex = daysByIndex,
+            markerText = ::activityMarkerText
+        ),
+        model = model,
+        height = 200.dp,
+        description = "Wykres liczby odpowiedzi z ostatnich $STATS_DAYS dni"
+    )
+}
+
+@Composable
+private fun rememberDayChart(
+    layer: CartesianLayer<*>,
+    startAxis: Axis<Axis.Position.Vertical.Start>,
+    firstDay: LocalDate,
+    daysByIndex: Map<Int, DailyAccuracy>,
+    markerText: (DailyAccuracy) -> String
+): CartesianChart {
+    val dayFormatter = remember(firstDay) {
+        CartesianValueFormatter { _, x, _ ->
+            firstDay.plusDays(x.roundToInt().toLong()).format(DAY_FORMAT)
+        }
+    }
     val marker = rememberDefaultCartesianMarker(
         label = rememberTextComponent(
             style = MaterialTheme.typography.bodySmall.copy(
@@ -167,64 +264,64 @@ private fun AccuracyChart(days: List<DailyAccuracy>, firstDay: LocalDate) {
         ),
         valueFormatter = remember(daysByIndex) {
             DefaultCartesianMarker.ValueFormatter { _, targets ->
-                daysByIndex[targets.first().x.roundToInt()]?.let { markerText(it) } ?: ""
+                daysByIndex[targets.first().x.roundToInt()]?.let(markerText) ?: ""
             }
         }
     )
-    val bottomFormatter = remember(firstDay) {
-        CartesianValueFormatter { _, x, _ ->
-            firstDay.plusDays(x.roundToInt().toLong()).format(DAY_FORMAT)
-        }
-    }
 
-    ProvideVicoTheme(rememberM3VicoTheme()) {
-        CartesianChartHost(
-            chart = rememberCartesianChart(
-                rememberLineCartesianLayer(
-                    lineProvider = LineCartesianLayer.LineProvider.series(line),
-                    rangeProvider = CartesianLayerRangeProvider.fixed(
-                        minX = 0.0,
-                        maxX = STATS_DAYS - 1.0,
-                        minY = 0.0,
-                        maxY = MAX_PERCENT
-                    )
-                ),
-                startAxis = VerticalAxis.rememberStart(
-                    label = axisLabel,
-                    valueFormatter = PercentFormatter,
-                    itemPlacer = remember { VerticalAxis.ItemPlacer.step({ PERCENT_STEP }) }
-                ),
-                bottomAxis = HorizontalAxis.rememberBottom(
-                    label = axisLabel,
-                    valueFormatter = bottomFormatter,
-                    guideline = null,
-                    itemPlacer = remember {
-                        HorizontalAxis.ItemPlacer.aligned(
-                            spacing = { LABEL_SPACING },
-                            offset = { (STATS_DAYS - 1) % LABEL_SPACING }
-                        )
-                    }
-                ),
-                marker = marker,
-                markerController = CartesianMarkerController.rememberToggleOnTap(),
-                getXStep = { _, _, _ -> 1.0 }
-            ),
-            model = model,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-                .padding(start = 8.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
-                .semantics {
-                    contentDescription = "Wykres skuteczności z ostatnich $STATS_DAYS dni"
-                },
-            scrollState = rememberVicoScrollState(scrollEnabled = false),
-            zoomState = rememberVicoZoomState(zoomEnabled = false, initialZoom = Zoom.Content)
-        )
-    }
+    return rememberCartesianChart(
+        layer,
+        startAxis = startAxis,
+        bottomAxis = HorizontalAxis.rememberBottom(
+            label = rememberAxisLabel(),
+            valueFormatter = dayFormatter,
+            guideline = null,
+            itemPlacer = remember {
+                HorizontalAxis.ItemPlacer.aligned(
+                    spacing = { LABEL_SPACING },
+                    offset = { (STATS_DAYS - 1) % LABEL_SPACING }
+                )
+            }
+        ),
+        marker = marker,
+        markerController = CartesianMarkerController.rememberToggleOnTap(),
+        getXStep = { _, _, _ -> 1.0 }
+    )
 }
 
 @Composable
-private fun EmptyChart() {
+private fun rememberAxisLabel(): TextComponent {
+    return rememberTextComponent(
+        style = MaterialTheme.typography.labelSmall.copy(
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
+}
+
+@Composable
+private fun DayChartHost(
+    chart: CartesianChart,
+    model: CartesianChartModel,
+    height: Dp,
+    description: String
+) {
+    CartesianChartHost(
+        chart = chart,
+        model = model,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height)
+            .padding(start = 8.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+            .semantics {
+                contentDescription = description
+            },
+        scrollState = rememberVicoScrollState(scrollEnabled = false),
+        zoomState = rememberVicoZoomState(zoomEnabled = false, initialZoom = Zoom.Content)
+    )
+}
+
+@Composable
+private fun EmptyStats() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,13 +347,17 @@ private fun EmptyChart() {
 @Composable
 private fun SummarySection(state: StatsUiState) {
     SectionCard(title = "PODSUMOWANIE · OSTATNIE $STATS_DAYS DNI") {
-        SummaryRow("Średnia skuteczność", state.accuracyPercent()?.let { "$it%" } ?: NO_VALUE)
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-        SummaryRow("Dni z ćwiczeniami", "${state.days.size} z $STATS_DAYS")
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-        SummaryRow("Sesje", state.totalSessions().toString())
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-        SummaryRow("Odpowiedzi", state.totalAnswers().toString())
+        if (state.days.isEmpty()) {
+            EmptyStats()
+        } else {
+            SummaryRow("Średnia skuteczność", state.accuracyPercent()?.let { "$it%" } ?: NO_VALUE)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            SummaryRow("Dni z ćwiczeniami", "${state.days.size} z $STATS_DAYS")
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            SummaryRow("Sesje", state.totalSessions().toString())
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            SummaryRow("Odpowiedzi", state.totalAnswers().toString())
+        }
     }
 }
 
@@ -287,12 +388,43 @@ private val PercentFormatter = CartesianValueFormatter { _, value, _ ->
     "${value.roundToInt()}%"
 }
 
+private val CountFormatter = CartesianValueFormatter { _, value, _ ->
+    value.roundToInt().toString()
+}
+
 private fun dayIndex(firstDay: LocalDate, date: LocalDate): Int {
     return ChronoUnit.DAYS.between(firstDay, date).toInt()
 }
 
-private fun markerText(day: DailyAccuracy): String {
+// najmniejszy krok 1, 2 lub 5 razy potęga 10, przy którym na osi jest najwyżej 5 odstępów
+private fun answersAxisStep(maxAnswers: Int): Int {
+    var magnitude = 1
+    while (true) {
+        for (factor in intArrayOf(1, 2, 5)) {
+            val step = factor * magnitude
+            if (maxAnswers <= step * MAX_ANSWER_STEPS) {
+                return step
+            }
+        }
+        magnitude *= 10
+    }
+}
+
+private fun accuracyMarkerText(day: DailyAccuracy): String {
     return "${day.date.format(DAY_FORMAT)} · ${day.percent().roundToInt()}% · ${answersLabel(day.answers)}"
+}
+
+private fun activityMarkerText(day: DailyAccuracy): String {
+    return "${day.date.format(DAY_FORMAT)} · ${answersLabel(day.answers)} · ${sessionsLabel(day.sessions)}"
+}
+
+private fun sessionsLabel(count: Int): String {
+    val word = when {
+        count == 1 -> "sesja"
+        count % 10 in 2..4 && count % 100 !in 12..14 -> "sesje"
+        else -> "sesji"
+    }
+    return "$count $word"
 }
 
 private val PREVIEW_TODAY = LocalDate.of(2026, 11, 7)
