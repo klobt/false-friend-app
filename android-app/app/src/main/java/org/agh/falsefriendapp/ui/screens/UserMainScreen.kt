@@ -1,5 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -36,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,7 +70,8 @@ fun UserMainScreen(
     onStartMatch: () -> Unit,
     onStartSettings: () -> Unit,
     onStartFriends: () -> Unit,
-    onStartNotifications: () -> Unit
+    onStartNotifications: () -> Unit,
+    onStartStats: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -83,6 +87,7 @@ fun UserMainScreen(
         onStartSettings = onStartSettings,
         onStartFriends = onStartFriends,
         onStartNotifications = onStartNotifications,
+        onStartStats = onStartStats,
         onDismissProfileError = viewModel::onDismissProfileError
     )
 }
@@ -96,6 +101,7 @@ private fun UserMainContent(
     onStartSettings: () -> Unit,
     onStartFriends: () -> Unit,
     onStartNotifications: () -> Unit,
+    onStartStats: () -> Unit,
     onDismissProfileError: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
@@ -105,7 +111,8 @@ private fun UserMainContent(
             stats = state.stats,
             notificationCount = state.notificationsCount,
             onStartNotifications = onStartNotifications,
-            onStartSettings = onStartSettings
+            onStartSettings = onStartSettings,
+            onStartStats = onStartStats
         )
         Column(modifier = Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())
@@ -151,7 +158,8 @@ private fun MenuHeader(
     stats: UserStats?,
     notificationCount: Int,
     onStartNotifications: () -> Unit,
-    onStartSettings: () -> Unit
+    onStartSettings: () -> Unit,
+    onStartStats: () -> Unit
 ) {
     Surface(color =  MaterialTheme.colorScheme.primaryContainer) {
         Column(
@@ -187,18 +195,27 @@ private fun MenuHeader(
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            StatsStrip(stats)
+            StatsStrip(stats, onStartStats)
         }
     }
 }
 
 @Composable
-private fun StatsStrip(stats: UserStats?) {
+private fun StatsStrip(
+    stats: UserStats?,
+    onClick: () -> Unit
+) {
     val accuracy = accuracyText(stats)
+    val shape = RoundedCornerShape(12.dp)
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+            .clip(shape)
+            .clickable(
+                onClickLabel = "Pokaż statystyki",
+                onClick = onClick
+            ),
+        shape = shape,
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp
     ) {
@@ -229,6 +246,12 @@ private fun StatsStrip(stats: UserStats?) {
                 value = stats?.totalAnswers?.toString() ?: NO_VALUE,
                 label = "odpowiedzi",
                 modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp).size(20.dp)
             )
         }
     }
@@ -415,6 +438,7 @@ private fun HomeScreenPreview() {
             onStartSettings = {},
             onStartFriends = {},
             onStartNotifications = {},
+            onStartStats = {},
             onDismissProfileError = {}
         )
     }

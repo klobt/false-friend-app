@@ -62,6 +62,25 @@ data class SessionResultRequest(
 )
 
 @Serializable
+data class SessionsResponse(
+    val data: List<SessionDto>,
+    val total: Int
+)
+
+@Serializable
+data class SessionDto(
+    val id: Int,
+    @SerialName("created_at")
+    val createdAt: String,
+    val results: List<SessionResultDto>
+)
+
+@Serializable
+data class SessionResultDto(
+    val correct: Boolean
+)
+
+@Serializable
 data class LoginRequest(
     val email: String,
     val password: String

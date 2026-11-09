@@ -120,10 +120,6 @@ private fun FriendStats(stats: UserStats?) {
     }
 }
 
-private fun answersLabel(count: Int): String {
-    return if (count == 1) "1 odpowiedź" else "$count odpowiedzi"
-}
-
 private fun daysLabel(count: Int): String {
     return if (count == 1) "1 dzień" else "$count dni"
 }
