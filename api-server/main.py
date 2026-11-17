@@ -149,6 +149,15 @@ async def get_other_user_stats(other_id: int, user_id: int = Depends(auth.get_cu
         raise HTTPException(status_code=404, detail="User not found")
     return StatsDao().get(other_id)
 
+@app.get("/users/{other_id}/sessions")
+async def get_other_user_sessions(other_id: int, limit: int = Query(default=10), offset: int = Query(default=0), user_id: int = Depends(auth.get_current_user_id)):
+    if other_id != user_id and not FriendDao().are_friends(user_id, other_id):
+        raise HTTPException(status_code=403, detail="Not friends")
+    return {
+        "data": SessionDao().get(limit, offset, other_id),
+        "total": SessionDao().total_for_user(other_id)
+    }
+
 @app.post("/auth/register")
 async def register(body: RegisterRequest):
     users = UserDao()
@@ -182,7 +191,7 @@ async def verify_email(body: VerifyEmailRequest):
 async def login(body: LoginRequest):
     user = UserDao().get_by_email(body.email)
     if not user or not user['password_hash'] or not auth.verify_password(body.password, user['password_hash']):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=400, detail="Invalid credentials")
     if not user['email_verified']:
         raise HTTPException(status_code=403, detail="Email not verified")
     return TokenResponse(access_token=auth.create_token(user['id']))
@@ -206,7 +215,7 @@ async def change_password(body: ChangePasswordRequest, user_id: int = Depends(au
     users = UserDao()
     user = users.get_by_id(user_id)
     if not user or not user['password_hash'] or not auth.verify_password(body.current_password, user['password_hash']):
-        raise HTTPException(status_code=401, detail="Invalid current password")
+        raise HTTPException(status_code=400, detail="Invalid current password")
     users.set_password(user_id, auth.hash_password(body.new_password))
     return {"success": True}
 
@@ -226,6 +235,7 @@ async def reset_password(body: ResetPasswordRequest):
     if not user or not EmailCodeDao().verify(user['id'], body.code):
         raise HTTPException(status_code=400, detail="Invalid or expired code")
     users.set_password(user['id'], auth.hash_password(body.new_password))
+    users.set_verified(user['id'])  # a valid emailed code proves ownership of the address
     return {"success": True}
 
 def _require_time_control():
