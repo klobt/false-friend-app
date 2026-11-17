@@ -373,6 +373,14 @@ class FriendDao(Dao):
         self.conn.commit()
         return True
 
+    def are_friends(self, user_id: int, other_id: int) -> bool:
+        a, b = min(user_id, other_id), max(user_id, other_id)
+        row = self.conn.execute(
+            'SELECT 1 FROM "friendships" WHERE "user_id_1" = ? AND "user_id_2" = ? AND "status" = \'accepted\'',
+            [a, b]
+        ).fetchone()
+        return row is not None
+
     def list_friends(self, user_id: int) -> list[int]:
         rows = self.conn.execute(
             '''
