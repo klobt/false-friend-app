@@ -18,6 +18,7 @@ fun FalseFriendAppTheme(content: @Composable () -> Unit) {
 private val LightColors = lightColorScheme(
     primary = Primary,
     primaryContainer = PrimaryContainer,
+    secondary = Secondary,
 
     background = Background,
     surface = Surface,
@@ -25,11 +26,19 @@ private val LightColors = lightColorScheme(
 
     onPrimary = OnPrimary,
     onPrimaryContainer = OnPrimaryContainer,
+    onSecondary = OnSecondary,
+    onBackground = OnSurface,
     onSurface = OnSurface,
     onSurfaceVariant = OnSurfaceVariant,
 
     outline = Outline,
-    error = Error
+    error = Error,
+    onError = OnError,
+
+    inverseSurface = InverseSurface,
+    inverseOnSurface = InverseOnSurface,
+    inversePrimary = InversePrimary,
+    surfaceTint = Primary
 )
 
 val ColorScheme.success: Color
