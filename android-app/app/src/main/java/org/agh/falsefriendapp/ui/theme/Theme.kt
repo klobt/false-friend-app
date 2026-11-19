@@ -2,6 +2,7 @@ package org.agh.falsefriendapp.ui.theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -39,6 +40,32 @@ private val LightColors = lightColorScheme(
     inverseOnSurface = InverseOnSurface,
     inversePrimary = InversePrimary,
     surfaceTint = Primary
+)
+
+private val DarkColors = darkColorScheme(
+    primary = PrimaryDark,
+    primaryContainer = PrimaryContainerDark,
+    secondary = SecondaryDark,
+
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+
+    onPrimary = OnPrimaryDark,
+    onPrimaryContainer = OnPrimaryContainerDark,
+    onSecondary = OnSecondaryDark,
+    onBackground = OnSurfaceDark,
+    onSurface = OnSurfaceDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+
+    outline = OutlineDark,
+    error = ErrorDark,
+    onError = OnErrorDark,
+
+    inverseSurface = InverseSurfaceDark,
+    inverseOnSurface = InverseOnSurfaceDark,
+    inversePrimary = InversePrimaryDark,
+    surfaceTint = PrimaryDark
 )
 
 val ColorScheme.success: Color
