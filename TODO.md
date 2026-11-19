@@ -5,3 +5,4 @@
 - Poprawa dynamiki aplikacji (np. animacje, bardziej żywe kolory).
 - Opcja zmiany hasła.
 - Ciemny motyw kolorystyczny.
+- Podzielić i nałożyć wykresy na rodzaj ćwiczenia.
