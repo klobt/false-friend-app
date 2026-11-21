@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.AddFriendResult
 import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.Friend
+import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.ui.components.FriendRow
 import org.agh.falsefriendapp.ui.components.ScreenHeader
 import org.agh.falsefriendapp.ui.components.SectionCard
@@ -260,7 +261,7 @@ private fun FriendsSection(
             if (index > 0) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             }
-            FriendRow(friend) {
+            FriendRow(friend, showStats = true) {
                 IconButton(onClick = { onRemoveClick(friend.id) }) {
                     Icon(
                         imageVector = Icons.Default.PersonRemove,
@@ -317,9 +318,10 @@ private fun FriendsContentPreview() {
             FriendsUiState(
                 ownId = 42,
                 friends = listOf(
-                    Friend(12, "Kuba", Avatar.GAMES),
-                    Friend(31, "Marta", Avatar.MUSIC),
-                    Friend(8, "tomek99"),
+                    Friend(12, "Kuba", Avatar.GAMES, UserStats(12, 279, 340)),
+                    Friend(31, "Marta", Avatar.MUSIC, UserStats(7, 90, 100)),
+                    Friend(8, "tomek99", stats = UserStats(7, 45, 60)),
+                    Friend(5, "Ola", Avatar.FACE, UserStats(0, 0, 0)),
                     Friend(23, null)
                 )
             ),

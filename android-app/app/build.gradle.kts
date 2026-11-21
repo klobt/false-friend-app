@@ -31,8 +31,8 @@ android {
         minSdk = 26
         targetSdk = 37
 
-        versionCode = 12
-        versionName = "0.5.2"
+        versionCode = 13
+        versionName = "0.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -66,7 +66,9 @@ kotlin {
 
 dependencies {
     // Compose BOM
-    implementation(platform(libs.androidx.compose.bom))
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
@@ -98,6 +100,10 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization.converter)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+
+    // Charts
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
 
     // Kotlin
     implementation(libs.kotlinx.serialization.json)

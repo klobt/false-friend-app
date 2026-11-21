@@ -1,10 +1,25 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.6.0] - 2026-11-21
 ### Dodano
 - Pasek statystyk na ekranie głównym.
+- Sortowanie listy znajomych według serii, skuteczności i liczby odpowiedzi.
 - Plakietki z liczbą dostępnych powtórek z każdego ćwiczenia.
 - Dialog "Brak powtórek na dziś".
+- Pasek statystyk znajomego.
+- Przeglądanie wykresów skuteczności i aktywności użytkownika.
+- Możliwość zmiany motywu aplikacji na ciemny.
+
+### Zmieniono
+- Czcionka Nunito w całej aplikacji.
+- Nazwa aplikacji pod ikoną: "False Friend".
+- Komunikat błędu pobierania ćwiczeń po polsku.
+
+### Naprawiono
+- Usunięcie znajomego, który wcześniej usunął użytkownika, nie pokazuje już błędu.
+- Słabo widoczne ikony paska stanu przy włączonym trybie ciemnym w telefonie.
 
 ## [0.5.2] - 2026-10-19
 ### Dodano

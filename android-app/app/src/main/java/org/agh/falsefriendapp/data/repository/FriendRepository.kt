@@ -1,6 +1,9 @@
 package org.agh.falsefriendapp.data.repository
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.agh.falsefriendapp.data.api.FriendApi
@@ -8,9 +11,10 @@ import org.agh.falsefriendapp.data.api.UserApi
 import org.agh.falsefriendapp.data.model.AddFriendResult
 import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.FriendOverview
+import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.data.model.network.FriendActionRequest
-import org.agh.falsefriendapp.data.model.network.UserDto
 import org.agh.falsefriendapp.data.model.network.toFriend
+import org.agh.falsefriendapp.data.model.network.toUserStats
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -23,8 +27,6 @@ private const val STATUS_PENDING = "pending"
 private const val STATUS_ACCEPTED = "accepted"
 private const val STATUS_ALREADY_FRIENDS = "already_friends"
 
-private const val USERS_PAGE_SIZE = 100
-
 @Singleton
 class FriendRepository @Inject constructor(
     private val friendApi: FriendApi,
@@ -36,20 +38,18 @@ class FriendRepository @Inject constructor(
     suspend fun getOverview(): FriendOverview {
         val ownId = userApi.getMe().id
         val friendIds = friendApi.getFriends().data
-        val users = fetchUsers(friendIds.toSet())
 
         return FriendOverview(
             ownId = ownId,
-            friends = friendIds.map { toFriend(it, users) }
+            friends = fetchFriends(friendIds, withStats = true)
         )
     }
 
     suspend fun getRequests(): List<Friend> {
         val requestIds = friendApi.getRequests().data
         _requestsCount.value = requestIds.size
-        val users = fetchUsers(requestIds.toSet())
 
-        return requestIds.map { toFriend(it, users) }
+        return fetchFriends(requestIds, withStats = false)
     }
 
     suspend fun refreshRequestsCount() {
@@ -94,31 +94,48 @@ class FriendRepository @Inject constructor(
             true
         } catch (e: CancellationException) {
             throw e
+        } catch (e: HttpException) {
+            e.code() == NOT_FOUND
         } catch (_: Exception) {
             false
         }
     }
 
     // TODO: usunąć, gdy serwer zacznie zwracać nicki i awatary razem z listą znajomych
-    private suspend fun fetchUsers(userIds: Set<Int>): Map<Int, UserDto> {
-        val users = mutableMapOf<Int, UserDto>()
-        var offset = 0
-
-        while (users.size < userIds.size) {
-            val page = userApi.getUsers(USERS_PAGE_SIZE, offset).data
-            page.filter { it.id in userIds }.forEach { users[it.id] = it }
-
-            if (page.size < USERS_PAGE_SIZE) {
-                break
-            }
-            offset += USERS_PAGE_SIZE
+    private suspend fun fetchFriends(userIds: List<Int>, withStats: Boolean): List<Friend> {
+        return coroutineScope {
+            userIds.map { userId ->
+                async {
+                    val friend = fetchFriend(userId)
+                    if (withStats) {
+                        friend.copy(stats = fetchStats(userId))
+                    } else {
+                        friend
+                    }
+                }
+            }.awaitAll()
         }
-
-        return users
     }
 
-    private fun toFriend(id: Int, users: Map<Int, UserDto>): Friend {
-        return users[id]?.toFriend() ?: Friend(id, null)
+    private suspend fun fetchFriend(userId: Int): Friend {
+        return try {
+            userApi.getUser(userId).toFriend()
+        } catch (e: HttpException) {
+            if (e.code() != NOT_FOUND) {
+                throw e
+            }
+            Friend(userId, null)
+        }
+    }
+
+    private suspend fun fetchStats(userId: Int): UserStats? {
+        return try {
+            userApi.getUserStats(userId).toUserStats()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun mapToAddFriendResult(e: Throwable): AddFriendResult {

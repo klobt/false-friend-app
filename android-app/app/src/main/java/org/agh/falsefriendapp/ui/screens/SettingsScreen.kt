@@ -46,8 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.BuildConfig
 import org.agh.falsefriendapp.data.model.Avatar
+import org.agh.falsefriendapp.data.model.ThemeMode
 import org.agh.falsefriendapp.ui.components.ScreenHeader
 import org.agh.falsefriendapp.ui.components.SectionCard
+import org.agh.falsefriendapp.ui.components.TwoOptionSelector
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.SettingsUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
@@ -80,7 +82,8 @@ fun SettingsScreen(
         onNicknameChange = settingsViewModel::onNicknameChange,
         onSaveNickname = settingsViewModel::onSaveNickname,
         onDismissNickname = settingsViewModel::onDismissNickname,
-        onAvatarSelected = settingsViewModel::onAvatarSelected
+        onAvatarSelected = settingsViewModel::onAvatarSelected,
+        onThemeSelected = settingsViewModel::onThemeSelected
     )
 }
 
@@ -93,7 +96,8 @@ private fun SettingsContent(
     onNicknameChange: (String) -> Unit,
     onSaveNickname: () -> Unit,
     onDismissNickname: () -> Unit,
-    onAvatarSelected: (Avatar) -> Unit
+    onAvatarSelected: (Avatar) -> Unit,
+    onThemeSelected: (ThemeMode) -> Unit
 ) {
     var isAvatarPickerOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -150,6 +154,10 @@ private fun SettingsContent(
                 val versionText = BuildConfig.VERSION_NAME + " (${BuildConfig.VERSION_CODE})"
                 SettingsItem(title = "Wersja", value = versionText)
                 SettingsItem(title = "Język", value = "Polski")
+                ThemeItem(
+                    themeMode = state.themeMode,
+                    onThemeSelected = onThemeSelected
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -251,6 +259,40 @@ private fun AvatarItem(
                 modifier = Modifier.size(18.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun ThemeItem(
+    themeMode: ThemeMode,
+    onThemeSelected: (ThemeMode) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Motyw",
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        TwoOptionSelector(
+            firstLabel = "Jasny",
+            secondLabel = "Ciemny",
+            isFirstSelected = themeMode == ThemeMode.LIGHT,
+            onSelectionChanged = { isLight ->
+                onThemeSelected(
+                    if (isLight) {
+                        ThemeMode.LIGHT
+                    } else {
+                        ThemeMode.DARK
+                    }
+                )
+            }
+        )
     }
 }
 
@@ -378,7 +420,7 @@ private fun SettingsScreenPreview() {
                 nickname = "Mateusz",
                 isProfileLoaded = true
             ),
-            {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

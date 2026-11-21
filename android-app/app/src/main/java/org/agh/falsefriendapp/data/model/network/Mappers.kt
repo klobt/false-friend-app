@@ -5,8 +5,14 @@ import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.model.MatchExercise
 import org.agh.falsefriendapp.data.model.Session
+import org.agh.falsefriendapp.data.model.SessionSummary
 import org.agh.falsefriendapp.data.model.UserProfile
 import org.agh.falsefriendapp.data.model.UserStats
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeParseException
 
 fun BaseExerciseDto.toBaseExercise(): BaseExercise {
     return BaseExercise(
@@ -59,4 +65,21 @@ fun UserStatsDto.toUserStats(): UserStats {
         totalCorrect = totalCorrect,
         totalAnswers = totalAnswers
     )
+}
+
+fun SessionDto.toSessionSummary(zone: ZoneId): SessionSummary {
+    return SessionSummary(
+        id = id,
+        date = parseServerTime(createdAt).atZoneSameInstant(zone).toLocalDate(),
+        correct = results.count { it.correct },
+        answers = results.size
+    )
+}
+
+private fun parseServerTime(value: String): OffsetDateTime {
+    return try {
+        OffsetDateTime.parse(value)
+    } catch (_: DateTimeParseException) {
+        LocalDateTime.parse(value).atOffset(ZoneOffset.UTC)
+    }
 }

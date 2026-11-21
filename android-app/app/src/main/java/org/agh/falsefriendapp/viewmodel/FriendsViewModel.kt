@@ -11,12 +11,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.AddFriendResult
+import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.data.repository.FriendRepository
 import org.agh.falsefriendapp.ui.state.FriendsUiState
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 
 private const val TAG = "FriendsViewModel"
 private const val MAX_ID_LENGTH = 9
+private const val GROUP_ACTIVE = 0
+private const val GROUP_INACTIVE = 1
+private const val GROUP_NO_STATS = 2
 
 @HiltViewModel
 class FriendsViewModel @Inject constructor(
@@ -96,7 +102,7 @@ class FriendsViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     ownId = overview.ownId,
-                    friends = overview.friends
+                    friends = sortFriends(overview.friends)
                 )
             }
             true
@@ -106,5 +112,29 @@ class FriendsViewModel @Inject constructor(
             Log.e(TAG, "Failed to load friends", e)
             false
         }
+    }
+
+    private fun sortFriends(friends: List<Friend>): List<Friend> {
+        val collator = Collator.getInstance(Locale.forLanguageTag("pl")).apply {
+            strength = Collator.SECONDARY
+        }
+
+        return friends.sortedWith(
+            compareBy<Friend> { it.sortGroup() }
+                .thenByDescending { it.stats?.currentStreak ?: 0 }
+                .thenByDescending { it.stats?.accuracyPercent() ?: 0 }
+                .thenByDescending { it.stats?.totalAnswers ?: 0 }
+                .thenBy { it.nickname.isNullOrBlank() }
+                .thenBy(collator) { it.nickname.orEmpty() }
+                .thenBy { it.id }
+        )
+    }
+}
+
+private fun Friend.sortGroup(): Int {
+    return when {
+        stats == null -> GROUP_NO_STATS
+        stats.totalAnswers == 0 -> GROUP_INACTIVE
+        else -> GROUP_ACTIVE
     }
 }
