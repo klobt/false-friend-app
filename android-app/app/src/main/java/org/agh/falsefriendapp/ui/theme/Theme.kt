@@ -8,9 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun FalseFriendAppTheme(content: @Composable () -> Unit) {
+fun FalseFriendAppTheme(
+    darkTheme: Boolean = false,
+    content: @Composable () -> Unit
+) {
     MaterialTheme(
-        colorScheme = LightColors,
+        colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = Typography,
         content = content
     )
