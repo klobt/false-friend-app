@@ -22,6 +22,7 @@ import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import androidx.compose.runtime.*
 
 @Composable
 fun BaseExerciseScreen(
@@ -62,9 +63,16 @@ fun BaseExerciseScreen(
         }
 
         Spacer(modifier = Modifier.height(48.dp))
-        exercise.options.forEachIndexed { index, option ->
-            ExerciseButton(text = option, onClick = { onAnswerSelected(index) })
-            Spacer(modifier = Modifier.height(20.dp))
+
+        key(exercise.id) {
+            exercise.options.forEachIndexed { index, option ->
+                ExerciseButton(
+                    text = option,
+                    onClick = { onAnswerSelected(index) },
+                    isAnsweredCorrectly = index == exercise.correctAnswerIndex
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }
