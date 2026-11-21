@@ -9,14 +9,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.Avatar
+import org.agh.falsefriendapp.data.model.ThemeMode
 import org.agh.falsefriendapp.data.repository.UserRepository
+import org.agh.falsefriendapp.data.settings.SettingsStore
 import org.agh.falsefriendapp.ui.state.MAX_NICKNAME_LENGTH
 import org.agh.falsefriendapp.ui.state.SettingsUiState
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val settingsStore: SettingsStore
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         SettingsUiState(
@@ -38,6 +41,14 @@ class SettingsViewModel @Inject constructor(
                         isProfileLoaded = profile != null,
                         avatar = profile?.avatar ?: Avatar.DEFAULT
                     )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            settingsStore.themeMode.collect { mode ->
+                _state.update {
+                    it.copy(themeMode = mode)
                 }
             }
         }
@@ -67,6 +78,12 @@ class SettingsViewModel @Inject constructor(
             _state.update {
                 it.copy(avatarSaveFailed = !saved)
             }
+        }
+    }
+
+    fun onThemeSelected(mode: ThemeMode) {
+        viewModelScope.launch {
+            settingsStore.setThemeMode(mode)
         }
     }
 

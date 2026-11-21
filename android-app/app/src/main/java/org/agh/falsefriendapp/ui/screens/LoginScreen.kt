@@ -18,9 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.data.auth.LoginError
 import org.agh.falsefriendapp.ui.components.BaseButton
+import org.agh.falsefriendapp.ui.components.TwoOptionSelector
 import org.agh.falsefriendapp.ui.state.LoginUiState
 import org.agh.falsefriendapp.ui.state.MAX_PASSWORD_LENGTH
 import org.agh.falsefriendapp.ui.state.MIN_PASSWORD_LENGTH
@@ -90,9 +88,14 @@ private fun LoginContent(
     ) {
         LoginHeader()
         Spacer(modifier = Modifier.height(24.dp))
-        AuthModeSelector(
-            isLoginSelected = state.isLoginMode,
-            onSelectionChanged = onModeChange
+        TwoOptionSelector(
+            firstLabel = "Logowanie",
+            secondLabel = "Rejestracja",
+            isFirstSelected = state.isLoginMode,
+            onSelectionChanged = onModeChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(32.dp))
         AuthForm(
@@ -281,57 +284,6 @@ private fun LoginHeader() {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
-    }
-}
-
-@Composable
-private fun AuthModeSelector(
-    isLoginSelected: Boolean,
-    onSelectionChanged: (Boolean) -> Unit
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-    ) {
-        SegmentedButton(
-            selected = isLoginSelected,
-            onClick = { onSelectionChanged(true) },
-            shape = RoundedCornerShape(
-                topStart = 12.dp,
-                bottomStart = 12.dp,
-                topEnd = 0.dp,
-                bottomEnd = 0.dp
-            ),
-            icon = {},
-            colors = SegmentedButtonDefaults.colors(
-                activeContainerColor = MaterialTheme.colorScheme.primary,
-                activeContentColor = MaterialTheme.colorScheme.onPrimary,
-                inactiveContainerColor = MaterialTheme.colorScheme.surface,
-                inactiveContentColor = MaterialTheme.colorScheme.onSurface
-            )
-        ) {
-            Text("Logowanie")
-        }
-        SegmentedButton(
-            selected = !isLoginSelected,
-            onClick = { onSelectionChanged(false) },
-            shape = RoundedCornerShape(
-                topStart = 0.dp,
-                bottomStart = 0.dp,
-                topEnd = 12.dp,
-                bottomEnd = 12.dp
-            ),
-            icon = {},
-            colors = SegmentedButtonDefaults.colors(
-                activeContainerColor = MaterialTheme.colorScheme.primary,
-                activeContentColor = MaterialTheme.colorScheme.onPrimary,
-                inactiveContainerColor = MaterialTheme.colorScheme.surface,
-                inactiveContentColor = MaterialTheme.colorScheme.onSurface
-            )
-        ) {
-            Text("Rejestracja")
-        }
     }
 }
 
