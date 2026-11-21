@@ -14,7 +14,7 @@
 
 ### Zmieniono
 - Czcionka Nunito w całej aplikacji.
-- Nazwa aplikacji pod ikoną: „False Friend”.
+- Nazwa aplikacji pod ikoną: "False Friend".
 - Komunikat błędu pobierania ćwiczeń po polsku.
 
 ### Naprawiono
