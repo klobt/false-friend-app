@@ -26,9 +26,7 @@ import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import androidx.compose.runtime.*
 import org.agh.falsefriendapp.ui.theme.success
-
-private const val OVERLAY_ALPHA = 0.35f
-private const val OVERLAY_FADE_MS = 150
+import org.agh.falsefriendapp.ui.theme.*
 
 @Composable
 fun BaseExerciseScreen(

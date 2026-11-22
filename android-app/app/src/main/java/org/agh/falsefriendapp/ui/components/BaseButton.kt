@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
-
-private val TILT_ANGLES = listOf(-6f, 6f, -4f, 4f, 0f)
-private const val SWELL_SCALE = 1.2f
+import org.agh.falsefriendapp.ui.theme.*
 
 @Composable
 fun BaseButton(
@@ -47,14 +45,14 @@ fun BaseButton(
 
     LaunchedEffect(isTapped) {
         if (isTapped && isError) {
-            TILT_ANGLES.forEach {
-                tilt.animateTo(it, tween((feedbackDelay / TILT_ANGLES.size).inWholeMilliseconds.toInt()))
+            BUTTON_TILT_ANGLES.forEach {
+                tilt.animateTo(it, tween((feedbackDelay / BUTTON_TILT_ANGLES.size).inWholeMilliseconds.toInt()))
             }
         }
     }
     LaunchedEffect(isTapped) {
         if (isTapped) {
-            listOf(SWELL_SCALE, 1f).forEach {
+            listOf(BUTTON_SWELL_SCALE, 1f).forEach {
                 swell.animateTo(it, tween((feedbackDelay / 2).inWholeMilliseconds.toInt()))
             }
         }

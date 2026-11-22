@@ -2,9 +2,7 @@ package org.agh.falsefriendapp.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import kotlin.time.Duration.Companion.milliseconds
-
-private val FEEDBACK_DELAY = 400.milliseconds
+import org.agh.falsefriendapp.ui.theme.ANSWER_FEEDBACK_DELAY
 
 @Composable
 fun ExerciseButton(
@@ -19,7 +17,7 @@ fun ExerciseButton(
         height = 70.dp,
         enabled = enabled,
         isError = !isAnsweredCorrectly,
-        feedbackDelay = FEEDBACK_DELAY,
+        feedbackDelay = ANSWER_FEEDBACK_DELAY,
         onTap = onTap,
         onClick = onClick
     )

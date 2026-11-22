@@ -26,7 +26,6 @@ import org.agh.falsefriendapp.viewmodel.SessionReviewViewModel
 import org.agh.falsefriendapp.viewmodel.SessionViewModel
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterExitState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -38,13 +37,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
-
-private const val TRANSITION_DURATION_MS = 300
-private const val TILT_ANGLE_DEGREES = 8f
-private const val TILT_PIVOT_X = 0.5f
-private const val TILT_PIVOT_Y = 1f
-private const val TILT_DAMPING = Spring.DampingRatioMediumBouncy
-private const val TILT_STIFFNESS = Spring.StiffnessLow
+import org.agh.falsefriendapp.ui.theme.*
 
 @Composable
 private fun AnimatedContentScope.Tilt(content: @Composable () -> Unit) {
