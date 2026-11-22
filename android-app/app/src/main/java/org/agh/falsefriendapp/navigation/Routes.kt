@@ -14,8 +14,14 @@ object Routes {
     const val FRIENDS = "friends"
     const val NOTIFICATIONS = "notifications"
     const val STATS = "stats"
+    const val USER_ID_ARG = "userId"
+    const val FRIEND_STATS = "stats/{$USER_ID_ARG}"
 
     fun summary(score: Int, totalQuestions: Int, type: ExerciseType): String {
         return "summary/$score/$totalQuestions/${type.apiValue}"
+    }
+
+    fun friendStats(userId: Int): String {
+        return "stats/$userId"
     }
 }

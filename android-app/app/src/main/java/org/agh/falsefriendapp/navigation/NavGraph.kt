@@ -177,7 +177,12 @@ fun NavGraph() {
 
         composable(Routes.FRIENDS) {
             FriendsScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onOpenFriendStats = { userId ->
+                    navController.navigate(Routes.friendStats(userId)) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
@@ -188,6 +193,12 @@ fun NavGraph() {
         }
 
         composable(Routes.STATS) {
+            StatsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.FRIEND_STATS) {
             StatsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )

@@ -1,6 +1,7 @@
 package org.agh.falsefriendapp.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,11 +33,19 @@ import org.agh.falsefriendapp.ui.theme.warning
 fun FriendRow(
     friend: Friend,
     showStats: Boolean = false,
+    onClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit
 ) {
+    val clickModifier = if (onClick != null) {
+        Modifier.clickable(onClickLabel = "Pokaż statystyki", onClick = onClick)
+    } else {
+        Modifier
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(clickModifier)
             .padding(start = 16.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -60,6 +70,15 @@ fun FriendRow(
             }
         }
         actions()
+
+        if (onClick != null) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 4.dp).size(20.dp)
+            )
+        }
     }
 }
 

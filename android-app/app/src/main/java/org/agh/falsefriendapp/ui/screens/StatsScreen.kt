@@ -66,10 +66,12 @@ import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import org.agh.falsefriendapp.data.model.DailyAccuracy
+import org.agh.falsefriendapp.data.model.Friend
 import org.agh.falsefriendapp.ui.components.NO_VALUE
 import org.agh.falsefriendapp.ui.components.ScreenHeader
 import org.agh.falsefriendapp.ui.components.SectionCard
 import org.agh.falsefriendapp.ui.components.answersLabel
+import org.agh.falsefriendapp.ui.components.displayName
 import org.agh.falsefriendapp.ui.state.STATS_DAYS
 import org.agh.falsefriendapp.ui.state.StatsUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
@@ -98,7 +100,12 @@ fun StatsScreen(
             LoadingScreen()
         }
         state.loadFailed -> {
-            ErrorScreen("Nie udało się pobrać statystyk", onNavigateBack)
+            val message = if (state.notFriends) {
+                "Ta osoba nie jest już Twoim znajomym"
+            } else {
+                "Nie udało się pobrać statystyk"
+            }
+            ErrorScreen(message, onNavigateBack)
         }
         else -> {
             StatsContent(state, onNavigateBack)
@@ -112,7 +119,7 @@ private fun StatsContent(
     onNavigateBack: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-        ScreenHeader("Statystyki", onNavigateBack)
+        ScreenHeader(state.friend?.displayName() ?: "Statystyki", onNavigateBack)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -321,7 +328,7 @@ private fun DayChartHost(
 }
 
 @Composable
-private fun EmptyStats() {
+private fun EmptyStats(text: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -336,7 +343,7 @@ private fun EmptyStats() {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Zrób kilka ćwiczeń, żeby zobaczyć postęp",
+            text = text,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -348,7 +355,13 @@ private fun EmptyStats() {
 private fun SummarySection(state: StatsUiState) {
     SectionCard(title = "PODSUMOWANIE · OSTATNIE $STATS_DAYS DNI") {
         if (state.days.isEmpty()) {
-            EmptyStats()
+            EmptyStats(
+                if (state.friend == null) {
+                    "Zrób kilka ćwiczeń, żeby zobaczyć postęp"
+                } else {
+                    "Brak ćwiczeń w ostatnich $STATS_DAYS dniach"
+                }
+            )
         } else {
             SummaryRow("Średnia skuteczność", state.accuracyPercent()?.let { "$it%" } ?: NO_VALUE)
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -396,7 +409,6 @@ private fun dayIndex(firstDay: LocalDate, date: LocalDate): Int {
     return ChronoUnit.DAYS.between(firstDay, date).toInt()
 }
 
-// najmniejszy krok 1, 2 lub 5 razy potęga 10, przy którym na osi jest najwyżej 5 odstępów
 private fun answersAxisStep(maxAnswers: Int): Int {
     var magnitude = 1
     while (true) {
@@ -429,23 +441,6 @@ private fun sessionsLabel(count: Int): String {
 
 private val PREVIEW_TODAY = LocalDate.of(2026, 11, 7)
 
-private fun previewDays(): List<DailyAccuracy> {
-    val results = listOf(
-        29 to (12 to 20), 27 to (15 to 20), 26 to (9 to 16), 24 to (18 to 22),
-        20 to (14 to 20), 19 to (17 to 20), 15 to (8 to 10), 12 to (21 to 25),
-        11 to (19 to 24), 7 to (22 to 25), 4 to (27 to 30), 2 to (18 to 20),
-        0 to (24 to 26)
-    )
-    return results.map { (daysAgo, score) ->
-        DailyAccuracy(
-            date = PREVIEW_TODAY.minusDays(daysAgo.toLong()),
-            sessions = if (score.second > 20) 2 else 1,
-            correct = score.first,
-            answers = score.second
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun StatsContentPreview() {
@@ -464,6 +459,37 @@ private fun StatsContentEmptyPreview() {
         StatsContent(
             state = StatsUiState(today = PREVIEW_TODAY),
             onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StatsContentFriendEmptyPreview() {
+    FalseFriendAppTheme {
+        StatsContent(
+            state = StatsUiState(
+                today = PREVIEW_TODAY,
+                friend = Friend(12, "Alex2")
+            ),
+            onNavigateBack = {}
+        )
+    }
+}
+
+private fun previewDays(): List<DailyAccuracy> {
+    val results = listOf(
+        29 to (12 to 20), 27 to (15 to 20), 26 to (9 to 16), 24 to (18 to 22),
+        20 to (14 to 20), 19 to (17 to 20), 15 to (8 to 10), 12 to (21 to 25),
+        11 to (19 to 24), 7 to (22 to 25), 4 to (27 to 30), 2 to (18 to 20),
+        0 to (24 to 26)
+    )
+    return results.map { (daysAgo, score) ->
+        DailyAccuracy(
+            date = PREVIEW_TODAY.minusDays(daysAgo.toLong()),
+            sessions = if (score.second > 20) 2 else 1,
+            correct = score.first,
+            answers = score.second
         )
     }
 }
