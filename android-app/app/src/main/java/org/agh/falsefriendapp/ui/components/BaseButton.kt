@@ -24,8 +24,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.DurationUnit
+import kotlin.time.Duration
+
+private val TILT_ANGLES = listOf(-6f, 6f, -4f, 4f, 0f)
+private const val SWELL_SCALE = 1.2f
 
 @Composable
 fun BaseButton(
@@ -33,10 +35,10 @@ fun BaseButton(
     height: Dp,
     enabled: Boolean,
     onClick: () -> Unit,
-    isError: Boolean = false
+    isError: Boolean = false,
+    feedbackDelay: Duration = Duration.ZERO,
+    onTap: () -> Unit = {}
 ) {
-    val errorDelay = 400.milliseconds
-
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
     var isTapped by remember { mutableStateOf(false) }
@@ -44,41 +46,32 @@ fun BaseButton(
     val swell = remember { Animatable(1f) }
 
     LaunchedEffect(isTapped) {
-        if (isTapped) {
-            listOf(-6f, 6f, -4f, 4f, 0f).forEach {
-                tilt.animateTo(
-                    targetValue = it,
-                    animationSpec = tween(errorDelay.div(5).toInt(DurationUnit.MILLISECONDS))
-                )
+        if (isTapped && isError) {
+            TILT_ANGLES.forEach {
+                tilt.animateTo(it, tween((feedbackDelay / TILT_ANGLES.size).inWholeMilliseconds.toInt()))
             }
         }
     }
     LaunchedEffect(isTapped) {
         if (isTapped) {
-            listOf(1.2f, 1f).forEach {
-                swell.animateTo(
-                    targetValue = it,
-                    animationSpec = tween(errorDelay.div(2).toInt(DurationUnit.MILLISECONDS))
-                )
+            listOf(SWELL_SCALE, 1f).forEach {
+                swell.animateTo(it, tween((feedbackDelay / 2).inWholeMilliseconds.toInt()))
             }
         }
     }
 
     val containerColor by animateColorAsState(
-        if (isTapped && isError)
-            MaterialTheme.colorScheme.error
-        else
-            MaterialTheme.colorScheme.primary
+        if (isTapped && isError) MaterialTheme.colorScheme.error
+        else MaterialTheme.colorScheme.primary
     )
 
     Button(
         onClick = {
+            onTap()
             scope.launch {
                 isTapped = true
-                if (isError) {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    delay(errorDelay)
-                }
+                if (isError) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                delay(feedbackDelay)
                 onClick()
             }
         },
@@ -94,16 +87,15 @@ fun BaseButton(
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = containerColor,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp,
             pressedElevation = 8.dp
         )
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Text(text = text, style = MaterialTheme.typography.titleMedium)
     }
 }

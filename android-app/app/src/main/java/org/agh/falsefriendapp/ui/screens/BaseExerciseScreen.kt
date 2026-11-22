@@ -1,5 +1,7 @@
 package org.agh.falsefriendapp.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,10 @@ import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import androidx.compose.runtime.*
+import org.agh.falsefriendapp.ui.theme.success
+
+private const val OVERLAY_ALPHA = 0.35f
+private const val OVERLAY_FADE_MS = 150
 
 @Composable
 fun BaseExerciseScreen(
@@ -33,47 +39,68 @@ fun BaseExerciseScreen(
     onAnswerSelected: (Int) -> Unit,
     onExit: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
+    var wasCorrect by remember(exercise) { mutableStateOf<Boolean?>(null) }
+
+    val overlayAlpha by animateFloatAsState(
+        targetValue = if (wasCorrect == null) 0f else OVERLAY_ALPHA,
+        animationSpec = tween(OVERLAY_FADE_MS)
+    )
+    val overlayColor =
+        if (wasCorrect == false) MaterialTheme.colorScheme.error
+        else MaterialTheme.colorScheme.success
+
+    Box(
+        modifier = Modifier.fillMaxSize().systemBarsPadding()
     ) {
-        BaseExerciseHeader(currentStep, totalSteps, onExit)
-        Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = instruction,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+        Column(
+            modifier = Modifier.fillMaxSize().systemBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BaseExerciseHeader(currentStep, totalSteps, onExit)
+            Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                text = instruction,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Box(
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = exercise.sentence,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            key(exercise.id) {
+                exercise.options.forEachIndexed { index, option ->
+                    ExerciseButton(
+                        text = option,
+                        isAnsweredCorrectly = index == exercise.correctAnswerIndex,
+                        enabled = wasCorrect == null,
+                        onTap = { wasCorrect = index == exercise.correctAnswerIndex },
+                        onClick = { onAnswerSelected(index) }
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
 
         Box(
             modifier = Modifier
-                .width(250.dp)
-                .height(100.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = exercise.sentence,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        key(exercise.id) {
-            exercise.options.forEachIndexed { index, option ->
-                ExerciseButton(
-                    text = option,
-                    onClick = { onAnswerSelected(index) },
-                    isAnsweredCorrectly = index == exercise.correctAnswerIndex
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-        }
+                .fillMaxSize()
+                .background(overlayColor.copy(alpha = overlayAlpha))
+        )
     }
 }
 
