@@ -53,6 +53,7 @@ import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.ui.components.HeaderIconButton
 import org.agh.falsefriendapp.ui.components.MenuButton
 import org.agh.falsefriendapp.ui.components.NO_VALUE
+import org.agh.falsefriendapp.ui.components.StreakFlame
 import org.agh.falsefriendapp.ui.components.accuracyText
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
@@ -226,7 +227,7 @@ private fun StatsStrip(
             StatItem(
                 value = stats?.currentStreak?.toString() ?: NO_VALUE,
                 label = "dni z rzędu",
-                icon = Icons.Default.LocalFireDepartment,
+                icon = { StreakFlame(active = (stats?.currentStreak ?: 0) >= 1) },
                 modifier = Modifier.weight(1f)
             )
             VerticalDivider(
@@ -262,7 +263,7 @@ private fun StatItem(
     value: String,
     label: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null
+    icon: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = modifier,
@@ -270,12 +271,7 @@ private fun StatItem(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.warning,
-                    modifier = Modifier.size(20.dp)
-                )
+                icon()
                 Spacer(modifier = Modifier.width(4.dp))
             }
             Text(
