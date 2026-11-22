@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import org.agh.falsefriendapp.ui.components.FeedbackOverlay
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
 import org.agh.falsefriendapp.ui.components.NavigationButton
@@ -88,6 +89,7 @@ private fun MatchExerciseContent(
                 totalSteps = state.exercises.size,
                 selectedLeft = state.selectedLeft,
                 connections = state.connections,
+                feedback = state.feedback,
                 onLeftSelected = onLeftSelected,
                 onRightSelected = onRightSelected,
                 onClearConnections = onClearConnections,
@@ -113,6 +115,7 @@ private fun MatchExerciseTask(
     totalSteps: Int,
     selectedLeft: Int?,
     connections: List<MatchConnection>,
+    feedback: Boolean?,
     onLeftSelected: (Int) -> Unit,
     onRightSelected: (Int) -> Unit,
     onClearConnections: () -> Unit,
@@ -128,111 +131,115 @@ private fun MatchExerciseTask(
         mutableStateOf<LayoutCoordinates?>(null)
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        BaseExerciseHeader(currentStep, totalSteps, onExit)
-        Spacer(modifier = Modifier.height(40.dp))
-        Text(
-            text = "Wybierz słowo z lewej strony, a następnie " +
-                    "odpowiadające mu z prawej:",
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 10.dp),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        val lineColor = MaterialTheme.colorScheme.primary
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
-                .weight(1f)
-                .onGloballyPositioned {
-                    boardCoordinates = it
-                }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().systemBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Canvas(modifier = Modifier.matchParentSize()) {
-                connections.forEach { connection ->
-                    val left = leftPositions[connection.leftIndex]
-                    val right = rightPositions[connection.rightIndex]
+            BaseExerciseHeader(currentStep, totalSteps, onExit)
+            Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                text = "Wybierz słowo z lewej strony, a następnie " +
+                        "odpowiadające mu z prawej:",
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
 
-                    if (left != null && right != null) {
-                        drawLine(
-                            color = lineColor,
-                            start = left,
-                            end = right,
-                            strokeWidth = 5.dp.toPx(),
-                            cap = StrokeCap.Round
-                        )
+            Spacer(modifier = Modifier.height(16.dp))
+            val lineColor = MaterialTheme.colorScheme.primary
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .weight(1f)
+                    .onGloballyPositioned {
+                        boardCoordinates = it
                     }
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(
-                    92.dp,
-                    Alignment.CenterHorizontally
-                )
             ) {
-                Column(horizontalAlignment = Alignment.End) {
-                    exercise.left.forEachIndexed { index, left ->
-                        MatchExerciseButton(
-                            text = left,
-                            selected = selectedLeft == index,
-                            matched = connections.any {
-                                it.leftIndex == index
-                            },
-                            onClick = { onLeftSelected(index) },
-                            modifier = Modifier.onGloballyPositioned { coordinates ->
-                                boardCoordinates?.let { board ->
-                                    val position = board.localPositionOf(coordinates)
-                                    leftPositions[index] = Offset(
-                                        x = position.x + coordinates.size.width,
-                                        y = position.y + coordinates.size.height / 2f
-                                    )
-                                }
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    connections.forEach { connection ->
+                        val left = leftPositions[connection.leftIndex]
+                        val right = rightPositions[connection.rightIndex]
+
+                        if (left != null && right != null) {
+                            drawLine(
+                                color = lineColor,
+                                start = left,
+                                end = right,
+                                strokeWidth = 5.dp.toPx(),
+                                cap = StrokeCap.Round
+                            )
+                        }
                     }
                 }
 
-                Column(horizontalAlignment = Alignment.Start) {
-                    exercise.right.forEach { right ->
-                        MatchExerciseButton(
-                            text = right.text,
-                            selected = false,
-                            matched = connections.any {
-                                it.rightIndex == right.originalIndex
-                            },
-                            onClick = { onRightSelected(right.originalIndex) },
-                            modifier = Modifier.onGloballyPositioned { coordinates ->
-                                boardCoordinates?.let { board ->
-                                    val position = board.localPositionOf(coordinates)
-                                    rightPositions[right.originalIndex] = Offset(
-                                        x = position.x,
-                                        y = position.y + coordinates.size.height / 2f
-                                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        92.dp,
+                        Alignment.CenterHorizontally
+                    )
+                ) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        exercise.left.forEachIndexed { index, left ->
+                            MatchExerciseButton(
+                                text = left,
+                                selected = selectedLeft == index,
+                                matched = connections.any {
+                                    it.leftIndex == index
+                                },
+                                onClick = { onLeftSelected(index) },
+                                modifier = Modifier.onGloballyPositioned { coordinates ->
+                                    boardCoordinates?.let { board ->
+                                        val position = board.localPositionOf(coordinates)
+                                        leftPositions[index] = Offset(
+                                            x = position.x + coordinates.size.width,
+                                            y = position.y + coordinates.size.height / 2f
+                                        )
+                                    }
                                 }
-                            }
-                        )
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                    Column(horizontalAlignment = Alignment.Start) {
+                        exercise.right.forEach { right ->
+                            MatchExerciseButton(
+                                text = right.text,
+                                selected = false,
+                                matched = connections.any {
+                                    it.rightIndex == right.originalIndex
+                                },
+                                onClick = { onRightSelected(right.originalIndex) },
+                                modifier = Modifier.onGloballyPositioned { coordinates ->
+                                    boardCoordinates?.let { board ->
+                                        val position = board.localPositionOf(coordinates)
+                                        rightPositions[right.originalIndex] = Offset(
+                                            x = position.x,
+                                            y = position.y + coordinates.size.height / 2f
+                                        )
+                                    }
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            NavigationButton(
+                text = "Cofnij",
+                onClick = onClearConnections
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-        NavigationButton(
-            text = "Cofnij",
-            onClick = onClearConnections
-        )
-        Spacer(modifier = Modifier.height(20.dp))
+        FeedbackOverlay(feedback)
     }
 }
 

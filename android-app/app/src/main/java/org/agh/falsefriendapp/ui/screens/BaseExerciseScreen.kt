@@ -25,6 +25,7 @@ import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import androidx.compose.runtime.*
+import org.agh.falsefriendapp.ui.components.FeedbackOverlay
 import org.agh.falsefriendapp.ui.theme.success
 import org.agh.falsefriendapp.ui.theme.*
 
@@ -38,14 +39,6 @@ fun BaseExerciseScreen(
     onExit: () -> Unit
 ) {
     var wasCorrect by remember(exercise) { mutableStateOf<Boolean?>(null) }
-
-    val overlayAlpha by animateFloatAsState(
-        targetValue = if (wasCorrect == null) 0f else OVERLAY_ALPHA,
-        animationSpec = tween(OVERLAY_FADE_MS)
-    )
-    val overlayColor =
-        if (wasCorrect == false) MaterialTheme.colorScheme.error
-        else MaterialTheme.colorScheme.success
 
     Box(
         modifier = Modifier.fillMaxSize().systemBarsPadding()
@@ -94,11 +87,7 @@ fun BaseExerciseScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(overlayColor.copy(alpha = overlayAlpha))
-        )
+        FeedbackOverlay(wasCorrect)
     }
 }
 

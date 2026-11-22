@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
 import org.agh.falsefriendapp.ui.state.MatchOption
 import org.agh.falsefriendapp.ui.state.MatchPairResult
 import org.agh.falsefriendapp.ui.state.ReviewItem
+import org.agh.falsefriendapp.ui.theme.ANSWER_FEEDBACK_DELAY
 import javax.inject.Inject
 
 private const val TAG = "MatchExerciseViewModel"
@@ -41,7 +43,7 @@ class MatchExerciseViewModel @Inject constructor(
 
     fun selectLeft(index: Int) {
         val currentState = _state.value
-        if (currentState !is MatchExerciseUiState.Success) {
+        if (currentState !is MatchExerciseUiState.Success || currentState.feedback != null) {
             return
         }
 
@@ -59,7 +61,7 @@ class MatchExerciseViewModel @Inject constructor(
 
     fun selectRight(originalIndex: Int) {
         val currentState = _state.value
-        if (currentState !is MatchExerciseUiState.Success) {
+        if (currentState !is MatchExerciseUiState.Success || currentState.feedback != null) {
             return
         }
 
@@ -84,7 +86,7 @@ class MatchExerciseViewModel @Inject constructor(
         )
 
         if (newConnections.size == totalPairs) {
-            finishExercise(
+            showResultThenFinish(
                 currentState = currentState,
                 connections = newConnections
             )
@@ -99,7 +101,7 @@ class MatchExerciseViewModel @Inject constructor(
 
     fun clearConnections() {
         val currentState = _state.value
-        if (currentState !is MatchExerciseUiState.Success) {
+        if (currentState !is MatchExerciseUiState.Success || currentState.feedback != null) {
             return
         }
 
@@ -115,6 +117,21 @@ class MatchExerciseViewModel @Inject constructor(
                     connections = currentState.connections.dropLast(1)
                 )
             }
+        }
+    }
+
+    private fun showResultThenFinish(
+        currentState: MatchExerciseUiState.Success,
+        connections: List<MatchConnection>
+    ) {
+        _state.value = currentState.copy(
+            selectedLeft = null,
+            connections = connections,
+            feedback = connections.all { it.leftIndex == it.rightIndex }
+        )
+        viewModelScope.launch {
+            delay(ANSWER_FEEDBACK_DELAY)
+            finishExercise(currentState, connections)
         }
     }
 
@@ -158,7 +175,8 @@ class MatchExerciseViewModel @Inject constructor(
             _state.value = currentState.copy(
                 currentIndex = nextIndex,
                 selectedLeft = null,
-                connections = emptyList()
+                connections = emptyList(),
+                feedback = null
             )
         }
         else {
