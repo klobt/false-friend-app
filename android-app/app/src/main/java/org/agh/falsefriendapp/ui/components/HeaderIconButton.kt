@@ -18,6 +18,21 @@ fun HeaderIconButton(
     contentDescription: String,
     onClick: () -> Unit
 ) {
+    HeaderIconButton(onClick = onClick) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(32.dp)
+        )
+    }
+}
+
+@Composable
+fun HeaderIconButton(
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit
+) {
     Surface(
         modifier = Modifier.size(52.dp),
         shape = RoundedCornerShape(12.dp),
@@ -29,12 +44,7 @@ fun HeaderIconButton(
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
-            )
+            icon()
         }
     }
 }

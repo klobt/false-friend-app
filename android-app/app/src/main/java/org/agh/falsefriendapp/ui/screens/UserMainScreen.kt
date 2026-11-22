@@ -21,8 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -39,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,12 +50,12 @@ import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.ui.components.HeaderIconButton
 import org.agh.falsefriendapp.ui.components.MenuButton
 import org.agh.falsefriendapp.ui.components.NO_VALUE
+import org.agh.falsefriendapp.ui.components.NotificationBell
 import org.agh.falsefriendapp.ui.components.StreakFlame
 import org.agh.falsefriendapp.ui.components.accuracyText
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
-import org.agh.falsefriendapp.ui.theme.warning
 import org.agh.falsefriendapp.viewmodel.UserMainViewModel
 
 private const val MAX_BADGE_COUNT = 9
@@ -306,11 +303,9 @@ private fun NotificationsButton(
             }
         }
     ) {
-        HeaderIconButton(
-            icon = Icons.Default.Notifications,
-            contentDescription = "Powiadomienia",
-            onClick = onClick
-        )
+        HeaderIconButton(onClick = onClick) {
+            NotificationBell(count > 0)
+        }
     }
 }
 

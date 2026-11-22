@@ -23,3 +23,12 @@ const val FLAME_WOBBLE_MS = 450
 const val FLAME_SWELL_SCALE = 1.15f
 const val FLAME_SWELL_MS = 700
 val FLAME_PIVOT = TransformOrigin(0.5f, 1f)
+
+const val BELL_SWING_DEGREES = 15f
+const val BELL_SWING_BACK_DEGREES = -10f
+const val BELL_SETTLE_MS = 300
+const val BELL_JIGGLE_DEGREES = 4f
+const val BELL_SWING_MS = 600
+const val BELL_JIGGLE_STEP_MS = 60
+const val BELL_RETURN_MS = 450
+val BELL_PIVOT = TransformOrigin(0.5f, 0f)
