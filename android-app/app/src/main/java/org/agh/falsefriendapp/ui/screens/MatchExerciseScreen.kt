@@ -42,6 +42,7 @@ import org.agh.falsefriendapp.ui.state.MatchExerciseUiState
 import org.agh.falsefriendapp.ui.state.MatchOption
 import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 import org.agh.falsefriendapp.viewmodel.MatchExerciseViewModel
 
 @Composable
@@ -136,7 +137,13 @@ private fun MatchExerciseTask(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BaseExerciseHeader(currentStep, totalSteps, onExit)
+            BaseExerciseHeader(
+                currentStep,
+                totalSteps,
+                accentColor = MaterialTheme.exerciseColors.matchForeground,
+                containerColor = MaterialTheme.exerciseColors.matchBackground,
+                onExit
+            )
             Spacer(modifier = Modifier.height(40.dp))
             Text(
                 text = "Wybierz słowo z lewej strony, a następnie " +

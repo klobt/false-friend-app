@@ -56,6 +56,7 @@ import org.agh.falsefriendapp.ui.components.accuracyText
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 import org.agh.falsefriendapp.viewmodel.UserMainViewModel
 
 private const val MAX_BADGE_COUNT = 9
@@ -342,6 +343,7 @@ private fun ExerciseMenu(
                 title = "Wybierz tłumaczenie",
                 description = "Wybierz poprawne tłumaczenie",
                 icon = Icons.Default.Translate,
+                iconColor = MaterialTheme.exerciseColors.translationForeground,
                 badge = dueCounts[ExerciseType.TRANSLATION],
                 onClick = onStartTranslation
             )
@@ -349,6 +351,7 @@ private fun ExerciseMenu(
                 title = "Wybierz definicję",
                 description = "Dopasuj słowo do definicji",
                 icon = Icons.AutoMirrored.Filled.MenuBook,
+                iconColor = MaterialTheme.exerciseColors.definitionForeground,
                 badge = dueCounts[ExerciseType.DEFINITION],
                 onClick = onStartDefinition
             )
@@ -356,6 +359,7 @@ private fun ExerciseMenu(
                 title = "Połącz pary",
                 description = "Połącz słowa w pary",
                 icon = Icons.AutoMirrored.Filled.CompareArrows,
+                iconColor = MaterialTheme.exerciseColors.matchForeground,
                 badge = dueCounts[ExerciseType.MATCH],
                 onClick = onStartMatch
             )

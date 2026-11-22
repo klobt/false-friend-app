@@ -1,8 +1,5 @@
 package org.agh.falsefriendapp.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,9 +22,9 @@ import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import org.agh.falsefriendapp.ui.components.FeedbackOverlay
-import org.agh.falsefriendapp.ui.theme.success
-import org.agh.falsefriendapp.ui.theme.*
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 
 @Composable
 fun BaseExerciseScreen(
@@ -36,6 +33,8 @@ fun BaseExerciseScreen(
     instruction: String,
     exercise: BaseExercise,
     onAnswerSelected: (Int) -> Unit,
+    accentColor: Color,
+    containerColor: Color,
     onExit: () -> Unit
 ) {
     var wasCorrect by remember(exercise) { mutableStateOf<Boolean?>(null) }
@@ -47,7 +46,13 @@ fun BaseExerciseScreen(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BaseExerciseHeader(currentStep, totalSteps, onExit)
+            BaseExerciseHeader(
+                currentStep,
+                totalSteps,
+                accentColor,
+                containerColor,
+                onExit
+            )
             Spacer(modifier = Modifier.height(40.dp))
             Text(
                 text = instruction,
@@ -103,6 +108,8 @@ private fun BaseExerciseScreenPreview() {
                 0, "lecture", 2, listOf("czytanie", "lektura", "wykład", "lektor")
             ),
             onAnswerSelected = {},
+            accentColor = MaterialTheme.exerciseColors.translationForeground,
+            containerColor = MaterialTheme.exerciseColors.translationBackground,
             onExit = {}
         )
     }
