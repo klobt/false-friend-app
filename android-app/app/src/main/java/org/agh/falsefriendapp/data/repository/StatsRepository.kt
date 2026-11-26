@@ -8,6 +8,7 @@ import org.agh.falsefriendapp.data.api.UserApi
 import org.agh.falsefriendapp.data.model.DailyAccuracy
 import org.agh.falsefriendapp.data.model.SessionSummary
 import org.agh.falsefriendapp.data.model.UserStats
+import org.agh.falsefriendapp.data.model.network.SessionsResponse
 import org.agh.falsefriendapp.data.model.network.toSessionSummary
 import org.agh.falsefriendapp.data.model.network.toUserStats
 import java.time.LocalDate
@@ -38,9 +39,10 @@ class StatsRepository @Inject constructor(
     suspend fun getDailyAccuracy(
         from: LocalDate,
         to: LocalDate,
+        userId: Int? = null,
         zone: ZoneId = ZoneId.systemDefault()
     ): List<DailyAccuracy> {
-        return fetchSessionsSince(from, zone)
+        return fetchSessionsSince(from, userId, zone)
             .filter { it.answers > 0 && it.date in from..to }
             .groupBy { it.date }
             .map { (date, sessions) ->
@@ -54,13 +56,17 @@ class StatsRepository @Inject constructor(
             .sortedBy { it.date }
     }
 
-    private suspend fun fetchSessionsSince(from: LocalDate, zone: ZoneId): Collection<SessionSummary> {
+    private suspend fun fetchSessionsSince(
+        from: LocalDate,
+        userId: Int?,
+        zone: ZoneId
+    ): Collection<SessionSummary> {
         val sessions = mutableMapOf<Int, SessionSummary>()
-        var end = exerciseApi.getSessions(limit = 0, offset = 0).total
+        var end = fetchSessions(userId, limit = 0, offset = 0).total
 
         while (end > 0) {
             val offset = maxOf(0, end - SESSIONS_PAGE_SIZE)
-            val page = exerciseApi.getSessions(limit = end - offset, offset = offset).data
+            val page = fetchSessions(userId, limit = end - offset, offset = offset).data
                 .map { it.toSessionSummary(zone) }
             page.forEach { sessions[it.id] = it }
 
@@ -71,5 +77,13 @@ class StatsRepository @Inject constructor(
         }
 
         return sessions.values
+    }
+
+    private suspend fun fetchSessions(userId: Int?, limit: Int, offset: Int): SessionsResponse {
+        return if (userId == null) {
+            exerciseApi.getSessions(limit, offset)
+        } else {
+            exerciseApi.getUserSessions(userId, limit, offset)
+        }
     }
 }

@@ -106,7 +106,7 @@ class FriendRepository @Inject constructor(
         return coroutineScope {
             userIds.map { userId ->
                 async {
-                    val friend = fetchFriend(userId)
+                    val friend = getFriend(userId)
                     if (withStats) {
                         friend.copy(stats = fetchStats(userId))
                     } else {
@@ -117,7 +117,7 @@ class FriendRepository @Inject constructor(
         }
     }
 
-    private suspend fun fetchFriend(userId: Int): Friend {
+    suspend fun getFriend(userId: Int): Friend {
         return try {
             userApi.getUser(userId).toFriend()
         } catch (e: HttpException) {
