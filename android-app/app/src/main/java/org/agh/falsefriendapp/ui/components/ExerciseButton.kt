@@ -18,6 +18,7 @@ fun ExerciseButton(
         enabled = enabled,
         isError = !isAnsweredCorrectly,
         feedbackDelay = ANSWER_FEEDBACK_DELAY,
+        keepColorsWhenDisabled = true,
         onTap = onTap,
         onClick = onClick
     )

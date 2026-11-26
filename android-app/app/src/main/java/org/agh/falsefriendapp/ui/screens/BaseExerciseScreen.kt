@@ -11,6 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,7 +26,6 @@ import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
 import org.agh.falsefriendapp.ui.components.ExerciseButton
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
-import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import org.agh.falsefriendapp.ui.components.FeedbackOverlay
 import org.agh.falsefriendapp.ui.theme.exerciseColors
@@ -43,7 +47,7 @@ fun BaseExerciseScreen(
         modifier = Modifier.fillMaxSize().systemBarsPadding()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().systemBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             BaseExerciseHeader(

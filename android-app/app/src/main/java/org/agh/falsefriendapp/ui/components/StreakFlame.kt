@@ -17,7 +17,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import org.agh.falsefriendapp.ui.theme.*
+import org.agh.falsefriendapp.ui.theme.FLAME_PIVOT
+import org.agh.falsefriendapp.ui.theme.FLAME_SWELL_MS
+import org.agh.falsefriendapp.ui.theme.FLAME_SWELL_SCALE
+import org.agh.falsefriendapp.ui.theme.FLAME_WOBBLE_DEGREES
+import org.agh.falsefriendapp.ui.theme.FLAME_WOBBLE_MS
+import org.agh.falsefriendapp.ui.theme.warning
 
 @Composable
 fun StreakFlame(active: Boolean, modifier: Modifier = Modifier) {

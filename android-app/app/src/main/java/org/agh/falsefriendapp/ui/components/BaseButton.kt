@@ -21,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.agh.falsefriendapp.ui.theme.BUTTON_SWELL_SCALE
+import org.agh.falsefriendapp.ui.theme.BUTTON_TILT_ANGLES
 import kotlin.time.Duration
-import org.agh.falsefriendapp.ui.theme.*
 
 @Composable
 fun BaseButton(
@@ -35,6 +37,7 @@ fun BaseButton(
     onClick: () -> Unit,
     isError: Boolean = false,
     feedbackDelay: Duration = Duration.ZERO,
+    keepColorsWhenDisabled: Boolean = false,
     onTap: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
@@ -46,14 +49,17 @@ fun BaseButton(
     LaunchedEffect(isTapped) {
         if (isTapped && isError) {
             BUTTON_TILT_ANGLES.forEach {
-                tilt.animateTo(it, tween((feedbackDelay / BUTTON_TILT_ANGLES.size).inWholeMilliseconds.toInt()))
+                tilt.animateTo(it, tween((feedbackDelay / BUTTON_TILT_ANGLES.size)
+                    .inWholeMilliseconds.toInt())
+                )
             }
         }
     }
     LaunchedEffect(isTapped) {
         if (isTapped) {
             listOf(BUTTON_SWELL_SCALE, 1f).forEach {
-                swell.animateTo(it, tween((feedbackDelay / 2).inWholeMilliseconds.toInt()))
+                swell.animateTo(it, tween((feedbackDelay / 2)
+                    .inWholeMilliseconds.toInt()))
             }
         }
     }
@@ -62,6 +68,19 @@ fun BaseButton(
         if (isTapped && isError) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.primary
     )
+    val colors = if (keepColorsWhenDisabled) {
+        ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = containerColor,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    } else {
+        ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }
 
     Button(
         onClick = {
@@ -83,12 +102,7 @@ fun BaseButton(
             .width(300.dp)
             .height(height),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = containerColor,
-            disabledContentColor = MaterialTheme.colorScheme.onPrimary
-        ),
+        colors = colors,
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp,
             pressedElevation = 8.dp
