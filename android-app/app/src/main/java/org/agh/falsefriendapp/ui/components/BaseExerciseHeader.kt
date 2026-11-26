@@ -24,12 +24,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun BaseExerciseHeader(
     currentStep: Int,
     totalSteps: Int,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onExit: () -> Unit
 ) {
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
@@ -42,7 +45,7 @@ fun BaseExerciseHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(containerColor)
             .padding(horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -68,7 +71,7 @@ fun BaseExerciseHeader(
             LinearProgressIndicator(
                 progress = { animatedProgress },
                 modifier = Modifier.fillMaxWidth().height(8.dp),
-                color = MaterialTheme.colorScheme.primary,
+                color = accentColor,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 gapSize = (-8).dp,
                 drawStopIndicator = {}

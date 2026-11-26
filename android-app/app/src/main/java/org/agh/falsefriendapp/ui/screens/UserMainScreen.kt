@@ -21,8 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -39,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,11 +50,13 @@ import org.agh.falsefriendapp.data.model.UserStats
 import org.agh.falsefriendapp.ui.components.HeaderIconButton
 import org.agh.falsefriendapp.ui.components.MenuButton
 import org.agh.falsefriendapp.ui.components.NO_VALUE
+import org.agh.falsefriendapp.ui.components.NotificationBell
+import org.agh.falsefriendapp.ui.components.StreakFlame
 import org.agh.falsefriendapp.ui.components.accuracyText
 import org.agh.falsefriendapp.ui.components.icon
 import org.agh.falsefriendapp.ui.state.UserMainUiState
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
-import org.agh.falsefriendapp.ui.theme.warning
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 import org.agh.falsefriendapp.viewmodel.UserMainViewModel
 
 private const val MAX_BADGE_COUNT = 9
@@ -226,7 +225,7 @@ private fun StatsStrip(
             StatItem(
                 value = stats?.currentStreak?.toString() ?: NO_VALUE,
                 label = "dni z rzędu",
-                icon = Icons.Default.LocalFireDepartment,
+                icon = { StreakFlame(active = (stats?.currentStreak ?: 0) >= 1) },
                 modifier = Modifier.weight(1f)
             )
             VerticalDivider(
@@ -262,7 +261,7 @@ private fun StatItem(
     value: String,
     label: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null
+    icon: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = modifier,
@@ -270,12 +269,7 @@ private fun StatItem(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.warning,
-                    modifier = Modifier.size(20.dp)
-                )
+                icon()
                 Spacer(modifier = Modifier.width(4.dp))
             }
             Text(
@@ -310,11 +304,9 @@ private fun NotificationsButton(
             }
         }
     ) {
-        HeaderIconButton(
-            icon = Icons.Default.Notifications,
-            contentDescription = "Powiadomienia",
-            onClick = onClick
-        )
+        HeaderIconButton(onClick = onClick) {
+            NotificationBell(count > 0)
+        }
     }
 }
 
@@ -351,6 +343,7 @@ private fun ExerciseMenu(
                 title = "Wybierz tłumaczenie",
                 description = "Wybierz poprawne tłumaczenie",
                 icon = Icons.Default.Translate,
+                iconColor = MaterialTheme.exerciseColors.translationForeground,
                 badge = dueCounts[ExerciseType.TRANSLATION],
                 onClick = onStartTranslation
             )
@@ -358,6 +351,7 @@ private fun ExerciseMenu(
                 title = "Wybierz definicję",
                 description = "Dopasuj słowo do definicji",
                 icon = Icons.AutoMirrored.Filled.MenuBook,
+                iconColor = MaterialTheme.exerciseColors.definitionForeground,
                 badge = dueCounts[ExerciseType.DEFINITION],
                 onClick = onStartDefinition
             )
@@ -365,6 +359,7 @@ private fun ExerciseMenu(
                 title = "Połącz pary",
                 description = "Połącz słowa w pary",
                 icon = Icons.AutoMirrored.Filled.CompareArrows,
+                iconColor = MaterialTheme.exerciseColors.matchForeground,
                 badge = dueCounts[ExerciseType.MATCH],
                 onClick = onStartMatch
             )

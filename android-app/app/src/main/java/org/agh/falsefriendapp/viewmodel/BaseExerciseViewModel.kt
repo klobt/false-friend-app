@@ -1,14 +1,18 @@
 package org.agh.falsefriendapp.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.BaseExercise
 import org.agh.falsefriendapp.data.model.Session
 import org.agh.falsefriendapp.data.model.SessionResult
 import org.agh.falsefriendapp.data.repository.ExerciseRepository
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.state.ReviewItem
+import org.agh.falsefriendapp.ui.theme.ANSWER_FEEDBACK_DELAY
 
 abstract class BaseExerciseViewModel(
     protected val repository: ExerciseRepository
@@ -41,10 +45,24 @@ abstract class BaseExerciseViewModel(
 
     fun onAnswerSelected(selectedIndex: Int) {
         val currentState = _state.value
-        if (currentState !is BaseExerciseUiState.Success) {
+        if (currentState !is BaseExerciseUiState.Success ||
+            currentState.selectedAnswerIndex != null
+        ) {
             return
         }
 
+        _state.value = currentState.copy(selectedAnswerIndex = selectedIndex)
+
+        viewModelScope.launch {
+            delay(ANSWER_FEEDBACK_DELAY)
+            recordAnswer(currentState, selectedIndex)
+        }
+    }
+
+    private fun recordAnswer(
+        currentState: BaseExerciseUiState.Success,
+        selectedIndex: Int
+    ) {
         val currentExercise = currentState.exercises[currentState.currentIndex]
         val correct = selectedIndex == currentExercise.correctAnswerIndex
 
@@ -72,7 +90,8 @@ abstract class BaseExerciseViewModel(
 
         if (nextIndex < currentState.exercises.size) {
             _state.value = currentState.copy(
-                currentIndex = nextIndex
+                currentIndex = nextIndex,
+                selectedAnswerIndex = null
             )
         }
         else {

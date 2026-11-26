@@ -1,5 +1,6 @@
 package org.agh.falsefriendapp.ui.screens
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,6 +12,7 @@ import org.agh.falsefriendapp.ui.components.NoReviewsDialog
 import org.agh.falsefriendapp.ui.state.BaseExerciseUiState
 import org.agh.falsefriendapp.ui.state.ReviewItem
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 import org.agh.falsefriendapp.viewmodel.TranslationExerciseViewModel
 
 @Composable
@@ -53,7 +55,10 @@ private fun TranslationExerciseContent(
                 totalSteps = state.exercises.size,
                 instruction = "Jak po polsku powiemy:",
                 exercise = currentExercise,
+                selectedAnswerIndex = state.selectedAnswerIndex,
                 onAnswerSelected = onAnswerSelected,
+                accentColor = MaterialTheme.exerciseColors.translationForeground,
+                containerColor = MaterialTheme.exerciseColors.translationBackground,
                 onExit = onNavigateHome
             )
         }

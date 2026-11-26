@@ -1,11 +1,25 @@
 package org.agh.falsefriendapp.navigation
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,14 +35,50 @@ import org.agh.falsefriendapp.ui.screens.StatsScreen
 import org.agh.falsefriendapp.ui.screens.SummaryScreen
 import org.agh.falsefriendapp.ui.screens.TranslationExerciseScreen
 import org.agh.falsefriendapp.ui.screens.UserMainScreen
+import org.agh.falsefriendapp.ui.theme.TILT_ANGLE_DEGREES
+import org.agh.falsefriendapp.ui.theme.TILT_DAMPING
+import org.agh.falsefriendapp.ui.theme.TILT_PIVOT_X
+import org.agh.falsefriendapp.ui.theme.TILT_PIVOT_Y
+import org.agh.falsefriendapp.ui.theme.TILT_STIFFNESS
+import org.agh.falsefriendapp.ui.theme.TRANSITION_DURATION_MS
 import org.agh.falsefriendapp.viewmodel.SessionReviewViewModel
 import org.agh.falsefriendapp.viewmodel.SessionViewModel
+
+@Composable
+private fun AnimatedContentScope.Tilt(content: @Composable () -> Unit) {
+    val angle by transition.animateFloat(
+        transitionSpec = { spring(TILT_DAMPING, TILT_STIFFNESS) },
+        label = "tilt"
+    ) { state ->
+        if (state == EnterExitState.Visible) 0f else TILT_ANGLE_DEGREES
+    }
+    Box(
+        Modifier.graphicsLayer {
+            rotationZ = angle
+            transformOrigin = TransformOrigin(TILT_PIVOT_X, TILT_PIVOT_Y)
+        }
+    ) { content() }
+}
+
+private fun NavGraphBuilder.tiltComposable(
+    route: String,
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    composable(route) { entry ->
+        Tilt { content(entry) }
+    }
+}
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val sessionReviewViewModel: SessionReviewViewModel = viewModel()
     val sessionViewModel: SessionViewModel = hiltViewModel()
+
+    val fadeInSpec = fadeIn(tween(TRANSITION_DURATION_MS))
+    val fadeOutSpec = fadeOut(tween(TRANSITION_DURATION_MS))
+    val dirLeft = AnimatedContentTransitionScope.SlideDirection.Left
+    val dirRight = AnimatedContentTransitionScope.SlideDirection.Right
 
     val navigateToLogin: () -> Unit = {
         navController.navigate(Routes.LOGIN) {
@@ -43,8 +93,23 @@ fun NavGraph() {
         }
     }
 
-    NavHost(navController = navController, startDestination = Routes.LOGIN) {
-        composable(Routes.LOGIN) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.LOGIN,
+        enterTransition = {
+            slideIntoContainer(dirLeft, tween(TRANSITION_DURATION_MS)) + fadeInSpec
+        },
+        exitTransition = {
+            slideOutOfContainer(dirLeft, tween(TRANSITION_DURATION_MS)) + fadeOutSpec
+        },
+        popEnterTransition = {
+            slideIntoContainer(dirRight, tween(TRANSITION_DURATION_MS)) + fadeInSpec
+        },
+        popExitTransition = {
+            slideOutOfContainer(dirRight, tween(TRANSITION_DURATION_MS)) + fadeOutSpec
+        }
+    ) {
+        tiltComposable(Routes.LOGIN) {
             LoginScreen(
                 onLoggedIn = {
                     navController.navigate(Routes.USER_HOME) {
@@ -55,7 +120,7 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.USER_HOME) {
+        tiltComposable(Routes.USER_HOME) {
             UserMainScreen(
                 onStartTranslation = {
                     navController.navigate(Routes.TRANSLATION) {
@@ -95,7 +160,7 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.TRANSLATION) {
+        tiltComposable(Routes.TRANSLATION) {
             TranslationExerciseScreen(
                 onFinished = { score, totalQuestions, reviewItems ->
                     sessionReviewViewModel.setItems(reviewItems)
@@ -110,7 +175,7 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.DEFINITION) {
+        tiltComposable(Routes.DEFINITION) {
             DefinitionExerciseScreen(
                 onFinished = { score, totalQuestions, reviewItems ->
                     sessionReviewViewModel.setItems(reviewItems)
@@ -125,7 +190,7 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.MATCH) {
+        tiltComposable(Routes.MATCH) {
             MatchExerciseScreen(
                 onFinished = { score, totalQuestions, reviewItems ->
                     sessionReviewViewModel.setItems(reviewItems)
@@ -140,7 +205,7 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.SUMMARY) { backStackEntry ->
+        tiltComposable(Routes.SUMMARY) { backStackEntry ->
             val score = backStackEntry.arguments
                 ?.getString("score")
                 ?.toIntOrNull() ?: 0
@@ -163,19 +228,19 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.REVIEW) {
+        tiltComposable(Routes.REVIEW) {
             val items by sessionReviewViewModel.items.collectAsState()
             ReviewScreen(items = items, onNavigateBack = { navController.popBackStack() })
         }
 
-        composable(Routes.SETTINGS) {
+        tiltComposable(Routes.SETTINGS) {
             SettingsScreen(
                 onNavigateHome = { navController.popBackStack() },
                 onLoggedOut = navigateToLogin
             )
         }
 
-        composable(Routes.FRIENDS) {
+        tiltComposable(Routes.FRIENDS) {
             FriendsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onOpenFriendStats = { userId ->
@@ -186,13 +251,13 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.NOTIFICATIONS) {
+        tiltComposable(Routes.NOTIFICATIONS) {
             NotificationsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        composable(Routes.STATS) {
+        tiltComposable(Routes.STATS) {
             StatsScreen(
                 onNavigateBack = { navController.popBackStack() }
             )

@@ -21,17 +21,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.agh.falsefriendapp.ui.theme.FalseFriendAppTheme
+import org.agh.falsefriendapp.ui.theme.exerciseColors
 
 @Composable
 fun MenuButton(
     title: String,
     description: String,
     icon: ImageVector,
+    iconColor: Color = MaterialTheme.colorScheme.primary,
     badge: Int? = null,
     onClick: () -> Unit
 ) {
@@ -59,7 +62,7 @@ fun MenuButton(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = iconColor
             )
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -103,6 +106,7 @@ fun MenuButtonPreview() {
             title = "Wybierz tłumaczenie",
             description = "Wybierz poprawne tłumaczenie",
             icon = Icons.Default.Translate,
+            iconColor = MaterialTheme.exerciseColors.translationForeground,
             badge = 3
         ) {}
     }
