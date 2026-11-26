@@ -55,6 +55,7 @@ private fun DefinitionExerciseContent(
                 totalSteps = state.exercises.size,
                 instruction = "Wybierz definicję słowa:",
                 exercise = currentExercise,
+                selectedAnswerIndex = state.selectedAnswerIndex,
                 onAnswerSelected = onAnswerSelected,
                 accentColor = MaterialTheme.exerciseColors.definitionForeground,
                 containerColor = MaterialTheme.exerciseColors.definitionBackground,

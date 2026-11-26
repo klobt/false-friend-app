@@ -31,7 +31,7 @@ fun HeaderIconButton(
 @Composable
 fun HeaderIconButton(
     onClick: () -> Unit,
-    icon: @Composable () -> Unit
+    content: @Composable () -> Unit
 ) {
     Surface(
         modifier = Modifier.size(52.dp),
@@ -44,7 +44,7 @@ fun HeaderIconButton(
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            icon()
+            content()
         }
     }
 }

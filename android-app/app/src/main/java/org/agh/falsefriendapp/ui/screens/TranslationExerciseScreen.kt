@@ -55,6 +55,7 @@ private fun TranslationExerciseContent(
                 totalSteps = state.exercises.size,
                 instruction = "Jak po polsku powiemy:",
                 exercise = currentExercise,
+                selectedAnswerIndex = state.selectedAnswerIndex,
                 onAnswerSelected = onAnswerSelected,
                 accentColor = MaterialTheme.exerciseColors.translationForeground,
                 containerColor = MaterialTheme.exerciseColors.translationBackground,

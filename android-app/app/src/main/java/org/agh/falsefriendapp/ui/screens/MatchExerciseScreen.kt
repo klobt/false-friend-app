@@ -31,8 +31,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import org.agh.falsefriendapp.ui.components.FeedbackOverlay
 import org.agh.falsefriendapp.ui.components.BaseExerciseHeader
+import org.agh.falsefriendapp.ui.components.FeedbackOverlay
 import org.agh.falsefriendapp.ui.components.MatchExerciseButton
 import org.agh.falsefriendapp.ui.components.NavigationButton
 import org.agh.falsefriendapp.ui.components.NoReviewsDialog
@@ -156,7 +156,7 @@ private fun MatchExerciseTask(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            val lineColor = MaterialTheme.colorScheme.primary
+            val lineColor = MaterialTheme.exerciseColors.matchForeground
 
             Box(
                 modifier = Modifier.fillMaxWidth()

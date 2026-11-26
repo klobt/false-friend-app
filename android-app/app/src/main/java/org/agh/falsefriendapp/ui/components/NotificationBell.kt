@@ -15,7 +15,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import org.agh.falsefriendapp.ui.theme.*
+import org.agh.falsefriendapp.ui.theme.BELL_JIGGLE_DEGREES
+import org.agh.falsefriendapp.ui.theme.BELL_JIGGLE_STEP_MS
+import org.agh.falsefriendapp.ui.theme.BELL_PIVOT
+import org.agh.falsefriendapp.ui.theme.BELL_RETURN_MS
+import org.agh.falsefriendapp.ui.theme.BELL_SETTLE_MS
+import org.agh.falsefriendapp.ui.theme.BELL_SWING_BACK_DEGREES
+import org.agh.falsefriendapp.ui.theme.BELL_SWING_DEGREES
+import org.agh.falsefriendapp.ui.theme.BELL_SWING_MS
 
 @Composable
 fun NotificationBell(active: Boolean) {
