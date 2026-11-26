@@ -65,7 +65,8 @@ import org.agh.falsefriendapp.viewmodel.FriendsViewModel
 @Composable
 fun FriendsScreen(
     viewModel: FriendsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onOpenFriendStats: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -82,7 +83,8 @@ fun FriendsScreen(
                 onNavigateBack = onNavigateBack,
                 onFriendIdChange = viewModel::onFriendIdChange,
                 onAddFriend = viewModel::onAddFriend,
-                onRemoveFriend = viewModel::onRemoveFriend
+                onRemoveFriend = viewModel::onRemoveFriend,
+                onOpenFriendStats = onOpenFriendStats
             )
         }
     }
@@ -94,7 +96,8 @@ private fun FriendsContent(
     onNavigateBack: () -> Unit,
     onFriendIdChange: (String) -> Unit,
     onAddFriend: () -> Unit,
-    onRemoveFriend: (Int) -> Unit
+    onRemoveFriend: (Int) -> Unit,
+    onOpenFriendStats: (Int) -> Unit
 ) {
     var removeId by rememberSaveable { mutableStateOf<Int?>(null) }
     val friendToRemove = state.friends.find { it.id == removeId }
@@ -124,6 +127,7 @@ private fun FriendsContent(
 
             FriendsSection(
                 friends = state.friends,
+                onFriendClick = onOpenFriendStats,
                 onRemoveClick = { removeId = it }
             )
         }
@@ -245,6 +249,7 @@ private fun OwnIdRow(ownId: Int) {
 @Composable
 private fun FriendsSection(
     friends: List<Friend>,
+    onFriendClick: (Int) -> Unit,
     onRemoveClick: (Int) -> Unit
 ) {
     SectionCard(title = "TWOI ZNAJOMI · ${friends.size}") {
@@ -261,7 +266,11 @@ private fun FriendsSection(
             if (index > 0) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             }
-            FriendRow(friend, showStats = true) {
+            FriendRow(
+                friend = friend,
+                showStats = true,
+                onClick = { onFriendClick(friend.id) }
+            ) {
                 IconButton(onClick = { onRemoveClick(friend.id) }) {
                     Icon(
                         imageVector = Icons.Default.PersonRemove,
@@ -325,7 +334,7 @@ private fun FriendsContentPreview() {
                     Friend(23, null)
                 )
             ),
-            {}, {}, {}, {}
+            {}, {}, {}, {}, {}
         )
     }
 }
@@ -339,7 +348,7 @@ private fun FriendsContentEmptyPreview() {
                 ownId = 42,
                 addResult = AddFriendResult.REQUEST_SENT
             ),
-            {}, {}, {}, {}
+            {}, {}, {}, {}, {}
         )
     }
 }

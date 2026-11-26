@@ -1,6 +1,7 @@
 package org.agh.falsefriendapp.ui.state
 
 import org.agh.falsefriendapp.data.model.DailyAccuracy
+import org.agh.falsefriendapp.data.model.Friend
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -9,8 +10,10 @@ const val STATS_DAYS = 30
 data class StatsUiState(
     val isLoading: Boolean = false,
     val loadFailed: Boolean = false,
+    val notFriends: Boolean = false,
     val today: LocalDate = LocalDate.now(),
-    val days: List<DailyAccuracy> = emptyList()
+    val days: List<DailyAccuracy> = emptyList(),
+    val friend: Friend? = null
 ) {
     fun firstDay(): LocalDate {
         return today.minusDays(STATS_DAYS - 1L)

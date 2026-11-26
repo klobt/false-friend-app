@@ -8,6 +8,7 @@ import org.agh.falsefriendapp.data.model.network.SessionsResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ExerciseApi {
@@ -30,6 +31,13 @@ interface ExerciseApi {
 
     @GET("sessions")
     suspend fun getSessions(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
+    ): SessionsResponse
+
+    @GET("users/{id}/sessions")
+    suspend fun getUserSessions(
+        @Path("id") userId: Int,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int
     ): SessionsResponse
