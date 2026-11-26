@@ -2,7 +2,19 @@
 
 ## [Unreleased]
 ### Dodano
-- 
+- Możliwość przeglądania statystyk znajomego.
+- Podświetlenie ekranu na zielono lub czerwono po odpowiedzi w ćwiczeniach.
+- Animacje przycisków odpowiedzi: powiększenie po wybraniu, potrząśnięcie i wibracja przy błędnej odpowiedzi.
+- Kolory przypisane do rodzajów ćwiczeń: ikony w menu, nagłówek i pasek postępu ćwiczenia, linie w "Połącz pary".
+- Animacje przejść między ekranami.
+- Animowany płomień serii dni i dzwonek przy powiadomieniach.
+
+### Zmieniono
+- Nowa kolorystyka aplikacji w jasnym i ciemnym motywie.
+- Szary płomień serii dni, gdy seria nie trwa.
+
+### Naprawiono
+- Szybkie podwójne kliknięcie nie zalicza już odpowiedzi na kolejne pytanie.
 
 ## [0.6.0] - 2026-11-21
 ### Dodano
