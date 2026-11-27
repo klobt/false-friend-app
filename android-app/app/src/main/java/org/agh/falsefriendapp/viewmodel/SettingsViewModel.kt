@@ -10,15 +10,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.ThemeMode
+import org.agh.falsefriendapp.data.repository.LoginRepository
 import org.agh.falsefriendapp.data.repository.UserRepository
 import org.agh.falsefriendapp.data.settings.SettingsStore
 import org.agh.falsefriendapp.ui.state.MAX_NICKNAME_LENGTH
+import org.agh.falsefriendapp.ui.state.PasswordChangeUiState
 import org.agh.falsefriendapp.ui.state.SettingsUiState
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val loginRepository: LoginRepository,
     private val settingsStore: SettingsStore
 ) : ViewModel() {
     private val _state = MutableStateFlow(
@@ -118,6 +121,68 @@ class SettingsViewModel @Inject constructor(
                     isEditingNickname = !saved
                 )
             }
+        }
+    }
+
+    fun onEditPassword() {
+        _state.update {
+            it.copy(passwordChange = PasswordChangeUiState(), passwordChanged = false)
+        }
+    }
+
+    fun onCurrentPasswordChange(value: String) {
+        updatePasswordChange {
+            it.copy(currentPassword = value, error = null)
+        }
+    }
+
+    fun onNewPasswordChange(value: String) {
+        updatePasswordChange {
+            it.copy(newPassword = value, error = null)
+        }
+    }
+
+    fun onRepeatPasswordChange(value: String) {
+        updatePasswordChange {
+            it.copy(repeatPassword = value, error = null)
+        }
+    }
+
+    fun onDismissPassword() {
+        _state.update {
+            it.copy(passwordChange = null)
+        }
+    }
+
+    fun onSavePassword() {
+        val passwordChange = _state.value.passwordChange
+        if (passwordChange == null || !passwordChange.canSave()) {
+            return
+        }
+
+        updatePasswordChange {
+            it.copy(isSaving = true, error = null)
+        }
+
+        viewModelScope.launch {
+            val error = loginRepository.changePassword(
+                passwordChange.currentPassword,
+                passwordChange.newPassword
+            )
+            _state.update {
+                if (error == null) {
+                    it.copy(passwordChange = null, passwordChanged = true)
+                } else {
+                    it.copy(passwordChange = it.passwordChange?.copy(isSaving = false, error = error))
+                }
+            }
+        }
+    }
+
+    private fun updatePasswordChange(transform: (PasswordChangeUiState) -> PasswordChangeUiState) {
+        _state.update { current ->
+            val passwordChange = current.passwordChange ?: return@update current
+            current.copy(passwordChange = transform(passwordChange))
         }
     }
 }

@@ -137,6 +137,14 @@ data class NicknameRequest(
 )
 
 @Serializable
+data class ChangePasswordRequest(
+    @SerialName("current_password")
+    val currentPassword: String,
+    @SerialName("new_password")
+    val newPassword: String
+)
+
+@Serializable
 data class UserStatsDto(
     @SerialName("current_streak")
     val currentStreak: Int,

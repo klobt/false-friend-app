@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import org.agh.falsefriendapp.data.api.LoginApi
 import org.agh.falsefriendapp.data.auth.LoginError
 import org.agh.falsefriendapp.data.auth.TokenStore
+import org.agh.falsefriendapp.data.model.network.ChangePasswordRequest
 import org.agh.falsefriendapp.data.model.network.LoginRequest
 import org.agh.falsefriendapp.data.model.network.RegisterRequest
 import retrofit2.HttpException
@@ -37,6 +38,17 @@ class LoginRepository @Inject constructor(
         return try {
             val response = loginApi.register(RegisterRequest(email, password))
             tokenStore.save(response.accessToken)
+            null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            mapToLoginError(e)
+        }
+    }
+
+    suspend fun changePassword(currentPassword: String, newPassword: String): LoginError? {
+        return try {
+            loginApi.changePassword(ChangePasswordRequest(currentPassword, newPassword))
             null
         } catch (e: CancellationException) {
             throw e
