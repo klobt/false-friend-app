@@ -8,6 +8,7 @@
 - Kolory przypisane do rodzajów ćwiczeń: ikony w menu, nagłówek i pasek postępu ćwiczenia, linie w "Połącz pary".
 - Animacje przejść między ekranami.
 - Animowany płomień serii dni i dzwonek przy powiadomieniach.
+- Opcja zmiany hasła w ustawieniach.
 
 ### Zmieniono
 - Nowa kolorystyka aplikacji w jasnym i ciemnym motywie.
