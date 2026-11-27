@@ -11,6 +11,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val BAD_REQUEST = 400
 private const val UNAUTHORIZED = 401
 private const val CONFLICT = 409
 private const val UNPROCESSABLE = 422
@@ -55,7 +56,7 @@ class LoginRepository @Inject constructor(
     private fun mapToLoginError(e: Throwable): LoginError {
         return when (e) {
             is HttpException -> when (e.code()) {
-                UNAUTHORIZED -> LoginError.INVALID_CREDENTIALS
+                BAD_REQUEST, UNAUTHORIZED -> LoginError.INVALID_CREDENTIALS
                 CONFLICT -> LoginError.EMAIL_TAKEN
                 UNPROCESSABLE -> LoginError.INVALID_EMAIL
                 else -> LoginError.UNKNOWN
