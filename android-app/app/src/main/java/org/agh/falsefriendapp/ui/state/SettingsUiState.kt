@@ -14,7 +14,9 @@ data class SettingsUiState(
     val nicknameInput: String = "",
     val isSaving: Boolean = false,
     val saveFailed: Boolean = false,
-    val themeMode: ThemeMode = ThemeMode.LIGHT
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
+    val passwordChange: PasswordChangeUiState? = null,
+    val passwordChanged: Boolean = false
 ) {
     fun canSaveNickname(): Boolean {
         return !isSaving && nicknameInput.isNotBlank()

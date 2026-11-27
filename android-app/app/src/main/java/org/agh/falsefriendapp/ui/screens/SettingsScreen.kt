@@ -47,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.agh.falsefriendapp.BuildConfig
 import org.agh.falsefriendapp.data.model.Avatar
 import org.agh.falsefriendapp.data.model.ThemeMode
+import org.agh.falsefriendapp.ui.components.ChangePasswordDialog
 import org.agh.falsefriendapp.ui.components.ScreenHeader
 import org.agh.falsefriendapp.ui.components.SectionCard
 import org.agh.falsefriendapp.ui.components.TwoOptionSelector
@@ -83,8 +84,20 @@ fun SettingsScreen(
         onSaveNickname = settingsViewModel::onSaveNickname,
         onDismissNickname = settingsViewModel::onDismissNickname,
         onAvatarSelected = settingsViewModel::onAvatarSelected,
-        onThemeSelected = settingsViewModel::onThemeSelected
+        onThemeSelected = settingsViewModel::onThemeSelected,
+        onEditPassword = settingsViewModel::onEditPassword
     )
+
+    state.passwordChange?.let { passwordState ->
+        ChangePasswordDialog(
+            state = passwordState,
+            onCurrentPasswordChange = settingsViewModel::onCurrentPasswordChange,
+            onNewPasswordChange = settingsViewModel::onNewPasswordChange,
+            onRepeatPasswordChange = settingsViewModel::onRepeatPasswordChange,
+            onSave = settingsViewModel::onSavePassword,
+            onDismiss = settingsViewModel::onDismissPassword
+        )
+    }
 }
 
 @Composable
@@ -97,7 +110,8 @@ private fun SettingsContent(
     onSaveNickname: () -> Unit,
     onDismissNickname: () -> Unit,
     onAvatarSelected: (Avatar) -> Unit,
-    onThemeSelected: (ThemeMode) -> Unit
+    onThemeSelected: (ThemeMode) -> Unit,
+    onEditPassword: () -> Unit
 ) {
     var isAvatarPickerOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -162,6 +176,23 @@ private fun SettingsContent(
 
             Spacer(modifier = Modifier.height(20.dp))
             SectionCard(title = "KONTO") {
+                SettingsItem(
+                    title = "Hasło",
+                    value = "••••••",
+                    onClick = onEditPassword
+                )
+                if (state.passwordChanged) {
+                    Text(
+                        text = "Hasło zostało zmienione",
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 16.dp
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 SettingsAction(onClick = onLogoutClick)
             }
         }
@@ -420,7 +451,7 @@ private fun SettingsScreenPreview() {
                 nickname = "Mateusz",
                 isProfileLoaded = true
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

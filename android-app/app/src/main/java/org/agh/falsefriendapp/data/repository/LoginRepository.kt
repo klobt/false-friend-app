@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import org.agh.falsefriendapp.data.api.LoginApi
 import org.agh.falsefriendapp.data.auth.LoginError
 import org.agh.falsefriendapp.data.auth.TokenStore
+import org.agh.falsefriendapp.data.model.network.ChangePasswordRequest
 import org.agh.falsefriendapp.data.model.network.LoginRequest
 import org.agh.falsefriendapp.data.model.network.RegisterRequest
 import retrofit2.HttpException
@@ -11,6 +12,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val BAD_REQUEST = 400
 private const val UNAUTHORIZED = 401
 private const val CONFLICT = 409
 private const val UNPROCESSABLE = 422
@@ -44,6 +46,17 @@ class LoginRepository @Inject constructor(
         }
     }
 
+    suspend fun changePassword(currentPassword: String, newPassword: String): LoginError? {
+        return try {
+            loginApi.changePassword(ChangePasswordRequest(currentPassword, newPassword))
+            null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            mapToLoginError(e)
+        }
+    }
+
     suspend fun logout() {
         tokenStore.clear()
     }
@@ -55,7 +68,7 @@ class LoginRepository @Inject constructor(
     private fun mapToLoginError(e: Throwable): LoginError {
         return when (e) {
             is HttpException -> when (e.code()) {
-                UNAUTHORIZED -> LoginError.INVALID_CREDENTIALS
+                BAD_REQUEST, UNAUTHORIZED -> LoginError.INVALID_CREDENTIALS
                 CONFLICT -> LoginError.EMAIL_TAKEN
                 UNPROCESSABLE -> LoginError.INVALID_EMAIL
                 else -> LoginError.UNKNOWN
