@@ -1,3 +1,4 @@
+from typing import Literal
 from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
 import clock
@@ -5,7 +6,7 @@ from datetime import timedelta
 from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
 from model import (
     ChangePasswordRequest, DeviceToken, ExerciseType, ForgotPasswordRequest, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
-    RegisterRequest, ResetPasswordRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
+    ExerciseTypeStats, RegisterRequest, ResetPasswordRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
 )
 import notifications
 
@@ -139,14 +140,18 @@ async def send_notification(body: PushMessage, user_id: int = Depends(auth.get_c
     notifications.send_push_to_user(user_id, body.title, body.body, body.data)
     return {"success": True}
 
-@app.get("/users/me/stats", response_model=UserStats)
-async def get_user_stats(user_id: int = Depends(auth.get_current_user_id)):
+@app.get("/users/me/stats", response_model=UserStats | list[ExerciseTypeStats])
+async def get_user_stats(group_by: Literal['exercise_type'] | None = Query(default=None), user_id: int = Depends(auth.get_current_user_id)):
+    if group_by == 'exercise_type':
+        return StatsDao().get_by_exercise_type(user_id)
     return StatsDao().get(user_id)
 
-@app.get("/users/{other_id}/stats", response_model=UserStats)
-async def get_other_user_stats(other_id: int, user_id: int = Depends(auth.get_current_user_id)):
+@app.get("/users/{other_id}/stats", response_model=UserStats | list[ExerciseTypeStats])
+async def get_other_user_stats(other_id: int, group_by: Literal['exercise_type'] | None = Query(default=None), user_id: int = Depends(auth.get_current_user_id)):
     if UserDao().get_by_id(other_id) is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if group_by == 'exercise_type':
+        return StatsDao().get_by_exercise_type(other_id)
     return StatsDao().get(other_id)
 
 @app.get("/users/{other_id}/sessions")
