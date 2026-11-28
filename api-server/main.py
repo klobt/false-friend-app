@@ -3,10 +3,10 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 import auth
 import clock
 from datetime import timedelta
-from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao
+from dao import CardDao, DeviceTokenDao, EmailCodeDao, ExerciseDao, FriendDao, IdentityDao, SessionDao, StatsDao, UserDao, WordDao
 from model import (
     ChangePasswordRequest, DeviceToken, ExerciseType, ForgotPasswordRequest, FriendAction, LoginRequest, NicknameRequest, PublicUserData, PushMessage,
-    ExerciseTypeStats, RegisterRequest, ResetPasswordRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest,
+    ExerciseTypeStats, RegisterRequest, ResetPasswordRequest, Session, TimeAdvanceRequest, SocialLoginRequest, TokenResponse, UserStats, VerifyEmailRequest, WordProgress,
 )
 import notifications
 
@@ -145,6 +145,12 @@ async def get_user_stats(group_by: Literal['exercise_type'] | None = Query(defau
     if group_by == 'exercise_type':
         return StatsDao().get_by_exercise_type(user_id)
     return StatsDao().get(user_id)
+
+@app.get("/users/me/words")
+async def get_user_words(user_id: int = Depends(auth.get_current_user_id)):
+    return {
+        "data": [WordProgress(**word) for word in WordDao().get_progress(user_id)]
+    }
 
 @app.get("/users/{other_id}/stats", response_model=UserStats | list[ExerciseTypeStats])
 async def get_other_user_stats(other_id: int, group_by: Literal['exercise_type'] | None = Query(default=None), user_id: int = Depends(auth.get_current_user_id)):

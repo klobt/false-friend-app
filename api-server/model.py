@@ -97,6 +97,13 @@ class PushMessage(BaseModel):
     title: str
     body: str
     data: Optional[dict[str, Any]] = None
+
+class WordProgress(BaseModel):
+    id: int
+    word: str
+    is_false_friend: bool
+    score: float
+
 class UserStats(BaseModel):
     user_id: int
     total_correct: int
