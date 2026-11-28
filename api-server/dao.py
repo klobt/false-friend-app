@@ -456,6 +456,40 @@ class StatsDao(Dao):
             stats['current_streak'] = 0
         return stats
 
+    def get_by_exercise_type(self, user_id: int = 1) -> list[dict[str, Any]]:
+        sessions = self.conn.execute('SELECT "results" FROM "sessions" WHERE "user_id" = ?', [user_id]).fetchall()
+        per_exercise: dict[int, list[int]] = {}
+        for session in sessions:
+            for result in json.loads(session['results']):
+                counts = per_exercise.setdefault(result['exercise_id'], [0, 0])
+                counts[0] += 1 if result['correct'] else 0
+                counts[1] += 1
+
+        if len(per_exercise) == 0:
+            return []
+
+        placeholders = ', '.join(['?'] * len(per_exercise))
+        types = self.conn.execute(
+            f'SELECT "id", "type" FROM "exercises" WHERE "id" IN ({placeholders})', list(per_exercise)
+        ).fetchall()
+
+        grouped: dict[int, list[int]] = {}
+        for row in types:
+            correct, answers = per_exercise[row['id']]
+            counts = grouped.setdefault(row['type'], [0, 0])
+            counts[0] += correct
+            counts[1] += answers
+
+        return [
+            {
+                'exercise_type': exercise_type,
+                'total_correct': correct,
+                'total_answers': answers,
+                'accuracy': correct / answers if answers else 0.0,
+            }
+            for exercise_type, (correct, answers) in sorted(grouped.items())
+        ]
+
     def update_after_session(self, user_id: int, results: list, today: date | None = None, commit: bool = True) -> None:
         today = today or clock.today()
         stats = self.get(user_id)
