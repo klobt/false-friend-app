@@ -527,6 +527,47 @@ class StatsDao(Dao):
         if commit:
             self.conn.commit()
 
+class WordDao(Dao):
+    def __init__(self, conn: sql.Connection | None = None) -> None:
+        super().__init__("words", conn)
+
+    def get_progress(self, user_id: int = 1) -> list[dict[str, Any]]:
+        box_ids = [row['id'] for row in self.conn.execute('SELECT "id" FROM "enums" WHERE "class_id" = 2 ORDER BY "id"')]
+        box_ranks = {box_id: idx for idx, box_id in enumerate(box_ids)}
+        max_rank = max(len(box_ids) - 1, 1)
+
+        rows = self.conn.execute(
+            '''
+                SELECT "words"."id", "words"."word", "words"."is_false_friend", "word_exercises"."exercise_id", "cards"."box_id"
+                FROM "words"
+                LEFT JOIN "word_exercises" ON "word_exercises"."word_id" = "words"."id"
+                LEFT JOIN "cards" ON "cards"."exercise_id" = "word_exercises"."exercise_id" AND "cards"."user_id" = ?
+                ORDER BY "words"."id"
+            ''',
+            [user_id]
+        ).fetchall()
+
+        words: dict[int, dict[str, Any]] = {}
+        for row in rows:
+            word = words.setdefault(row['id'], {
+                'id': row['id'],
+                'word': row['word'],
+                'is_false_friend': bool(row['is_false_friend']),
+                'ranks': [],
+            })
+            if row['exercise_id'] is not None:
+                word['ranks'].append(box_ranks.get(row['box_id'], 0))
+
+        return [
+            {
+                'id': word['id'],
+                'word': word['word'],
+                'is_false_friend': word['is_false_friend'],
+                'score': sum(word['ranks']) / len(word['ranks']) / max_rank if word['ranks'] else 0.0,
+            }
+            for word in words.values()
+        ]
+
 class UserDao(Dao):
     def __init__(self, conn: sql.Connection | None = None) -> None:
         super().__init__("users", conn)
