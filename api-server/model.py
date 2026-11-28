@@ -106,6 +106,12 @@ class UserStats(BaseModel):
     last_active_date: Optional[date] = None
     accuracy: float
 
+class ExerciseTypeStats(BaseModel):
+    exercise_type: ExerciseType
+    total_correct: int
+    total_answers: int
+    accuracy: float
+
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
